@@ -1,13 +1,13 @@
-// import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
+import AuthPage from './pages/authPage';
+import { NativeBaseProvider } from 'native-base';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      {/* <Text>WTF ???????????</Text> */}
-      {/* <StatusBar style="auto" /> */}
-    </View>
-  );
+  return <NativeBaseProvider>
+    <SafeAreaView style={styles.container}>
+      <AuthPage />
+    </SafeAreaView>
+  </NativeBaseProvider>
 }
 
 const styles = StyleSheet.create({
