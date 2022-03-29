@@ -24,13 +24,16 @@ export default function Login({ navigation }) {
                     </FormControl.ErrorMessage>
                 </Stack>
             </FormControl>
-            <Button small primary onPress={() => alert("Login")}
+            <Button small primary onPress={() => {
+                alert("Login")
+                navigation.navigate('Root/MainApp')
+            }}
                 style={{ width: '100%' }}
                 marginBottom={1}
             >
                 <Text color={'white'}>Login</Text>
             </Button>
-            <Link onPress={() => navigation.navigate('Signup')}
+            <Link onPress={() => navigation.navigate('Root/Auth/Signup')}
                 style={{
                     width: '100%',
                     alignItems: 'center'

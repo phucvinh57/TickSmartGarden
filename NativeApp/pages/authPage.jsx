@@ -1,19 +1,22 @@
 import Login from "../components/login/login";
 import Signup from "../components/login/signup";
 import { SafeAreaView } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { normalStyle } from '../styles'
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator()
 
 export default function AuthPage() {
     return <SafeAreaView style={normalStyle}>
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" component={Login} />
-                <Stack.Screen name="Signup" component={Signup} />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen
+                name="Root/Auth/Login" component={Login}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Root/Auth/Signup" component={Signup}
+                options={{ headerShown: false }}
+            />
+        </Stack.Navigator>
     </SafeAreaView>
 }

@@ -1,20 +1,40 @@
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native';
+import { NativeBaseProvider, Text } from 'native-base';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import { normalStyle } from './styles';
+import DevicePage from './pages/devicePage';
 import AuthPage from './pages/authPage';
-import { NativeBaseProvider } from 'native-base';
+
+const Stack = createNativeStackNavigator()
 
 export default function App() {
   return <NativeBaseProvider>
-    <SafeAreaView style={styles.container}>
-      <AuthPage />
+    <SafeAreaView style={normalStyle}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Root/Auth'>
+          <Stack.Screen
+            name='Root/Auth'
+            component={AuthPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='Root/MainApp'
+            component={MainApp}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+      {/* <AuthPage /> */}
+
     </SafeAreaView>
   </NativeBaseProvider>
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function MainApp() {
+  return <SafeAreaView style={normalStyle}>
+    <DevicePage />
+  </SafeAreaView>
+}
+

@@ -32,13 +32,17 @@ export default function Signup({ navigation }) {
                 </Stack>
             </FormControl>
 
-            <Button small primary onPress={() => alert("Signup")}
+            <Button small primary 
+                onPress={() => {
+                    alert("Signup")
+                    navigation.navigate('Root/MainApp')
+                }}
                 style={{ width: '100%' }}
                 marginBottom={1}
             >
                 <Text color={'white'}>Signup</Text>
             </Button>
-            <Link onPress={() => navigation.navigate('Login')}
+            <Link onPress={() => navigation.navigate('Root/Auth/Login')}
                 style={{
                     width: '100%',
                     alignItems: 'center'
