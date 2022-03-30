@@ -1,19 +1,18 @@
 import serial.tools.list_ports
-import random
 import time
 import  sys
 from  Adafruit_IO import  MQTTClient
 
-AIO_FEED_ID = "tl-garden."
-AIO_FEED_TOPIC = ["light-0", "pump"]
+AIO_GROUP_ID = "tl-garden."
+AIO_FEED_TOPIC = ["lamp-0", "pump-0"]
 
 AIO_USERNAME = "cudothanhnhan"
-AIO_KEY = "aio_gPao73GiQl2HHNfVrXApbcv1Kvwf"
+AIO_KEY = "aio_EGDi47lqEzpPThgRjezCpPXnOYUe"
 
 def  connected(client):
     print("Ket noi thanh cong...")
     for feed in AIO_FEED_TOPIC:
-        client.subscribe(AIO_FEED_ID+feed)
+        client.subscribe(AIO_GROUP_ID+feed)
 
 def  subscribe(client , userdata , mid , granted_qos):
     print("Subcribe thanh cong...")
@@ -23,9 +22,12 @@ def  disconnected(client):
     sys.exit (1)
 
 def  message(client , feed_id , payload):
-    print("Nhan du lieu: " + payload)
+    print("Nhan du lieu: " + feed_id + " " + payload)
     if isMicrobitConnected:
-        ser.write(( "#"+str(payload)).encode())
+        if(feed_id == (AIO_GROUP_ID + AIO_FEED_TOPIC[0])):
+            ser.write(( AIO_FEED_TOPIC[0] + "#" + str(payload)).encode())
+        if(feed_id == (AIO_GROUP_ID + AIO_FEED_TOPIC[1])):
+            ser.write(( AIO_FEED_TOPIC[1] + "#" + str(payload)).encode())
 
 client = MQTTClient(AIO_USERNAME , AIO_KEY)
 client.on_connect = connected
@@ -61,12 +63,12 @@ def processData(data):
     print(splitData)
     try:
         if splitData[1] == "TEMP":
-            client.publish(AIO_FEED_ID+"sensor-temperature", splitData[2])
+            client.publish(AIO_GROUP_ID + "sensor-temperature-0", splitData[2])
         elif splitData[1] == "HUMI":
-            client.publish(AIO_FEED_ID+"sensor-humidity", splitData[2])
-        elif splitData[1] == "sensor-light":
+            client.publish(AIO_GROUP_ID + "sensor-humidity-0", splitData[2])
+        elif splitData[1] == "LIGHT":
             value = int(splitData[2]) / 10
-            client.publish(AIO_FEED_ID + "sensor-light", str(int(value)))
+            client.publish(AIO_GROUP_ID + "sensor-light-0", str(int(value)))
     except:
         pass
 
