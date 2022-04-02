@@ -1,12 +1,15 @@
-// import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { NativeBaseProvider } from 'native-base';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import Engine from './pages/Engine';
+
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      {/* <Text>WTF ???????????</Text> */}
-      {/* <StatusBar style="auto" /> */}
-    </View>
+    <NativeBaseProvider>
+      <SafeAreaView style={styles.container}>
+        <Engine/>
+      </SafeAreaView>
+    </NativeBaseProvider>
   );
 }
 
@@ -17,4 +20,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  text: {
+    fontSize: 25,
+    fontWeight: '500',
+  }
 });
