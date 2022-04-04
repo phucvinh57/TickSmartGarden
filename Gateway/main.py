@@ -1,9 +1,11 @@
+import enum
 import serial.tools.list_ports
 import time
 import sys
 from  Adafruit_IO import  MQTTClient
 import json
 import os
+from enum import IntEnum
 
 path = './Gateway/'
 configFile = 'aio_information.json'
@@ -19,7 +21,7 @@ except FileNotFoundError:
     print("File not Found!")
 
 AIO_GROUP_ID = AIO_INFO["group_id"]
-AIO_SUBSCRIBE_TOPIC = AIO_INFO["subscribe_topic"]
+AIO_SUBSCRIBE_TOPICS = AIO_INFO["subscribe_topic"]
 
 AIO_USERNAME = AIO_INFO["username"]
 AIO_KEY = AIO_INFO["key"]
@@ -27,10 +29,15 @@ AIO_TEMP_FEED = AIO_INFO["temperature_feed"]
 AIO_HUMI_FEED = AIO_INFO["humidity_feed"]
 AIO_LIGHT_FEED = AIO_INFO["light_feed"]
 
+class Field(IntEnum):
+    ID = 0
+    NAME = 1
+    VALUE = 2
+
 def  connected(client):
     print("Ket noi thanh cong...")
-    for actuator in AIO_SUBSCRIBE_TOPIC:
-        client.subscribe(AIO_GROUP_ID + actuator)
+    for topic in AIO_SUBSCRIBE_TOPICS:
+        client.subscribe(AIO_GROUP_ID + topic)
 
 def  subscribe(client , userdata , mid , granted_qos):
     print("Subcribe thanh cong...")
@@ -42,10 +49,9 @@ def  disconnected(client):
 def  message(client , feed_id , payload):
     print("Nhan du lieu: " + feed_id + " " + payload)
     if isMicrobitConnected:
-        if(feed_id == (AIO_GROUP_ID + AIO_SUBSCRIBE_TOPIC[0])):
-            ser.write((AIO_SUBSCRIBE_TOPIC[0] + "#" + str(payload)).encode())
-        if(feed_id == (AIO_GROUP_ID + AIO_SUBSCRIBE_TOPIC[1])):
-            ser.write((AIO_SUBSCRIBE_TOPIC[1] + "#" + str(payload)).encode())
+        for topic in AIO_SUBSCRIBE_TOPICS:
+            if(feed_id == AIO_GROUP_ID + topic):
+                ser.write((topic + "#" + str(payload)).encode())
 
 client = MQTTClient(AIO_USERNAME , AIO_KEY)
 client.on_connect = connected
@@ -80,13 +86,13 @@ def processData(data):
     splitData = data.split(":")
     print(splitData)
     try:
-        if splitData[1] == "TEMP":
-            client.publish(AIO_GROUP_ID + AIO_TEMP_FEED, splitData[2])
-        elif splitData[1] == "HUMI":
-            client.publish(AIO_GROUP_ID + AIO_HUMI_FEED, splitData[2])
-        elif splitData[1] == "LIGHT":
-            value = int(splitData[2]) / 10
-            client.publish(AIO_GROUP_ID + AIO_LIGHT_FEED, str(int(value)))
+        if splitData[Field.NAME] == 'TEMP':
+            client.publish(AIO_GROUP_ID + AIO_TEMP_FEED[int(splitData[Field.ID])], splitData[Field.VALUE])
+        if splitData[Field.NAME] == 'HUMI':
+            client.publish(AIO_GROUP_ID + AIO_HUMI_FEED[int(splitData[Field.ID])], splitData[Field.VALUE])
+        if splitData[Field.NAME] == 'LIGHT':
+            value = int(splitData[Field.VALUE]) / 10
+            client.publish(AIO_GROUP_ID + AIO_LIGHT_FEED[int(splitData[Field.ID])], str(int(value)))
     except:
         pass
 

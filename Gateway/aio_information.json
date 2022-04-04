@@ -1,9 +1,0 @@
-{
-    "username": "cudothanhnhan",
-    "key": "aio_dmaz13ioAjWvs3mZlCgPEzkSEuHh",
-    "group_id": "tl-garden.",
-    "subscribe_topic": ["lamp-0", "pump-0"],
-    "temperature_feed": ["sensor-temperature-0"],
-    "humidity_feed": ["sensor-humidity-0"],
-    "light_feed": ["sensor-light-0"]
-}   
