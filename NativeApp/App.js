@@ -1,6 +1,7 @@
 // import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text } from 'react-native';
 import Homepage from './pages/homepage';
+import OnOff from './pages/OnOff'
 
 export default function App() {
   return (
@@ -9,7 +10,8 @@ export default function App() {
     //   {/* <StatusBar style="auto" /> */}
     //   <Text></Text>
     // </View>
-    <Homepage />
+    //<Homepage />
+    <OnOff />
   );
 }
 
