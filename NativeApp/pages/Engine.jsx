@@ -8,30 +8,39 @@ import {
   Text,
   View,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import EngineCard from "../components/view-device/EngineCard";
 
-const { sensorTypes, actuatorTypes, mockedSensorList, mockedEngineList } = require ('./data')
 
-const DEBUG_LOG = value => {
+
+const {
+  sensorTypes,
+  actuatorTypes,
+  mockedSensorList,
+  mockedEngineList,
+} = require("./data");
+
+const DEBUG_LOG = (value) => {
   // console.log(value)
-  return value
-}
+  return value;
+};
 
 const DEBUG_COLOR = {
-  GRAY: "#555555",
-  PURPLE: "purple",
-  PINK: "pink",
-  RED: "red",
-  BLACK: "black",
+  WHITE: "white",
+
+  // GRAY: "#555555",
+  // PURPLE: "purple",
+  // PINK: "pink",
+  // RED: "red",
+  // BLACK: "black",
 };
 
 function Engine() {
-  // const [deviceTypeOptions, setDeviceTypeOptions] = useState(sensorTypes);
-  // const [devices, setDevices] = useState(mockedSensorList);
-  const [deviceTypeOptions, setDeviceTypeOptions] = useState(actuatorTypes);
-  const [devices, setDevices] = useState(mockedEngineList);
+  const [deviceTypeOptions, setDeviceTypeOptions] = useState(sensorTypes);
+  const [devices, setDevices] = useState(mockedSensorList);
+  // const [deviceTypeOptions, setDeviceTypeOptions] = useState(actuatorTypes);
+  // const [devices, setDevices] = useState(mockedEngineList);
 
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
   console.log({ selectedType });
@@ -40,6 +49,15 @@ function Engine() {
     console.log(`Toggle deviceId: ${deviceId}`);
     // TODO: toggle device status
     // devices[deviceId].isOn = !devices[deviceId].isOn;
+    let turnOn = !devices[deviceId].isOn;
+    let name = devices[deviceId].name;
+    alert(`Turn device ${turnOn ? "on" : "off"} - ${name}`);
+  };
+
+  const handleChangeDeviceType = (typeStr) => {
+    alert(`Select [${typeStr}]`);
+    setSelectedType(typeStr);
+    // TODO: handleChangeDeviceType
   };
 
   const DeviceTypeSelector = () => (
@@ -47,9 +65,9 @@ function Engine() {
       <Select
         selectedValue={selectedType}
         defaultValue={selectedType}
-        onValueChange={(itemValue) => setSelectedType(itemValue)}
+        onValueChange={handleChangeDeviceType}
         size="md"
-        dropdownIcon={<ChevronUpIcon/>}
+        dropdownIcon={<ChevronUpIcon size="6" />}
         _selectedItem={{
           bg: "teal.600",
           backgroundColor: "#28554e",
@@ -64,7 +82,8 @@ function Engine() {
   );
 
   const renderListItem = ({ item, index }) => (
-    <View key={(item.id*100 + index)}
+    <View
+      key={item.id}
       style={{
         width: "50%",
         height: 110,
@@ -85,26 +104,21 @@ function Engine() {
     <View style={styles.container}>
       <HStack space={3} style={styles.filterBar}>
         <Text fontSize="md">Lọc theo:</Text>
-        <DeviceTypeSelector/>
+        <DeviceTypeSelector />
       </HStack>
       <View
         style={{
-          flex: 1,
-          alignItems: "center",
           paddingVertical: 15,
           backgroundColor: DEBUG_COLOR.RED,
+          justifyContent: "space-between",
+          flex: 1,
         }}
       >
         <FlatList
-          // contentContainerStyle={{flexDirection : "row", flexWrap : "wrap"}} 
-          style={{
-            backgroundColor: DEBUG_COLOR.PINK,
-            // // width: '100%',
-            // flexWrap: 'wrap',
-          }}
+          style={styles.flatList}
           data={devices}
           renderItem={renderListItem}
-          keyExtractor={ (item) => item.id }
+          keyExtractor={(item) => item.id.toString()}
           numColumns={2}
         />
       </View>
@@ -126,6 +140,9 @@ const styles = StyleSheet.create({
   filterBar: {
     alignItems: "center",
     justifyContent: "flex-end",
+  },
+  flatList: {
+    backgroundColor: DEBUG_COLOR.PINK,
   },
   listItemLeft: {
     margin: 10,

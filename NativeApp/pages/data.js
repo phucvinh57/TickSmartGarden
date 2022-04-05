@@ -47,19 +47,33 @@ const pump1 = {
     light1,
     pump1,
     pump1,
+    
+    // light1,
+    // pump1,
+    // pump1,
+    // light1,
+    // pump1,
+    // pump1,
   ].map((device, index) => {
     return { id: index, ...device };
   });
   
   const mockedSensorList = [
-    sensorLight1,
-    sensorLight1,
-    sensorHumid1,
-    sensorTemperature1,
+    // sensorLight1,
     sensorLight1,
     sensorHumid1,
     sensorTemperature1,
+    sensorLight1,
+    sensorHumid1,
     sensorTemperature1,
+    sensorTemperature1,
+
+    // sensorHumid1,
+    // sensorTemperature1,
+    // sensorTemperature1,
+    // sensorHumid1,
+    // sensorTemperature1,
+    // sensorTemperature1,
   ].map((device, index) => {
     return { id: index, ...device };
   });
