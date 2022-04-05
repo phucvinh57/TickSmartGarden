@@ -1,14 +1,15 @@
 const util = require('util')
+require('dotenv').config()
 
 const mysql = require('mysql2');
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'phucvinh',
-    database: 'smartgarden'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
-connection.query()
+// connection.connect()
 
 const query = util.promisify(connection.query).bind(connection)
 

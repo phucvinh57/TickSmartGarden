@@ -8,21 +8,31 @@ class AdaClient {
     }
 
     pub(key, message, isFeed = true) {
-        const topic = [this.username, isFeed ? 'feeds' : 'groups', key].join('/')
-        this.client.publish(topic, message)
+        try{
+            const topic = [this.username, isFeed ? 'feeds' : 'groups', key].join('/')
+            this.client.publish(topic, message)
+        }
+        catch(error){
+            console.log(error)
+        }
     }
 
     sub(key, onMessage, isFeed = true) {
-        const topic = [this.username, isFeed ? 'feeds' : 'groups', key].join('/')
-        this.client.subscribe(topic, err => {
-            err && console.log(err)
-            !err && this.client.on('message', (incomeTopic, message) => {
-                console.log(`Message on topic ${incomeTopic}. Message: ${message}`)
-                if (topic === incomeTopic) {
-                    onMessage(incomeTopic, message)
-                }
+        try{
+            const topic = [this.username, isFeed ? 'feeds' : 'groups', key].join('/')
+            this.client.subscribe(topic, err => {
+                err && console.log(err)
+                !err && this.client.on('message', (incomeTopic, message) => {
+                    if (topic === incomeTopic) {
+                        console.log(`Message on topic ${incomeTopic}. Message: ${message}`)
+                        onMessage(incomeTopic, message)
+                    }
+                })
             })
-        })
+        }
+        catch(error){
+            console.log(error)
+        }
     }
 }
 
@@ -32,14 +42,19 @@ class ClientGroup{
     }
 
     addClient(options, callback = null){
-        //Check if added yet
-        if(this.clients.findIndex(client => client.username === options.username) === -1){
-            const client  = mqtt.connect(resource.MQTT_URL, options)
-            client.on('connect', () => {
-                console.log('Connected')
-                this.clients.push(new AdaClient(options.username, client))
-                callback && callback()
-            })
+        try{
+            //Check if added yet
+            if(this.clients.findIndex(client => client.username === options.username) === -1){
+                const client  = mqtt.connect(resource.MQTT_URL, options)
+                client.on('connect', () => {
+                    console.log(`Connected to adaclient ${options.username}`)
+                    this.clients.push(new AdaClient(options.username, client))
+                    callback && callback()
+                })
+            }
+        }
+        catch(error){
+            console.log(error)
         }
     }
 

@@ -1,8 +1,8 @@
 const express = require('express')
 const app = express()
 const router = require('./routers')
-const gardenDal = require('./dal/garden.dal')
-const db = require('./models/db')
+const gardenModel = require('./models/garden')
+const startFeedPolicy = require('./crons/policy')
 
 const GardenGroup = require('./repos/mqttClient')
 
@@ -16,8 +16,7 @@ var client = null
 
 const startServer = async () => {
     try{
-        db.connect();
-        const gardens = await gardenDal.getAllGardens()
+        const gardens = await gardenModel.getAllGardens()
         var count  = gardens.length
         const trackGarden = (idx) => {
             const options = {
@@ -26,20 +25,19 @@ const startServer = async () => {
             }
             
             GardenGroup.addClient(options, () => {
+                startFeedPolicy(options.username, 'tl-garden.sensor-temperature-0')
+                startFeedPolicy(options.username, 'tl-garden.sensor-humidity-0')
                 // client = GardenGroup.getAdaClient('cudothanhnhan')
-                // client.sub('tl-garden', (topic, message) => {
+                // client.sub('tl-garden.lamp-0', (topic, message) => {
                 //     console.log('Yayyy')
-                // }, false)
-                // app.listen(8080, () => {console.log('Server is listening')})
+                // })
                 count -= 1
                 count === 0 ? app.listen(8080, () => {console.log('Server is listening')})
                             : trackGarden(idx + 1)
                     
             })
         }
-        
         trackGarden(0)
-
     }
     catch(error) {
         console.log(error)
@@ -57,6 +55,8 @@ app.get('/off', function (req, res) {
     client.publishFeed('tl-garden.lamp-0', '0', function (err) {console.log(err)})
     res.send('Turn off')
 })
+
+
 
 startServer()
 
