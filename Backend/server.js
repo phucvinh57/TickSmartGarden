@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const router = require('./routers')
 const gardenDal = require('./dal/garden.dal')
-const db = require('./services/db')
+const db = require('./models/db')
 
 const GardenGroup = require('./repos/mqttClient')
 

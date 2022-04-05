@@ -8,7 +8,7 @@ class AdaClient {
     }
 
     pub(key, message, isFeed = true) {
-        const topic = [this, this.username, isFeed ? 'feeds' : 'groups', key].join('/')
+        const topic = [this.username, isFeed ? 'feeds' : 'groups', key].join('/')
         this.client.publish(topic, message)
     }
 
