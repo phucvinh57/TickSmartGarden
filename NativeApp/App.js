@@ -10,8 +10,7 @@ export default function App() {
     //   {/* <StatusBar style="auto" /> */}
     //   <Text></Text>
     // </View>
-    //<Homepage />
-    <OnOff />
+    <Homepage />
   );
 }
 

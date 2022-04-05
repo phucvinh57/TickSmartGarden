@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView} from "react-native";
 import Card from "../components/homepage/Card";
 import BottomBar1 from "../components/BottomBar1";
+import gardenData from "../components/homepage/gardenMockData.json";
 
 export default function Homepage() {
+    const [gardens, setGardens] = useState(gardenData);
+    //console.log(gardens);
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>
@@ -36,15 +39,13 @@ export default function Homepage() {
                             Danh sách vườn
                         </Text>
                     </View>
-
-                    <View style={{flex: 8}}>
-                        <ScrollView style={{width: 300, flex: 1}}>
-                            <Card />
-                            <Card />
-                            <Card />
-                            <Card />
-                            <Card />
-                            <Card />
+                    <View style={{flex: 8, alignItems:"center"}}>
+                        <ScrollView style={{minWidth: 350, flex: 1}}>
+                            {gardens.map((garden, index) => {
+                                return (
+                                    <Card key={index} garden={garden} />
+                                )
+                            })}
 
                         </ScrollView>
                     </View>
