@@ -1,5 +1,5 @@
 const mqtt = require('mqtt')
-const resource = require('../resources')
+const resource = require('../utils/resources')
 
 class AdaClient {
     constructor(username, client){
