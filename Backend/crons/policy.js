@@ -1,5 +1,5 @@
 const GardenGroup = require('../repos/mqttClient')
-const PolicyModel = require('../models/policy')
+const policyModel = require('../models/policy')
 const sensorModel = require('../models/sensor')
 const actuatorModel = require('../models/actuator')
 
@@ -19,21 +19,22 @@ const startFeedPolicy = (username, feedKey) => {
     }
 
     const handleMessage = async (topic, message) => {
-        sensorModel.updateSensor(await sensorModel.getSensorId(username, feedKey), parseFloat(message))
-    
-        const policyGroup = await PolicyModel.getPolicy(username, feedKey)
-        for(var policyName in policyGroup){
-            const policy = policyGroup[policyName]
-            try {
-                if(evalPolicy(policyGroup[policyName])){
+        try{
+            sensorModel.updateSensor(await sensorModel.getSensorId(username, feedKey), parseFloat(message))
+        
+            const policyGroup = await policyModel.getPolicy(username, feedKey)
+            for(var policyName in policyGroup){
+                const policy = policyGroup[policyName]
+                if(evalPolicy(policyGroup[policyName]) && !policyModel.isLimit(policyName)){
                     console.log(`Policy ${policyName} is triggered`)
+                    policyModel.updateLastTriggered(policyName, new Date())
                     policy[0].action === 'ON' ? actuatorModel.turnOn(policy[0].actuatorID, policy[0].operatingTime)
                         : actuatorModel.turnOff(actuatorID)
                 }
             }
-            catch(error){
-                console.log(error)
-            }
+        }
+        catch(error){
+            console.log(error)
         }
     }
 

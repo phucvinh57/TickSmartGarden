@@ -6,18 +6,18 @@ class Sensor{
     }
 
     async getSensorId(username, feedKey){
-        try{
-            const QUERY_STR = 
-                `SELECT h.id
-                FROM hardware as h join garden as g on h.gardenId = g.id
-                WHERE h.feedkey = '${feedKey}' and g.adaclient = '${username}' `
-            const rows = await dbQuery(QUERY_STR)
-            return rows[0].id
-        }
-        catch(error){
-            console.log(error)
-        }
+
+        const QUERY_STR = 
+            `SELECT h.id
+            FROM hardware as h join garden as g on h.gardenId = g.id
+            WHERE h.feedkey = '${feedKey}' and g.adaclient = '${username}' `
+        const rows = await dbQuery(QUERY_STR)
+        return rows[0].id
     }
+
+    // async getAllSensorFeed(){
+    //     try{}
+    // }
 
     updateSensor(sensorId, value){
         this.latest_value[sensorId] = value

@@ -3,6 +3,9 @@ const app = express()
 const router = require('./routers')
 const gardenModel = require('./models/garden')
 const startFeedPolicy = require('./crons/policy')
+const scheduleCron = require('./crons/scheduler')
+const scheduleModel = require('./models/schedule')
+
 
 const GardenGroup = require('./repos/mqttClient')
 
@@ -56,6 +59,21 @@ app.get('/off', function (req, res) {
     res.send('Turn off')
 })
 
+function fireSchedule() {
+    console.log('From server')
+}
+
+async function initSchedule(){
+    const s = (await scheduleModel.getAllSchedule())[0]
+    console.log(s.startTime instanceof Date)
+    console.log(s.startTime)
+    try{
+        scheduleCron(s)
+    }
+    catch(error){
+        console.log(error)
+    }
+}
 
 
 startServer()
