@@ -1,6 +1,6 @@
 const schedule = require('node-schedule');
-const actuatorModel = require('../models/actuator')
-const scheduleModel = require('../models/schedule')
+const actuatorModel = require('../repository/actuator')
+const scheduleModel = require('../repository/schedule')
 
 const INFINITY_REPETITION = 0
 

@@ -1,6 +1,6 @@
 // Frontend -> backend -> ada
-const ClientGroup = require('../repos/mqttClient')
-const resource = require('../resources')
+const ClientGroup = require('../repository/mqttClient')
+const resource = require('../utils/resources')
 
 const toggle = function (req, res) {
     const key = req.params.feedKey

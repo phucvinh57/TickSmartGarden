@@ -1,5 +1,9 @@
-const actuatorRoute = require('./actuator')
+const actuatorRouter = require('./actuator')
+const gardenRouter = require('./garden')
 
-module.exports = {
-    actuatorRoute
+function route(app) {
+    app.use('/actuator', actuatorRouter)
+    app.use('/gardens', gardenRouter)
 }
+
+module.exports = route

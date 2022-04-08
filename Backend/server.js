@@ -1,13 +1,15 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const router = require('./routers')
-const gardenModel = require('./models/garden')
+const route = require('./routers')
+const gardenModel = require('./repository/garden')
 const startFeedPolicy = require('./crons/policy')
 const scheduleCron = require('./crons/scheduler')
-const scheduleModel = require('./models/schedule')
+const scheduleModel = require('./repository/schedule')
 
+const PORT = process.env.PORT | 8080
 
-const GardenGroup = require('./repos/mqttClient')
+const GardenGroup = require('./repository/mqttClient')
 
 // options = {
 //     clean: true,
@@ -15,49 +17,7 @@ const GardenGroup = require('./repos/mqttClient')
 //     password: 'aio_aCRK25GReOT6e519YKkjntognKix'
 // }
 
-var client = null
-
-const startServer = async () => {
-    try{
-        const gardens = await gardenModel.getAllGardens()
-        var count  = gardens.length
-        const trackGarden = (idx) => {
-            const options = {
-                username: gardens[idx].username,
-                password: gardens[idx].userkey
-            }
-            
-            GardenGroup.addClient(options, () => {
-                startFeedPolicy(options.username, 'tl-garden.sensor-temperature-0')
-                startFeedPolicy(options.username, 'tl-garden.sensor-humidity-0')
-                // client = GardenGroup.getAdaClient('cudothanhnhan')
-                // client.sub('tl-garden.lamp-0', (topic, message) => {
-                //     console.log('Yayyy')
-                // })
-                count -= 1
-                count === 0 ? app.listen(8080, () => {console.log('Server is listening')})
-                            : trackGarden(idx + 1)
-                    
-            })
-        }
-        trackGarden(0)
-    }
-    catch(error) {
-        console.log(error)
-    }
-}
-app.use('/actuator', router.actuatorRoute)
-
-app.get('/on', function (req, res) {
-    console.log('Turn on')
-    client.publishFeed('tl-garden.lamp-0', '1', function (err) {console.log(err)})
-    res.send('Turn on')
-})
-app.get('/off', function (req, res) {
-    console.log('Turn off')
-    client.publishFeed('tl-garden.lamp-0', '0', function (err) {console.log(err)})
-    res.send('Turn off')
-})
+// var client = null
 
 function fireSchedule() {
     console.log('From server')
@@ -75,6 +35,35 @@ async function initSchedule(){
     }
 }
 
+const startServer = async () => {
+    try{
+        const gardens = await gardenModel.getAllGardens()
+        var count  = gardens.length
+        const trackGarden = (idx) => {
+            const options = {
+                username: gardens[idx].username,
+                password: gardens[idx].userkey
+            }
+            
+            GardenGroup.addClient(options, () => {
+                count -= 1
+                count !== 0 && trackGarden(idx + 1)
+                    
+            })
+        }
+        
+        trackGarden(0)
+
+    }
+    catch(error) {
+        console.log(error)
+    }
+}
 
 startServer()
 
+route(app)
+
+app.listen(PORT, () => {
+    console.log('Server is listening on port ' + PORT)
+})
