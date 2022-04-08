@@ -55,10 +55,10 @@ const inferIsSensorType = (device) => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports.DeviceTypeString = DeviceTypeString
+module.exports.sleep = sleep
 module.exports.infers = {
   inferDataUnit: inferDataUnit, 
   inferIsSensorType: inferIsSensorType, 
   inferStatus: inferStatus,
   inferDeviceImage: inferDeviceImage,
 }
-module.exports.sleep = sleep

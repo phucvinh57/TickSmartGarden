@@ -14,21 +14,8 @@ import {
 
 function EngineCard({ deviceInfo, client }) {
   const { name, type, status: description, isSensorType: isSensor, feedkey: feedKey } = deviceInfo;
-  
-  return <SensorCard client={client} feedKey={feedKey} name={name} type={type} description={description} />;
-  // if (isSensor) {
-  //   return <SensorCard client={client} feedKey={feedKey} name={name} type={type} description={description} />;
-  // }
-  //  else {
-  //   return <EngineCard client={client} feedKey={feedKey} name={name} type={type} description={description} />;
-  // }
-}
-
-// ------------------- SENSOR -------------------
-
-function SensorCard({ client, feedKey, name, type, description}) {
   const [isLoading, setIsLoading] = useState(true);
-  const [sensorValue, setSensorValue] = useState(null);
+  const [lastData, setLastData] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -38,7 +25,7 @@ function SensorCard({ client, feedKey, name, type, description}) {
         if (client) {
           client.sub(feedKey, handleMessageArrived)
           const data = await client.fetchLastData(feedKey)
-          setSensorValue(data)
+          setLastData(data)
           setIsLoading(false);
         } else {
           console.log('client is null')
@@ -52,16 +39,39 @@ function SensorCard({ client, feedKey, name, type, description}) {
   
 
   const handleMessageArrived = (topic, payload) => {
-    let value;
-    try {
-      value = parseInt(payload.toString())
-    } catch {
-      value = null
-    }
-    setSensorValue(value)
+    setLastData(payload.toString())
     setIsLoading(false);
   }
+
+  const onToggle = () => {
+    (async () => {
+      setIsLoading(true);
+      const nextData = (lastData == '1') ? '0' : '1';
+      client.pub(feedKey, nextData)
+      await sleep(200);
+    })().catch(console.log);
+  };
   
+  // return <SensorCard isLoading={isLoading} lastData={lastData} name={name} type={type} description={description} />;
+  if (isSensor) {
+    return <SensorCard isLoading={isLoading} lastData={lastData} name={name} type={type} description={description} />;
+  }
+   else {
+    return <ActuatorCard isLoading={isLoading} lastData={lastData} name={name} type={type} description={description} 
+      onToggle={onToggle}
+    />;
+  }
+}
+
+// ------------------- SENSOR -------------------
+
+function SensorCard({ isLoading, lastData, name, type, description}) {
+  let sensorValue;
+  try {
+    sensorValue = parseInt(lastData)
+  } catch {
+    sensorValue = null
+  }
   return (
     <VStack style={styles.container}>
       <Text fontSize={"sm"} bold>
@@ -108,32 +118,8 @@ function SensorCard({ client, feedKey, name, type, description}) {
 
 // ------------------- ACTUATOR -------------------
 
-function ActuatorCard({ name, type, description, isSensor, feedKey, username }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOn, setIsOn] = useState(null);
-
-  useEffect(() => {
-    const fetchDeviceInfo = async () => {
-      setIsLoading(true);
-      await sleep(1000);
-      console.log("TODO: fetchDeviceInfo");
-      const status = await getLastData();
-      setIsOn(status == "0" ? false : true);
-      setIsLoading(false);
-    };
-
-    fetchDeviceInfo().catch(console.log);
-  }, []);
-
-  const handleToggle = () => {
-    (async () => {
-      setIsLoading(true);
-      console.log("TODO: handleToggle");
-      await sleep(1000);
-      setIsLoading(false);
-      setIsOn(!isOn);
-    })().catch(console.log);
-  };
+function ActuatorCard({ isLoading, lastData, name, type, description, onToggle }) {
+  const isOn = lastData == '1' ? true : false;
 
   return (
     <VStack style={styles.container}>
@@ -156,7 +142,7 @@ function ActuatorCard({ name, type, description, isSensor, feedKey, username }) 
               {isLoading && <ActivityIndicator size="small" color="red" />}
               {!isLoading && (
                 <Switch
-                  onToggle={handleToggle}
+                  onToggle={onToggle}
                   isChecked={isOn}
                   onTrackColor="#2e9790"
                   flex={1}

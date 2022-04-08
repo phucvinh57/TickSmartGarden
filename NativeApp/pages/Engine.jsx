@@ -12,7 +12,7 @@ import {
   View,
 } from "native-base";
 
-import { actuatorTypes, mockedGardenInfo, options } from "./data";
+import { actuatorTypes, mockedGardenInfo, options } from "../components/view-device/data";
 import { sleep } from "../components/view-device/utils";
 
 const deviceTypeOptions = actuatorTypes;
@@ -88,7 +88,7 @@ function Engine() {
       </HStack>
 
       <View style={styles.flatListWrapper}>
-        {isLoading && <ActivityIndicator size="large" color="red" />}
+        {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
         {!isLoading && 
           <FlatList
             style={styles.flatList}
@@ -151,69 +151,7 @@ const styles = StyleSheet.create({
     marginRight: 0,
     flex: 1,
   },
+  loadingIcon: {
+    flex: 1,
+  }
 });
-
-// const [gardenInfo, setGardenInfo] = useState(mockedGardenInfo);
-// const [devices, setDevices] = useState([])
-// const _getFeedList = () => devices.map(x => x.feedKey)
-
-// useEffect(() => {
-//   const fetchGardenInfo = async() => {
-//     setGardenInfo(_gardenInfo)
-//     setDevices(_gardenInfo.hardware.filter(hw => (!hw.isSensorType)))
-//   }
-
-//   fetchGardenInfo().catch(console.log)
-// }, []);
-
-// const _initClient = () => {
-//   console.log("_initClient");
-//   if (client) {
-//     console.log("hello from client");
-//     client.on("connect", () => {
-//       console.log("connected");
-//       client.subscribe(_getFeedList(), (err) => {
-//         if (err) {
-//           console.log("subscribe error");
-//         } else {
-//           console.log("subscribed");
-//         }
-//       });
-//     });
-//     client.on("error", () => console.log("connnection error"));
-//     client.on("message", handleMessageArrived);
-//   }
-// };
-
-// const handleMessageArrived = (topic, payload) => {
-//   console.log({ topic, payload });
-//   payload = payload.toString();
-//   const updatedDevices = devices.map(device => {
-//     if (device.feedKey == topic) {
-//       device.isOn = message == "1" ? true : false
-//       device.isLoading = false
-//     }
-//     return device
-//   })
-//   setDevices(updatedDevices)
-// }
-
-// useEffect(() => {
-//   const fetchData = async () => {
-//     _initClient();
-//     const updatedDevices = devices.map(device => {
-  //       .isOn = (status == "0" ? false : true);
-  //       const status = await fetchLastData(gardenInfo.adaclient, gardenInfo.userkey, device.feedKey);
-
-//       if (device.feedKey == topic) {
-//         device.isOn = message == "1" ? true : false
-//         device.isLoading = false
-//       }
-//       return device
-//     })
-//     setDevices(updatedDevices)
-
-//   };
-//   fetchData().catch(console.log);
-// }, []);
-
