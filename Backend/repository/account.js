@@ -1,5 +1,5 @@
 const dbQuery = require('./db')
-class AccountModal {
+class Account {
     async getAccount(accountEmail) {
         try {
             const queryStr = `SELECT EXISTS (SELECT accountemail FROM account WHERE accountemail = ?)`
@@ -11,4 +11,4 @@ class AccountModal {
     }
 }
 
-module.exports = new AccountModal()
+module.exports = new Account()

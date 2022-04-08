@@ -1,7 +1,7 @@
-const GardenGroup = require('../repos/mqttClient')
-const PolicyModel = require('../models/policy')
-const sensorModel = require('../models/sensor')
-const actuatorModel = require('../models/actuator')
+const GardenGroup = require('../repository/mqttClient')
+const PolicyModel = require('../repository/policy')
+const sensorModel = require('../repository/sensor')
+const actuatorModel = require('../repository/actuator')
 
 const startFeedPolicy = (username, feedKey) => {
     const evalPolicy = (policy) => {

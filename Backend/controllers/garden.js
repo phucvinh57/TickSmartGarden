@@ -1,4 +1,4 @@
-const gardenModel = require('../models/garden')
+const gardenModel = require('../repository/garden')
 const handler = require('./handler')
 
 class GardenCtrler {
