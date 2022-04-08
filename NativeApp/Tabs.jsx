@@ -2,7 +2,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 import Homepage from "./pages/Homepage";
 import AddGarden from "./pages/AddGarden";
-import OnOff from "./pages/OnOff";
+//import OnOff from "./pages/OnOff";
+import { useRoute } from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator()
 
@@ -52,7 +53,7 @@ const Tabs = () => {
 
             <Tab.Screen name="AddGarden" component={AddGarden} options = {{
                 tabBarIcon: ({focused}) => (
-                    <View style={{alignItems: 'center', justifyContent: 'center', top: 10}}>
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
                         <Image 
                             source = {require('./assets/icons/icon-plus.png')}
                             resizeMode = "contain"
@@ -62,7 +63,6 @@ const Tabs = () => {
                                 tintColor: "#fff"
                             }}
                         />
-                        <Text style={{color: '#de7067', fontSize: 14}}>Thêm vườn</Text>
                     </View>
                 ),
                 tabBarButton: (props) => (

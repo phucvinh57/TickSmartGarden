@@ -5,7 +5,7 @@ export default function Card(props) {
     return (
         <View style = {styles.card}>
             <View style={{flex: 1, justifyContent: "center"}}>
-                <Image source={{uri: garden.image}}
+                <Image source={{uri: garden.imgurl}}
                 style ={{width: "80%", height: "80%"}}
                 />
             </View>

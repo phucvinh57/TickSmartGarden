@@ -2,32 +2,46 @@ import { ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, Button } fr
 import * as ImagePicker from 'expo-image-picker';
 import {Camera} from 'expo-camera';
 import { useState, useEffect } from "react";
+import garden from "../services/garden";
+import { useDispatch } from "react-redux";
+import { addGarden } from "../redux/slices/garden";
 
 export default function AddGarden() {
     const [hasPermission, setHasPermission] = useState(null);
     const [type, setType] = useState(Camera.Constants.Type)
-    let input = {
+    const [input, setInput] = useState({
         name: "",
         description: "",
-        image: "",
-        key: ""
-    }
+        imgurl: "",
+        groupKey: "",
+        adaUserName: "",
+        adaUserKey: "",
+    })
+    const dispatch = useDispatch()
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4,3],
-            quality: 1
+    function onPressButton() {
+        garden.create({...input, useremail: "quanganh@gmail.com"}).then(res => {
+            console.log(res.data)
+            dispatch(addGarden(input))
         })
+        
     }
 
-    useEffect(() => {
-        (async () => {
-          const { status } = await Camera.requestCameraPermissionsAsync();
-          setHasPermission(status === 'granted');
-        })();
-      }, []);
+    // const pickImage = async () => {
+    //     let result = await ImagePicker.launchImageLibraryAsync({
+    //         mediaTypes: ImagePicker.MediaTypeOptions.All,
+    //         allowsEditing: true,
+    //         aspect: [4,3],
+    //         quality: 1
+    //     })
+    // }
+
+    // useEffect(() => {
+    //     (async () => {
+    //       const { status } = await Camera.requestCameraPermissionsAsync();
+    //       setHasPermission(status === 'granted');
+    //     })();
+    //   }, []);
 
 
     return(
@@ -45,15 +59,19 @@ export default function AddGarden() {
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Tên khu vườn</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.name}></TextInput>
+                            <TextInput style={styles.textInput} value={input.name} onChangeText={text => {
+                                setInput({...input, name: text})
+                            }}></TextInput>
                         </SafeAreaView>
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Mô tả khu vườn</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.description}></TextInput>
+                            <TextInput style={styles.textInput} defaultValue={input.description} onChangeText={text => {
+                                setInput({...input, description: text})
+                            }}></TextInput>
                         </SafeAreaView>
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Hình ảnh</Text>
-                            <SafeAreaView style={{flexDirection: "row"}}>
+                            {/* <SafeAreaView style={{flexDirection: "row"}}>
                                 <Button style={styles.butto} title="Chụp ảnh" onPress={() => {
                                     setType(
                                         type === Camera.Constants.Type.back
@@ -62,11 +80,33 @@ export default function AddGarden() {
                                     )
                                 }}/>
                                 <Button style={styles.button} title="Thêm ảnh" onPress={() => pickImage()}/>
-                            </SafeAreaView>
+                            </SafeAreaView> */}
+                            <TextInput style={styles.textInput} defaultValue={input.imgurl} onChangeText={text => {
+                                setInput({...input, imgurl: text})
+                            }}></TextInput>
                         </SafeAreaView>
                         <SafeAreaView style={{marginTop: 10}}>
-                            <Text style={styles.textContent}>Key</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.key}></TextInput>
+                            <Text style={styles.textContent}>GroupKey</Text>
+                            <TextInput style={styles.textInput} defaultValue={input.key} onChangeText={text => {
+                                setInput({...input, groupKey: text})
+                            }}></TextInput>
+                        </SafeAreaView>
+                        <SafeAreaView style={{marginTop: 10}}>
+                            <Text style={styles.textContent}>Username</Text>
+                            <TextInput style={styles.textInput} defaultValue={input.adaUserName} onChangeText={text => {
+                                setInput({...input, adaUserName: text})
+                            }}></TextInput>
+                        </SafeAreaView>
+                        <SafeAreaView style={{marginTop: 10}}>
+                            <Text style={styles.textContent}>Userkey</Text>
+                            <TextInput style={styles.textInput} defaultValue={input.adaUserKey} onChangeText={text => {
+                                setInput({...input, adaUserKey: text})
+                            }}></TextInput>
+                        </SafeAreaView>
+
+
+                        <SafeAreaView style={{marginTop: 10}}>
+                            <Button onPress={onPressButton}>Thêm/Lưu</Button>
                         </SafeAreaView>
                     </SafeAreaView>
             </SafeAreaView>
