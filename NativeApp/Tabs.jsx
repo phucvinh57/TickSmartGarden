@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Image, Text, TouchableOpacity } from "react-native";
-import Homepage from "./pages/Homepage";
-import AddGarden from "./pages/AddGarden";
+import Homepage from "./pages/homepage";
+import AddGarden from "./pages/addGarden";
 //import OnOff from "./pages/OnOff";
 import { useRoute } from "@react-navigation/native";
 

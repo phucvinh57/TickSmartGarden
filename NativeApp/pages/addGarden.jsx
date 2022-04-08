@@ -106,7 +106,7 @@ export default function AddGarden() {
 
 
                         <SafeAreaView style={{marginTop: 10}}>
-                            <Button onPress={onPressButton}>Thêm/Lưu</Button>
+                            <Button onPress={onPressButton} title="Add garden"/>
                         </SafeAreaView>
                     </SafeAreaView>
             </SafeAreaView>
@@ -132,8 +132,5 @@ const styles = StyleSheet.create({
         width: '90%',
         height: 30,
         fontSize: 16,
-    },
-    button: {
-
     }
 })
