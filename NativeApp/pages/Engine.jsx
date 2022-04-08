@@ -89,6 +89,7 @@ function Engine() {
 
       <View style={styles.flatListWrapper}>
         {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
+        {/* TODO: Text: Đang kết nối */}
         {!isLoading && 
           <FlatList
             style={styles.flatList}

@@ -6,9 +6,7 @@ const HUMIDITY_SENSOR_FEED_KEY = "tl-garden.sensor-humidity-0";
 const LIGHT_SENSOR_FEED_KEY = "tl-garden.sensor-light-0";
 
 // --------------- AVAILABLE ---------------
-const ADA_CLIENT = "phucnguyensolver";
-const USER_KEY = "aio_Govv720CpibZcjwhDd6TszYAydYz";
-const GROUP_KEY = "tl-garden";
+import { ADA_CLIENT, USER_KEY, GROUP_KEY } from '../../env'
 
 const options = {
   username: ADA_CLIENT,

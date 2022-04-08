@@ -18,6 +18,7 @@ class AdaClient {
     const _username = this.username
     const _adakey = this.password
     const url = `https://io.adafruit.com/api/v2/${_username}/feeds/${_feedkey}/data/last?x-aio-key=${_adakey}`;
+    // console.log(url)
     const response = await fetch(url);
     const status = await response.json();
     return status.value;
@@ -65,7 +66,7 @@ class ClientGroup {
         ) === -1
       ) {
         const client = getMqttConnection(options.username, options.password)
-        client.on("error", () => console.log("connnection error"));
+        client.on("error", (err) => {console.log('connection error', err)});
         client.on("connect", () => {
           console.log(`Connected to adaclient ${options.username}`);
           this.clients.push(new AdaClient(options.username, options.password, client));
