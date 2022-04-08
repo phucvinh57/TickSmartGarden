@@ -13,6 +13,7 @@ import {
 } from "native-base";
 
 import { actuatorTypes, mockedGardenInfo, options } from "./data";
+import { sleep } from "../components/view-device/utils";
 
 const deviceTypeOptions = actuatorTypes;
 const GardenGroup = require('../components/view-device/mqttClient');
@@ -25,33 +26,14 @@ function Engine() {
   const [deviceList, setDeviceList] = useState(null); // filter later
   const [selectedType, setSelectedType] = useState(null);
 
-
-  // useEffect(() => {
-  //   let mounted = true;
-  //   const addClient = async () => {
-  //     if (mounted) {
-  //       setIsLoading(true)
-  //       GardenGroup.addClient(options, () => {
-  //         console.log('try addClient')
-  //         // setClient(GardenGroup.getFirstAdaClient())
-  //         setDeviceList(mockedGardenInfo.hardware)
-  //         setSelectedType(deviceTypeOptions[0].id)
-  //         setIsLoading(false)
-  //       })
-  //     }
-  //   }
-
-  //   addClient().catch(console.log)
-  //   return () => mounted = false
-  // }, []);
-
   useEffect(() => {
     let mounted = true;
     const addClient = async () => {
       if (mounted) {
-        setIsLoading(true)
         GardenGroup.addClient(options, () => {
+          setIsLoading(true)
           console.log('try addClient')
+          sleep(200)
           setClient(GardenGroup.getFirstAdaClient())
           setDeviceList(mockedGardenInfo.hardware)
           setSelectedType(deviceTypeOptions[0].id)
@@ -93,7 +75,6 @@ function Engine() {
   const _renderListItem = ({ item, index }) => (
     <View key={item.id} style={styles.flatListColumn}>
       <View style={index % 2 == 0 ? styles.listItemLeft : styles.listItemRight}>
-        {/* <EngineCard deviceInfo={item} client={GardenGroup.getFirstAdaClient()} /> */}
         <EngineCard deviceInfo={item} client={client} />
       </View>
     </View>

@@ -1,6 +1,6 @@
 import { connect } from "@taoqf/react-native-mqtt";
 
-const getMqttConnection = async (username, key) => {
+function getMqttConnection(username, key) {
   const url = `mqtts://${username}:${key}@io.adafruit.com`;
   console.log("new client");
   return connect(url);
@@ -14,8 +14,6 @@ class AdaClient {
     this.client = client;
   }
 
-  // getUsername() { return this.username }  
-  // getPassword() { return this.password }
   fetchLastData = async (_feedkey) => {
     const _username = this.username
     const _adakey = this.password
@@ -60,19 +58,19 @@ class ClientGroup {
     this.clients = [];
   }
 
-  addClient = async (options, callback = null) => {
+  addClient(options, callback = null) {
       if (
         this.clients.findIndex(
           (client) => client.username === options.username
         ) === -1
       ) {
-        const client = await getMqttConnection(options.username, options.password)
+        const client = getMqttConnection(options.username, options.password)
+        client.on("error", () => console.log("connnection error"));
         client.on("connect", () => {
           console.log(`Connected to adaclient ${options.username}`);
           this.clients.push(new AdaClient(options.username, options.password, client));
           callback && callback();
         });
-        client.on("error", () => console.log("connnection error"));
       }
   }
 

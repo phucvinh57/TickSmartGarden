@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
-import { infers } from "./utils";
+import { infers, sleep } from "./utils";
 import {
   Container,
   VStack,
@@ -10,9 +10,6 @@ import {
   Text,
   View,
 } from "native-base";
-
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 function EngineCard({ deviceInfo, client }) {
