@@ -51,7 +51,6 @@ export default function Homepage() {
                     </View>
                 </View>
                 {/* BOTTOM BAR */}
-            <BottomBar1 />
             </SafeAreaView>
         </ImageBackground>
     )

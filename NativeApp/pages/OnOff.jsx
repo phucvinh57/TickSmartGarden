@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { SafeAreaView, Switch } from "react-native";
+import { connect } from "@taoqf/react-native-mqtt";
 const userName = 'anhdn2511';
-const userKey = 'aio_lWyb8026novUJsWvAuncP33rA1lN';
+const userKey = 'aio_qxxs12V7f47tbg3XBstFTRCqRSkh';
 //const url = '';
 const url = `mqtts://${userName}:${userKey}@io.adafruit.com`;
-const mqtt = require('mqtt');
-const client = mqtt.connect(url);
+const client = connect(url);
 
 export default function OnOff() {
-    const topic = [userName, 'feeds','light-1'].join('/')
+    const topic = [userName, 'feeds','lamp-0'].join('/')
     client.on('connect', function() {
         client.subscribe(topic, function(err) {
             console.log('success')
