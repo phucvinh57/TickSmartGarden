@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from "react";
+import { ActivityIndicator, StyleSheet } from "react-native";
+import EngineCard from "../components/view-device/EngineCard";
 import {
   Box,
   CheckIcon,
@@ -8,56 +11,62 @@ import {
   Text,
   View,
 } from "native-base";
-import React, { useRef, useState } from "react";
-import { StyleSheet } from "react-native";
-import EngineCard from "../components/view-device/EngineCard";
 
+import { actuatorTypes, mockedGardenInfo, options } from "./data";
 
-
-const {
-  sensorTypes,
-  actuatorTypes,
-  mockedSensorList,
-  mockedEngineList,
-} = require("./data");
-
-const DEBUG_LOG = (value) => {
-  // console.log(value)
-  return value;
-};
-
-const DEBUG_COLOR = {
-  WHITE: "white",
-
-  // GRAY: "#555555",
-  // PURPLE: "purple",
-  // PINK: "pink",
-  // RED: "red",
-  // BLACK: "black",
-};
+const deviceTypeOptions = actuatorTypes;
+const GardenGroup = require('../components/view-device/mqttClient');
 
 function Engine() {
-  const [deviceTypeOptions, setDeviceTypeOptions] = useState(sensorTypes);
-  const [devices, setDevices] = useState(mockedSensorList);
-  // const [deviceTypeOptions, setDeviceTypeOptions] = useState(actuatorTypes);
-  // const [devices, setDevices] = useState(mockedEngineList);
+  console.log('render Engine')
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [client, setClient] = useState(null);
+  const [deviceList, setDeviceList] = useState(null); // filter later
+  const [selectedType, setSelectedType] = useState(null);
 
-  const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
-  console.log({ selectedType });
 
-  const handleToggleDevice = (deviceId) => {
-    console.log(`Toggle deviceId: ${deviceId}`);
-    // TODO: toggle device status
-    // devices[deviceId].isOn = !devices[deviceId].isOn;
-    let turnOn = !devices[deviceId].isOn;
-    let name = devices[deviceId].name;
-    alert(`Turn device ${turnOn ? "on" : "off"} - ${name}`);
-  };
+  // useEffect(() => {
+  //   let mounted = true;
+  //   const addClient = async () => {
+  //     if (mounted) {
+  //       setIsLoading(true)
+  //       GardenGroup.addClient(options, () => {
+  //         console.log('try addClient')
+  //         // setClient(GardenGroup.getFirstAdaClient())
+  //         setDeviceList(mockedGardenInfo.hardware)
+  //         setSelectedType(deviceTypeOptions[0].id)
+  //         setIsLoading(false)
+  //       })
+  //     }
+  //   }
+
+  //   addClient().catch(console.log)
+  //   return () => mounted = false
+  // }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const addClient = async () => {
+      if (mounted) {
+        setIsLoading(true)
+        GardenGroup.addClient(options, () => {
+          console.log('try addClient')
+          setClient(GardenGroup.getFirstAdaClient())
+          setDeviceList(mockedGardenInfo.hardware)
+          setSelectedType(deviceTypeOptions[0].id)
+          setIsLoading(false)
+        })
+      }
+    }
+
+    addClient().catch(console.log)
+    return () => mounted = false
+  }, []);
 
   const handleChangeDeviceType = (typeStr) => {
-    alert(`Select [${typeStr}]`);
+    console.log(`handleChangeDeviceType(${typeStr})`);
     setSelectedType(typeStr);
-    // TODO: handleChangeDeviceType
   };
 
   const DeviceTypeSelector = () => (
@@ -81,21 +90,11 @@ function Engine() {
     </Box>
   );
 
-  const renderListItem = ({ item, index }) => (
-    <View
-      key={item.id}
-      style={{
-        width: "50%",
-        height: 110,
-        backgroundColor: DEBUG_COLOR.BLACK,
-      }}
-    >
+  const _renderListItem = ({ item, index }) => (
+    <View key={item.id} style={styles.flatListColumn}>
       <View style={index % 2 == 0 ? styles.listItemLeft : styles.listItemRight}>
-        <EngineCard
-          device={item}
-          onToggle={() => handleToggleDevice(item.id)}
-          selectedType={selectedType}
-        />
+        {/* <EngineCard deviceInfo={item} client={GardenGroup.getFirstAdaClient()} /> */}
+        <EngineCard deviceInfo={item} client={client} />
       </View>
     </View>
   );
@@ -106,27 +105,33 @@ function Engine() {
         <Text fontSize="md">Lọc theo:</Text>
         <DeviceTypeSelector />
       </HStack>
-      <View
-        style={{
-          paddingVertical: 15,
-          backgroundColor: DEBUG_COLOR.RED,
-          justifyContent: "space-between",
-          flex: 1,
-        }}
-      >
-        <FlatList
-          style={styles.flatList}
-          data={devices}
-          renderItem={renderListItem}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-        />
+
+      <View style={styles.flatListWrapper}>
+        {isLoading && <ActivityIndicator size="large" color="red" />}
+        {!isLoading && 
+          <FlatList
+            style={styles.flatList}
+            data={deviceList}
+            renderItem={_renderListItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+          />
+        }
       </View>
     </View>
   );
 }
 
 export default Engine;
+
+const DEBUG_COLOR = {
+  WHITE: "white",
+  // GRAY: "#555555",
+  // PURPLE: "purple",
+  // PINK: "pink",
+  // RED: "red",
+  // BLACK: "black",
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -140,6 +145,17 @@ const styles = StyleSheet.create({
   filterBar: {
     alignItems: "center",
     justifyContent: "flex-end",
+  },
+  flatListWrapper: {
+    paddingVertical: 15,
+    backgroundColor: DEBUG_COLOR.RED,
+    justifyContent: "space-between",
+    flex: 1,
+  },
+  flatListColumn: {
+    width: "50%",
+    height: 110,
+    backgroundColor: DEBUG_COLOR.BLACK,
   },
   flatList: {
     backgroundColor: DEBUG_COLOR.PINK,
@@ -155,3 +171,68 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+// const [gardenInfo, setGardenInfo] = useState(mockedGardenInfo);
+// const [devices, setDevices] = useState([])
+// const _getFeedList = () => devices.map(x => x.feedKey)
+
+// useEffect(() => {
+//   const fetchGardenInfo = async() => {
+//     setGardenInfo(_gardenInfo)
+//     setDevices(_gardenInfo.hardware.filter(hw => (!hw.isSensorType)))
+//   }
+
+//   fetchGardenInfo().catch(console.log)
+// }, []);
+
+// const _initClient = () => {
+//   console.log("_initClient");
+//   if (client) {
+//     console.log("hello from client");
+//     client.on("connect", () => {
+//       console.log("connected");
+//       client.subscribe(_getFeedList(), (err) => {
+//         if (err) {
+//           console.log("subscribe error");
+//         } else {
+//           console.log("subscribed");
+//         }
+//       });
+//     });
+//     client.on("error", () => console.log("connnection error"));
+//     client.on("message", handleMessageArrived);
+//   }
+// };
+
+// const handleMessageArrived = (topic, payload) => {
+//   console.log({ topic, payload });
+//   payload = payload.toString();
+//   const updatedDevices = devices.map(device => {
+//     if (device.feedKey == topic) {
+//       device.isOn = message == "1" ? true : false
+//       device.isLoading = false
+//     }
+//     return device
+//   })
+//   setDevices(updatedDevices)
+// }
+
+// useEffect(() => {
+//   const fetchData = async () => {
+//     _initClient();
+//     const updatedDevices = devices.map(device => {
+  //       .isOn = (status == "0" ? false : true);
+  //       const status = await fetchLastData(gardenInfo.adaclient, gardenInfo.userkey, device.feedKey);
+
+//       if (device.feedKey == topic) {
+//         device.isOn = message == "1" ? true : false
+//         device.isLoading = false
+//       }
+//       return device
+//     })
+//     setDevices(updatedDevices)
+
+//   };
+//   fetchData().catch(console.log);
+// }, []);
+
