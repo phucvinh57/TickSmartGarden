@@ -33,7 +33,8 @@ export default function Login({ navigation }) {
             >
                 <Text color={'white'}>Login</Text>
             </Button>
-            <Link onPress={() => navigation.navigate('Root/Auth/Signup')}
+            <Link 
+            onPress={() => navigation.navigate('Root/Auth/Signup')}
                 style={{
                     width: '100%',
                     alignItems: 'center'

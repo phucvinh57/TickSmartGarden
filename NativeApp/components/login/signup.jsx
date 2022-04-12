@@ -1,10 +1,9 @@
 import { Button, Text, Box, FormControl, Stack, Input, Link } from 'native-base'
 import { WarningOutlineIcon } from 'native-base';
 import { SafeAreaView } from "react-native";
-import { normalStyle } from "../../styles";
 
 export default function Signup({ navigation }) {
-    return <SafeAreaView style={normalStyle}>
+    return <SafeAreaView>
         <Box alignItems={'center'} width={250}>
             <FormControl isRequired marginBottom={2}>
                 <Stack>

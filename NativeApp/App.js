@@ -1,40 +1,47 @@
-import { SafeAreaView } from 'react-native';
-import { NativeBaseProvider, Text } from 'native-base';
+import { StyleSheet } from "react-native";
+import { NativeBaseProvider } from "native-base";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { normalStyle } from './styles';
-import DevicePage from './pages/devicePage';
-import AuthPage from './pages/authPage';
+import Login from "./components/login/login";
+import Signup from "./components/login/signup";
+import DeviceInfo from "./components/device/deviceInfo";
+import Policy from "./components/device/policy";
+import Scheduler from "./components/device/scheduler";
+import Carousel from "./components/device/Carousel";
+import TestTable from "./components/device/TestTable";
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return <NativeBaseProvider>
-    <SafeAreaView style={normalStyle}>
+  return (
+    <NativeBaseProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Root/Auth'>
+        <Stack.Navigator>
+          {/* <Stack.Screen name="Root/Auth/Login" component={Login} /> */}
+          {/* <Stack.Screen name="Root/Auth/Signup" component={Signup} /> */}
+          {/* <Stack.Screen
+            name="Root/MainApp/Carousel"
+            component={Carousel}
+            options={{ headerShown: false }}
+          /> */}
           <Stack.Screen
-            name='Root/Auth'
-            component={AuthPage}
+            name="Root/MainApp/DeviceInfo"
+            component={DeviceInfo}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
-            name='Root/MainApp'
-            component={MainApp}
-            options={{ headerShown: false }}
-          />
+          {/* <Stack.Screen name="Root/MainApp/Policy" component={Policy} /> */}
+          {/* <Stack.Screen name="Root/MainApp/Scheduler" component={Scheduler} /> */}
         </Stack.Navigator>
       </NavigationContainer>
-      {/* <AuthPage /> */}
-
-    </SafeAreaView>
-  </NativeBaseProvider>
+    </NativeBaseProvider>
+  );
 }
 
-function MainApp() {
-  return <SafeAreaView style={normalStyle}>
-    <DevicePage />
-  </SafeAreaView>
-}
-
+const styles = StyleSheet.create({
+  normalStyle: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
