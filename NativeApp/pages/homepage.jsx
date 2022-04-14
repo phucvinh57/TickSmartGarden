@@ -2,25 +2,24 @@ import React, { useEffect, useState } from "react";
 import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView} from "react-native";
 import Card from "../components/homepage/Card";
 import gardenData from "../components/homepage/gardenMockData.json";
-import { useRoute } from "@react-navigation/native";
+//import { useRoute } from "@react-navigation/native";
 import garden from "../services/garden";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
 
 export default function Homepage() {
-    // const [gardens, setGardens] = useState(gardenData);
-    const gardens = useSelector(state => state.garden);
-    const dispatch = useDispatch()
+    const [gardens, setGardens] = useState(gardenData);
+    // const gardens = useSelector(state => state.garden);
+    // const dispatch = useDispatch()
 
-    useEffect(() => {
-        garden.getAll("quanganh@gmail.com").then(res => {
-            console.log(res.data)
-            dispatch(initGardenList(res.data))
-        })
-    },[])
+    // useEffect(() => {
+    //     garden.getAll("quanganh@gmail.com").then(res => {
+    //         console.log(res.data)
+    //         dispatch(initGardenList(res.data))
+    //     })
+    // },[])
     //console.log(gardens);
-    const route = useRoute()
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>

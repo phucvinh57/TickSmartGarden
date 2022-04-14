@@ -7,8 +7,8 @@ import { useDispatch } from "react-redux";
 import { addGarden } from "../redux/slices/garden";
 
 export default function AddGarden() {
-    const [hasPermission, setHasPermission] = useState(null);
-    const [type, setType] = useState(Camera.Constants.Type)
+    // const [hasPermission, setHasPermission] = useState(null);
+    // const [type, setType] = useState(Camera.Constants.Type)
     const [input, setInput] = useState({
         name: "",
         description: "",

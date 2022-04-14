@@ -2,25 +2,25 @@
     {
         "name": "Khu vườn 1",
         "description": "Khu vườn trồng cà chua",
-        "image": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
+        "imgurl": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
         "groupKey": "1"
     },
     {
         "name": "Khu vườn 2",
         "description": "Khu vườn trồng lúa",
-        "image": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
+        "imgurl": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
         "groupKey": "2"
     },
     {
         "name": "Khu vườn 3",
         "description": "Khu vườn trồng cà chua",
-        "image": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
+        "imgurl": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
         "groupKey": "3"
     },
     {
         "name": "Khu vườn 4",
         "description": "Khu vườn trồng cà chua",
-        "image": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
+        "imgurl": "https://eskipaper.com/images/garden-wallpaper-2.jpg",
         "groupKey": "4"
     }
 ]
