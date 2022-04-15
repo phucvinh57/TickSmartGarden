@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Login from "./components/login/login";
 import Signup from "./components/login/signup";
-import DeviceInfo from "./components/DeviceInfo";
+import DeviceInfo from "./pages/DeviceInfo";
 import Carousel from "./components/SliderList/Carousel";
 
 const Stack = createNativeStackNavigator();

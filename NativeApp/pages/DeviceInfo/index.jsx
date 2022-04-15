@@ -14,7 +14,7 @@ import {
   Text,
   ScrollView,
 } from "native-base";
-import SliderList from "../SliderList";
+import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
 
 import { mockPolicyList, mockSchedList, mockLogList } from "./data";

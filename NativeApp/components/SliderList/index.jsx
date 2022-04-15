@@ -15,7 +15,7 @@ const SliderList = ({ data, renderer, dotColor, windowWidth }) => {
   // Update slider state on change event
   const slideChanged = (e) => {
     const item = Math.round(e.nativeEvent.contentOffset.x / windowWidth);
-    console.log("slideChanged");
+    // console.log("slideChanged");
     if (item != sliderState.item) {
       setSliderState({
         item: item,
