@@ -7,8 +7,8 @@ function inferTableLabel(offset, currPageLength, totalLength) {
   return `${offset + 1}-${offset + currPageLength} of ${totalLength}`;
 }
 
-const TestTable = ({ itemsPerPage, data }) => {
-  console.log(`TestTable = ({ ${itemsPerPage}, ${data} })`)
+const LogTable = ({ itemsPerPage, data }) => {
+  console.log(`LogTable({ ${itemsPerPage}, ${data} })`)
   const [chunks, setChunks] = React.useState(makeChunks(data, itemsPerPage));
   const [currPage, setCurrPage] = React.useState(0);
   const [tableLabel, setTableLabel] = React.useState("");
@@ -53,4 +53,4 @@ const TestTable = ({ itemsPerPage, data }) => {
   );
 };
 
-export default TestTable;
+export default LogTable;

@@ -1,8 +1,9 @@
 import React, { useState, createRef } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, useWindowDimensions } from "react-native";
 
-const SliderList = ({ data, renderer, dotColor = "black", windowWidth }) => {
+const SliderList = ({ data, renderer, dotColor, windowWidth }) => {
 
+  windowWidth = windowWidth || useWindowDimensions().width;
   // Ref to the FlatList element. We use it to access its methods
   const slider = createRef(null);
   // Slider state contains active item and offset position
@@ -117,4 +118,7 @@ const styles = StyleSheet.create({
   // },
 });
 
+SliderList.defaultProps = {
+  dotColor: "pink",
+}
 export default SliderList;

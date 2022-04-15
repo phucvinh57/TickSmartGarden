@@ -5,11 +5,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Login from "./components/login/login";
 import Signup from "./components/login/signup";
-import DeviceInfo from "./components/device/deviceInfo";
-import Policy from "./components/device/policy";
-import Scheduler from "./components/device/scheduler";
-import Carousel from "./components/device/Carousel";
-import TestTable from "./components/device/TestTable";
+import DeviceInfo from "./components/DeviceInfo";
+import Carousel from "./components/SliderList/Carousel";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,14 +14,14 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Root/MainApp/Carousel">
           {/* <Stack.Screen name="Root/Auth/Login" component={Login} /> */}
           {/* <Stack.Screen name="Root/Auth/Signup" component={Signup} /> */}
-          {/* <Stack.Screen
+          <Stack.Screen
             name="Root/MainApp/Carousel"
             component={Carousel}
             options={{ headerShown: false }}
-          /> */}
+          />
           <Stack.Screen
             name="Root/MainApp/DeviceInfo"
             component={DeviceInfo}
@@ -39,6 +36,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'white',
+  },
   normalStyle: {
     flex: 1,
     alignItems: "center",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Image, FlatList } from "react-native";
-import SliderList from "./SliderList";
-import { makeChunks } from "./util";
+import { View, StyleSheet, Image, FlatList, TouchableOpacity, Pressable, useWindowDimensions } from "react-native";
+import SliderList from ".";
+import { makeChunks } from "../DeviceInfo/util";
 
 // Data will be used to compose our slides
 const rawdata = [
@@ -39,24 +39,24 @@ const rawdata = [
   },
 ];
 
-const Carousel = () => {
+export default function Carousel({ navigation }) {
   const [data, setData] = useState(makeChunks(rawdata, 5));
-
   // Renderer function takes the data as an input and outputs the view, should be customized
   return (
     <SliderList
       data={data}
-      dotColor="green"
       renderer={(itemList) => (
         <FlatList
           data={itemList}
           renderItem={({ item }) => (
             <View style={{ ...styles.slide, backgroundColor: item.color }}>
-              <Image
-                resizeMode="cover"
-                style={styles.image}
-                source={{ uri: item.image }}
-              />
+              <TouchableOpacity onPress={() => navigation.navigate('Root/MainApp/DeviceInfo')}>
+                <Image
+                  resizeMode="cover"
+                  style={styles.image}
+                  source={{ uri: item.image }}
+                />
+              </TouchableOpacity>
             </View>
           )}
           numColumns={2}
@@ -80,5 +80,3 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
 });
-
-export default Carousel;
