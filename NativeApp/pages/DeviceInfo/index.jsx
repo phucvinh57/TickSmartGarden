@@ -134,6 +134,7 @@ export default function DeviceInfo({ navigation }) {
               size="xs"
               onPress={() => {
                 alert("Thêm Chính sách");
+                navigation.navigate('Root/MainApp/EditPolicy')
               }}
               style={{ backgroundColor: styles.active.color }}
             >
