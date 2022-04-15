@@ -1,25 +1,32 @@
-import { StyleSheet } from "react-native";
+import { createContext } from "react";
 import { NativeBaseProvider } from "native-base";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import Login from "./components/login/login";
-import Signup from "./components/login/signup";
 import DeviceInfo from "./pages/DeviceInfo";
 import Carousel from "./components/SliderList/Carousel";
+import ViewEngine from './pages/ViewDevice';
+import { GardenContextProvider } from './contexts/GardenContext';
 
 const Stack = createNativeStackNavigator();
 
+
 export default function App() {
   return (
+    <GardenContextProvider>
     <NativeBaseProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Root/MainApp/Carousel">
+        <Stack.Navigator initialRouteName="Root/MainApp/ViewEngine">
           {/* <Stack.Screen name="Root/Auth/Login" component={Login} /> */}
           {/* <Stack.Screen name="Root/Auth/Signup" component={Signup} /> */}
           <Stack.Screen
             name="Root/MainApp/Carousel"
             component={Carousel}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Root/MainApp/ViewEngine"
+            component={ViewEngine}
             options={{ headerShown: false }}
           />
           <Stack.Screen
@@ -32,18 +39,6 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
+    </GardenContextProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'white',
-  },
-  normalStyle: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

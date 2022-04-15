@@ -50,7 +50,7 @@ export default function Carousel({ navigation }) {
           data={itemList}
           renderItem={({ item }) => (
             <View style={{ ...styles.slide, backgroundColor: item.color }}>
-              <TouchableOpacity onPress={() => navigation.navigate('Root/MainApp/DeviceInfo')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Root/MainApp/ViewEngine')}>
                 <Image
                   resizeMode="cover"
                   style={styles.image}
