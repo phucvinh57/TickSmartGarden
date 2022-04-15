@@ -2,7 +2,6 @@ import { connect } from "@taoqf/react-native-mqtt";
 
 function getMqttConnection(username, key) {
   const url = `mqtts://${username}:${key}@io.adafruit.com`;
-  console.log("new client");
   return connect(url);
 };
 
@@ -41,9 +40,9 @@ class AdaClient {
         !err &&
           this.client.on("message", (incomeTopic, message) => {
             if (topic === incomeTopic) {
-              console.log(
-                `Message on topic ${incomeTopic}. Message: ${message}`
-              );
+              // console.log(
+              //   `Message on topic ${incomeTopic}. Message: ${message}`
+              // );
               onMessage(incomeTopic, message);
             }
           });
@@ -68,7 +67,7 @@ class ClientGroup {
         const client = getMqttConnection(options.username, options.password)
         client.on("error", (err) => {console.log('connection error', err)});
         client.on("connect", () => {
-          console.log(`Connected to adaclient ${options.username}`);
+          // console.log(`Connected to adaclient ${options.username}`);
           this.clients.push(new AdaClient(options.username, options.password, client));
           callback && callback();
         });
@@ -80,7 +79,8 @@ class ClientGroup {
   }
 
   getFirstAdaClient() {
-    console.log({noClient: this.clients.length})
+    // console.log({noClient: this.clients.length})
+    console.log('TODO: get correct adaclient')
     return this.clients[0]
   }
 }

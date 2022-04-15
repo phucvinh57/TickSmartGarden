@@ -1,13 +1,13 @@
 import { NativeBaseProvider } from 'native-base';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import Engine from './pages/Engine';
+import ViewEngine from './pages/ViewDevice';
 
 
 export default function App() {
   return (
     <NativeBaseProvider>
       <SafeAreaView style={styles.container}>
-        <Engine/>
+        <ViewEngine />
       </SafeAreaView>
     </NativeBaseProvider>
   );

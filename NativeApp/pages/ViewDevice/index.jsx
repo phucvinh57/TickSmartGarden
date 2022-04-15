@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
-import EngineCard from "../components/view-device/EngineCard";
+import EngineCard from "./EngineCard"
 import {
   Box,
   CheckIcon,
@@ -12,15 +12,13 @@ import {
   View,
 } from "native-base";
 
-import { actuatorTypes, mockedGardenInfo, options } from "../components/view-device/data";
-import { sleep } from "../components/view-device/utils";
+import { actuatorTypes, mockedGardenInfo, options } from "./data";
+import { sleep } from "./utils";
 
 const deviceTypeOptions = actuatorTypes;
-const GardenGroup = require('../components/view-device/mqttClient');
+const GardenGroup = require('./mqttClient');
 
-function Engine() {
-  console.log('render Engine')
-  
+export default function ViewEngine() {  
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState(null);
   const [deviceList, setDeviceList] = useState(null); // filter later
@@ -32,7 +30,6 @@ function Engine() {
       if (mounted) {
         GardenGroup.addClient(options, () => {
           setIsLoading(true)
-          console.log('try addClient')
           sleep(200)
           setClient(GardenGroup.getFirstAdaClient())
           setDeviceList(mockedGardenInfo.hardware)
@@ -47,7 +44,7 @@ function Engine() {
   }, []);
 
   const handleChangeDeviceType = (typeStr) => {
-    console.log(`handleChangeDeviceType(${typeStr})`);
+    alert('select ' + typeStr)
     setSelectedType(typeStr);
   };
 
@@ -103,8 +100,6 @@ function Engine() {
     </View>
   );
 }
-
-export default Engine;
 
 const DEBUG_COLOR = {
   WHITE: "white",
