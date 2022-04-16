@@ -14,43 +14,36 @@ import {
   View,
 } from "native-base";
 
-import GardenGroup from "./mqttClient"
 import { GardenContext } from "../../contexts/GardenContext";
 import { actuatorTypes, sensorTypes, hardware } from "./data";
+import { sleep } from "./utils";
 
-const deviceTypeOptions = actuatorTypes;
+const deviceTypeOptions = [...actuatorTypes, ...sensorTypes];
 
 export default function ViewDevice({navigation}) {  
-  const [isLoading, setIsLoading] = useState(true);
-  const [client, setClient] = useState(null);
-  const [deviceList, setDeviceList] = useState(null); // filter later
-  const [selectedType, setSelectedType] = useState(null);
+  const { adaClient } = useContext(GardenContext)
 
-  const garden = useContext(GardenContext);
-  console.log({garden})
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
+  const [deviceList, setDeviceList] = useState(null); // filter later
+
 
   useEffect(() => {
-    let mounted = true;
-    const addClient = async () => {
-      if (mounted) {
-        console.log('try add client')
-        GardenGroup.addClient(garden.auth, () => {
-          setIsLoading(true)
-          setClient(GardenGroup.getAdaClient(garden.adaclient))
-          setDeviceList(hardware)
-          setSelectedType(deviceTypeOptions[0].id)
-          setIsLoading(false)
-        })
-      }
-    }
+    setIsLoading(adaClient ? false : true)
+  }, [adaClient]);
 
-    addClient().catch(console.log)
-    return () => mounted = false
-  }, []);
-
+  useEffect(() => {
+    setDeviceList(hardware.filter((hw) => {
+      return hw.type == selectedType
+    }))
+    setIsLoading(false)
+  }, [selectedType])
+  
   const handleChangeDeviceType = (typeStr) => {
-    alert('select ' + typeStr)
-    setSelectedType(typeStr);
+    setIsLoading(true)
+    sleep(500).then(() => {
+      setSelectedType(typeStr);
+    })
   };
 
   const DeviceTypeSelector = () => (
@@ -78,7 +71,7 @@ export default function ViewDevice({navigation}) {
     <View key={item.id} style={styles.flatListColumn}>
       <TouchableWithoutFeedback onPress={() => navigation.navigate('Root/MainApp/DeviceInfo')}>
         <View style={index % 2 == 0 ? styles.listItemLeft : styles.listItemRight}>
-          <EngineCard deviceInfo={item} client={client} />
+          <EngineCard deviceInfo={item} client={adaClient} />
         </View>
       </TouchableWithoutFeedback>
     </View>

@@ -18,8 +18,16 @@ export default function App() {
     <NativeBaseProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Root/MainApp/Homepage">
-          <Stack.Screen name="Root/MainApp/Homepage" component={Homepage} options={{ headerShown: false }}/>
-          <Stack.Screen name="Root/MainApp/AddGarden" component={AddGarden} options={{ headerShown: false }}/>
+          <Stack.Screen 
+            name="Root/MainApp/Homepage" 
+            component={Homepage} 
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="Root/MainApp/AddGarden" 
+            component={AddGarden} 
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="Root/MainApp/EditPolicy"
             component={EditPolicy}

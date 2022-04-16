@@ -78,7 +78,15 @@ class ClientGroup {
   }
 
   getAdaClient(username) {
-    return this.clients.filter((client) => client.username === username)[0];
+    const numberOfClient = this.clients.length
+    console.log({numberOfClient}) 
+    const arr = this.clients.filter((client) => {
+      return client.username === username
+    })
+    if (arr && arr != []) {
+      return arr[0]
+    }
+    return null
   }
 }
 

@@ -60,16 +60,20 @@ const sensorLight1 = {
 
 
 const hardware = [
-  // // {
-  // //   name: "Nhiệt độ",
-  // //   feedkey: TEMPERATURE_SENSOR_FEED_KEY,
-  // //   type: "sensor",
-  // // },
   pump1,
   light1,
   sensorHumid1,
   sensorTemperature1,
   sensorLight1,
+  
+  {...pump1, id: 11},
+  {...light1, id: 12},
+  {...sensorHumid1, id: 13},
+  {...sensorTemperature1, id: 14},
+  {...sensorLight1, id: 15},
+  {...sensorHumid1, id: 23},
+  {...sensorTemperature1, id: 24},
+  {...sensorLight1, id: 25},
 ];
 
 module.exports.hardware = hardware;
