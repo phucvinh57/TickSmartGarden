@@ -3,8 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import DeviceInfo from "./pages/DeviceInfo";
-import Carousel from "./components/SliderList/Carousel";
-import ViewEngine from './pages/ViewDevice';
+import ViewDevice from './pages/ViewDevice';
 import EditPolicy from "./pages/editPolicy";
 import Homepage from "./pages/homepage";
 import AddGarden from "./pages/addGarden";
@@ -21,11 +20,6 @@ export default function App() {
         <Stack.Navigator initialRouteName="Root/MainApp/Homepage">
           <Stack.Screen name="Root/MainApp/Homepage" component={Homepage} options={{ headerShown: false }}/>
           <Stack.Screen name="Root/MainApp/AddGarden" component={AddGarden} options={{ headerShown: false }}/>
-          {/* <Stack.Screen
-            name="Root/MainApp/Carousel"
-            component={Carousel}
-            options={{ headerShown: false }}
-          /> */}
           <Stack.Screen
             name="Root/MainApp/EditPolicy"
             component={EditPolicy}
@@ -33,7 +27,7 @@ export default function App() {
           />
           <Stack.Screen
             name="Root/MainApp/ViewEngine"
-            component={ViewEngine}
+            component={ViewDevice}
             options={{ headerShown: false }}
           />
           <Stack.Screen

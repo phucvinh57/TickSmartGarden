@@ -80,7 +80,7 @@ function SensorCard({ isLoading, lastData, name, type, description}) {
       <View style={styles.cardBody}>
         <View flex={9}>
           {/* <Text>Col1</Text> */}
-          <Text fontSize="xs" noOfLines={1} flex={1}>
+          <Text fontSize="xs" numberOfLines={1} flex={1}>
             {description}
           </Text>
           <Container
@@ -92,7 +92,7 @@ function SensorCard({ isLoading, lastData, name, type, description}) {
             <View>
               {isLoading && <ActivityIndicator size="small" color="red" />}
               {!isLoading && (
-                <Text fontSize="xs" noOfLines={1} flex={1} style={styles.sensorValue}>
+                <Text fontSize="xs" flex={1} style={styles.sensorValue}>
                   {`${sensorValue}${infers.inferDataUnit(type)}`}
                 </Text>
               )}
@@ -129,7 +129,7 @@ function ActuatorCard({ isLoading, lastData, name, type, description, onToggle }
       <View style={styles.cardBody}>
         <View flex={9}>
           {/* <Text>Col1</Text> */}
-          <Text fontSize="xs" noOfLines={1} flex={1}>
+          <Text fontSize="xs" numberOfLines={1} flex={1}>
             {description}
           </Text>
           <Container
@@ -172,9 +172,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#eaf5ef",
-    borderRadius: 5,
-    paddingLeft: 5,
-    paddingVertical: 7,
+    borderRadius: 8,
+    padding: 10,
   },
   cardBody: {
     flexDirection: "row",

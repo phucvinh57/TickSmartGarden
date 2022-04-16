@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet, TouchableOpacity, useWindowDimensions } from "react-native";
 import {
   Box,
   FormControl,
@@ -14,6 +14,8 @@ import {
   Text,
   ScrollView,
 } from "native-base";
+
+import AppContainer from "../../components/AppContainer";
 import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
 
@@ -41,7 +43,7 @@ export default function DeviceInfo({ navigation }) {
 
   // Width of the window will be width of our slides
   const windowWidth = useWindowDimensions().width - 40;
-  
+
   const renderCardItems = (items) => {
     return (
       <HStack justifyContent="space-between">
@@ -60,9 +62,17 @@ export default function DeviceInfo({ navigation }) {
   };
 
   return (
-    <View style={{marginTop: 25}}>
+    <AppContainer title={
+      <TouchableOpacity 
+        style={{ width: "100%" }} 
+        onPress={() => navigation.navigate('Root/MainApp/ViewEngine')}
+      >
+        <Text style={styles.textHeader}>{"< Thông tin máy bơm"}</Text>
+      </TouchableOpacity>
+    }>
+  <View>
     <ScrollView>
-      <VStack style={styles.container} space={3}>
+      <VStack space={3}>
         <Box>
           <FormControl isReadOnly>
             <Heading style={styles.textHeading} size="sm">
@@ -71,18 +81,14 @@ export default function DeviceInfo({ navigation }) {
             <Input type="text" placeholder="Máy bơm, Đèn ..." />
           </FormControl>
 
-          <HStack
-            style={{
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 2 }}>
+          <HStack justifyContent="space-between">
+            <View flex={2}>
               <Heading style={styles.textHeading} size="sm">
                 Thời gian hoạt động
               </Heading>
               <HStack
                 space={2}
-                style={{ alignItems: "center", backgroundColor: DEBUG.WHITE }}
+                alignItems="center"
               >
                 <View style={{ width: "70%", alignItems: "center" }}>
                   <Input keyboardType="numeric" placeholder="123456" />
@@ -134,7 +140,7 @@ export default function DeviceInfo({ navigation }) {
               size="xs"
               onPress={() => {
                 alert("Thêm Chính sách");
-                navigation.navigate('Root/MainApp/EditPolicy')
+                navigation.navigate("Root/MainApp/EditPolicy");
               }}
               style={{ backgroundColor: styles.active.color }}
             >
@@ -158,7 +164,8 @@ export default function DeviceInfo({ navigation }) {
         </Box>
       </VStack>
     </ScrollView>
-    </View>
+  </View>
+  </AppContainer>
   );
 }
 
@@ -170,14 +177,6 @@ const DEBUG = {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    // backgroundColor: DEBUG.PINK,
-    // marginHorizontal: 20,
-    // marginTop: 25,
-    paddingHorizontal: 20,
-    // paddingTop: 25,
-  },
   cardItem: {
     backgroundColor: "#eaf5ef",
     borderRadius: 7,
@@ -206,5 +205,11 @@ const styles = StyleSheet.create({
   },
   active: {
     color: "#28554e",
+  },
+  textHeader: {
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#de7067",
+    fontWeight: "500",
   },
 });
