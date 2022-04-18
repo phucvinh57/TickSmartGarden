@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DataTable } from "react-native-paper";
-import { makeChunks } from "./util";
+import { makeChunks } from '../../components/SliderList/util'
 
 
 function inferTableLabel(offset, currPageLength, totalLength) {

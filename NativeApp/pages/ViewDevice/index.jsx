@@ -1,111 +1,158 @@
-import React, { useState, useEffect, useContext } from "react";
-import { ActivityIndicator, StyleSheet, TouchableWithoutFeedback } from "react-native";
-import EngineCard from "./EngineCard"
-import AppContainer from "../../components/AppContainer"
+import { useState, useEffect } from "react";
 import {
-  Box,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  FlatList,
-  HStack,
-  Select,
   Text,
   View,
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  FlatList,
+  Select,
+  HStack,
 } from "native-base";
 
-import { GardenContext } from "../../contexts/GardenContext";
-import { actuatorTypes, sensorTypes, hardware } from "./data";
+import EngineCard from "./EngineCard";
+import SliderList from "../../components/SliderList";
+import AppContainer from "../../components/AppContainer";
+
+import useLastData from '../../contexts/useLastData'
+import { makeChunks } from "../../components/SliderList/util";
 import { sleep } from "./utils";
 
-const deviceTypeOptions = [...actuatorTypes, ...sensorTypes];
+import { hardware as hardwares } from "./data";
 
-export default function ViewDevice({navigation}) {  
-  const { adaClient } = useContext(GardenContext)
+const deviceTypeOptions = [
+  { id: "All", name: "Tất cả" },
+  { id: "SensorLight", name: "Ánh sáng" },
+  { id: "SensorHumid", name: "Độ ẩm" },
+  { id: "SensorTemperature", name: "Nhiệt độ" },
+  { id: "ActuatorLight", name: "Đèn" },
+  { id: "ActuatorPump", name: "Máy bơm" },
+];
 
+
+export default function ViewDevice({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
-  const [deviceList, setDeviceList] = useState(null); // filter later
 
-
+  // for display only
+  const [chunks, setChunks] = useState([]);
+  const windowWidth = useWindowDimensions().width - 40;
   useEffect(() => {
-    setIsLoading(adaClient ? false : true)
-  }, [adaClient]);
+    let itemPerPage = 8;
+    const arr = hardwares.filter((hw) => {
+      return selectedType == "All" || hw.type == selectedType;
+    });
+    setChunks(makeChunks(arr, itemPerPage));
+    setIsLoading(false);
+  }, [selectedType]);
 
-  useEffect(() => {
-    setDeviceList(hardware.filter((hw) => {
-      return hw.type == selectedType
-    }))
-    setIsLoading(false)
-  }, [selectedType])
-  
-  const handleChangeDeviceType = (typeStr) => {
-    setIsLoading(true)
+  const [feeds, setFeeds] = useState(() => {
+    return hardwares.map(hw => hw.feedkey)
+  })
+  const [datum, publishMqtt] = useLastData(feeds)
+
+  const onSelectedTypeChange = (typeStr) => {
+    setIsLoading(true);
     sleep(500).then(() => {
       setSelectedType(typeStr);
-    })
-  };
+    });
+  }
 
-  const DeviceTypeSelector = () => (
+  const onSwitchChange = (feed, value) => {
+    // console.log(`onSwitchChange(${feed}, ${value})`)
+    publishMqtt(feed, value)
+  }
+
+  return (
+    <AppContainer
+      title={
+        <View style={{ width: "100%" }}>
+          <Text style={styles.textHeader}>Danh sách cảm biến</Text>
+          <HStack space={3} style={styles.filterBar}>
+            <Text fontSize="md">Loại thiết bị:</Text>
+            <DropdownSelector 
+              options={deviceTypeOptions}
+              selectedValue={selectedType}
+              onSelectedValueChange={onSelectedTypeChange}
+            />
+          </HStack>
+        </View>
+      }
+    >
+      <View>
+        <View style={styles.flatListWrapper}>
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color="red"
+              style={styles.loadingIcon}
+            />
+          )}
+          {!isLoading && (
+            <SliderList
+              data={chunks}
+              windowWidth={windowWidth}
+              renderer={(chunk) => (
+                <FlatList
+                  style={styles.flatList}
+                  data={chunk}
+                  numColumns={2}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item, index }) => (
+                    <View
+                      key={item.id}
+                      style={[
+                        styles.flatListColumn,
+                        index % 2 == 0
+                          ? styles.listItemLeft
+                          : styles.listItemRight,
+                      ]}
+                    >
+                      <EngineCard
+                        deviceInfo={item} 
+                        lastData={datum[item.feedkey]}
+                        onPress={() => {
+                          navigation.navigate("Root/MainApp/DeviceInfo");
+                        }}
+                        onSwitchChange={(value) => onSwitchChange(item.feedkey, value)}
+                      />
+                    </View>
+                  )}
+                />
+              )}
+            />
+          )}
+        </View>
+      </View>
+    </AppContainer>
+  );
+}
+
+function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
+  return (
     <View minW={150}>
       <Select
-        selectedValue={selectedType}
-        defaultValue={selectedType}
-        onValueChange={handleChangeDeviceType}
+        selectedValue={selectedValue}
+        defaultValue={selectedValue}
+        onValueChange={onSelectedValueChange}
         size="md"
-        dropdownIcon={<ChevronDownIcon size="5" marginRight={3}/>}
+        dropdownIcon={<ChevronDownIcon size="5" marginRight={3} />}
         _selectedItem={{
           bg: "teal.600",
           backgroundColor: "#28554e",
           endIcon: <CheckIcon size="5" />,
         }}
       >
-        {deviceTypeOptions.map(({ id, name }) => (
+        {options.map(({ id, name }) => (
           <Select.Item key={id} value={id} label={name} />
         ))}
       </Select>
     </View>
-  );
-
-  const _renderListItem = ({ item, index }) => (
-    <View key={item.id} style={styles.flatListColumn}>
-      <TouchableWithoutFeedback onPress={() => navigation.navigate('Root/MainApp/DeviceInfo')}>
-        <View style={index % 2 == 0 ? styles.listItemLeft : styles.listItemRight}>
-          <EngineCard deviceInfo={item} client={adaClient} />
-        </View>
-      </TouchableWithoutFeedback>
-    </View>
-  );
-
-  return (
-    <AppContainer title={
-      <View style={{width: "100%"}}>
-        <Text style={styles.textHeader}>
-          Danh sách cảm biến
-        </Text>
-        <HStack space={3} style={styles.filterBar}>
-          <Text fontSize="md">Lọc theo:</Text>
-          <DeviceTypeSelector />
-        </HStack>
-      </View>
-    }>
-      <View>
-        <View style={styles.flatListWrapper}>
-          {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
-          {/* TODO: Text: Đang kết nối */}
-          {!isLoading && 
-            <FlatList
-            style={styles.flatList}
-            data={deviceList}
-            renderItem={_renderListItem}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-            />
-          }
-        </View>
-      </View>
-    </AppContainer>
-  );
+  )
 }
 
 const DEBUG_COLOR = {
@@ -136,14 +183,12 @@ const styles = StyleSheet.create({
     backgroundColor: DEBUG_COLOR.PINK,
   },
   listItemLeft: {
-    margin: 10,
-    marginLeft: 0,
-    flex: 1,
+    padding: 7,
+    paddingLeft: 0,
   },
   listItemRight: {
-    margin: 10,
-    marginRight: 0,
-    flex: 1,
+    padding: 7,
+    paddingRight: 0,
   },
   loadingIcon: {
     flex: 1,

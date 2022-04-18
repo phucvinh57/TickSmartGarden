@@ -44,7 +44,7 @@ const SliderList = ({ data, renderer, dotColor, windowWidth }) => {
   // Renders pagination dots
   const dots = () => (
     <View style={styles.dotGroup}>
-      {data.map((_, index) => (
+      {data && (data.length > 1) && data.map((_, index) => (
         <View
           key={index}
           style={[
@@ -119,6 +119,6 @@ const styles = StyleSheet.create({
 });
 
 SliderList.defaultProps = {
-  dotColor: "pink",
+  dotColor: "#28554E",
 }
 export default SliderList;

@@ -31,6 +31,29 @@ class AdaClient {
     }
   }
 
+  subArray(keys, onMessage) {
+    try {
+      const topics = [...keys].map((key) => {
+        return [this.username, "feeds", key].join("/");
+      })
+      
+      this.client.subscribe(topics, (err) => {
+        err && console.log(err);
+        !err &&
+          this.client.on("message", (incomeTopic, message) => {
+            if (topics.includes(incomeTopic)) {
+              console.log(
+                `Message on topic ${incomeTopic}. Message: ${message}`
+              );
+              onMessage(incomeTopic, message);
+            }
+          });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   sub(key, onMessage) {
     try {
       const topic = [this.username, "feeds", key].join("/");
@@ -39,9 +62,9 @@ class AdaClient {
         !err &&
           this.client.on("message", (incomeTopic, message) => {
             if (topic === incomeTopic) {
-              // console.log(
-              //   `Message on topic ${incomeTopic}. Message: ${message}`
-              // );
+              console.log(
+                `Message on topic ${incomeTopic}. Message: ${message}`
+              );
               onMessage(incomeTopic, message);
             }
           });
@@ -90,4 +113,5 @@ class ClientGroup {
   }
 }
 
-module.exports = new ClientGroup();
+const GardenGroup = new ClientGroup();
+export default GardenGroup

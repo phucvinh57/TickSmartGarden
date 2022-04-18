@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, useWindowDimensions } from "react-native";
+import { 
+  StyleSheet, 
+  TouchableOpacity, 
+  useWindowDimensions,
+  Switch,
+  View,
+  Text,
+  ScrollView,
+} from "react-native";
 import {
   Box,
+  Heading,
   FormControl,
   HStack,
   Input,
-  Switch,
   AddIcon,
   Button,
-  Heading,
-  View,
   VStack,
-  Text,
-  ScrollView,
 } from "native-base";
 
 import AppContainer from "../../components/AppContainer";
@@ -20,7 +24,7 @@ import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
 
 import { mockPolicyList, mockSchedList, mockLogList } from "./data";
-import { makeChunks } from "./util";
+import { makeChunks } from "../../components/SliderList/util";
 
 function getLogList() {
   return mockLogList.map((item) => ({
@@ -126,7 +130,6 @@ export default function DeviceInfo({ navigation }) {
           <SliderList
             data={schedList}
             renderer={renderCardItems}
-            dotColor="#28554E"
             windowWidth={windowWidth}
           />
         </Box>
@@ -151,7 +154,6 @@ export default function DeviceInfo({ navigation }) {
           <SliderList
             data={policyList}
             renderer={renderCardItems}
-            dotColor="#28554E"
             windowWidth={windowWidth}
           />
         </Box>
