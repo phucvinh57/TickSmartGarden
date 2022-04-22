@@ -29,9 +29,7 @@ function EngineCard({ deviceInfo, lastData, onPress, onSwitchChange }) {
     if (onSwitchChange instanceof Function) {
       (async () => {
         setIsLoading(true)
-        await sleep(200)
-        const nextData = lastData == "1" ? "0" : "1"
-        onSwitchChange(nextData)
+        onSwitchChange(lastData == "1" ? "0" : "1")
       })().catch(console.error)
     }
   };

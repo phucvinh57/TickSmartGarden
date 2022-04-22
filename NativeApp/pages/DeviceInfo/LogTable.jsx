@@ -7,15 +7,24 @@ function inferTableLabel(offset, currPageLength, totalLength) {
   return `${offset + 1}-${offset + currPageLength} of ${totalLength}`;
 }
 
-const LogTable = ({ itemsPerPage, data }) => {
+const LogTable = ({ itemsPerPage, data, onPageChange }) => {
   console.log(`LogTable({ ${itemsPerPage}, ${data} })`)
-  const [chunks, setChunks] = React.useState(makeChunks(data, itemsPerPage));
+  const [chunks, setChunks] = React.useState([[]]);
   const [currPage, setCurrPage] = React.useState(0);
   const [tableLabel, setTableLabel] = React.useState("");
 
+  const handlePageChange = (pageIndex) => {
+    setCurrPage(pageIndex)
+    onPageChange && onPageChange()
+  }
+  
   React.useEffect(() => {
     setCurrPage(0);
   }, [itemsPerPage]);
+
+  React.useEffect(() => {
+    setChunks(makeChunks(data, itemsPerPage))
+  }, [itemsPerPage, data])
 
   React.useEffect(() => {
     setTableLabel(
@@ -44,7 +53,7 @@ const LogTable = ({ itemsPerPage, data }) => {
       <DataTable.Pagination
         page={currPage}
         numberOfPages={chunks.length}
-        onPageChange={setCurrPage}
+        onPageChange={handlePageChange}
         itemsPerPage={itemsPerPage}
         optionsPerPage={3}
         label={tableLabel}

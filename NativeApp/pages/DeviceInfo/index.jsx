@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { 
   StyleSheet, 
   TouchableOpacity, 
@@ -47,6 +47,7 @@ export default function DeviceInfo({ navigation }) {
 
   // Width of the window will be width of our slides
   const windowWidth = useWindowDimensions().width - 40;
+  const scrollRef = useRef()
 
   const renderCardItems = (items) => {
     return (
@@ -75,7 +76,7 @@ export default function DeviceInfo({ navigation }) {
       </TouchableOpacity>
     }>
   <View>
-    <ScrollView>
+    <ScrollView ref={scrollRef}>
       <VStack space={3}>
         <Box>
           <FormControl isReadOnly>
@@ -162,7 +163,11 @@ export default function DeviceInfo({ navigation }) {
           <Heading style={styles.textHeading} size="sm">
             Lịch sử hoạt động
           </Heading>
-          <LogTable data={logList} itemsPerPage={5} />
+          <LogTable 
+            data={logList}
+            itemsPerPage={5}
+            onPageChange={() => scrollRef?.current.scrollToEnd({animated: true})}
+          />
         </Box>
       </VStack>
     </ScrollView>

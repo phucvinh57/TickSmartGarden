@@ -5,7 +5,13 @@ function DEBUG_LOG(msg) {
   // console.log(msg)
 }
 
-export default function useLastData(feeds) {
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+export default function useLastData(_feeds) {
+  const feeds = _feeds.filter(onlyUnique)
+
   // DEBUG_LOG(`useLastData(${feeds})`)
   const { adaClient: client } = useContext(GardenContext)
 

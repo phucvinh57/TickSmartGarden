@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -43,6 +43,7 @@ export default function ViewDevice({ navigation }) {
   const windowWidth = useWindowDimensions().width - 40;
   useEffect(() => {
     let itemPerPage = 8;
+    console.log(`hardwares.filter & done loading`)
     const arr = hardwares.filter((hw) => {
       return selectedType == "All" || hw.type == selectedType;
     });
@@ -54,13 +55,6 @@ export default function ViewDevice({ navigation }) {
     return hardwares.map(hw => hw.feedkey)
   })
   const [datum, publishMqtt] = useLastData(feeds)
-
-  const onSelectedTypeChange = (typeStr) => {
-    setIsLoading(true);
-    sleep(500).then(() => {
-      setSelectedType(typeStr);
-    });
-  }
 
   const onSwitchChange = (feed, value) => {
     // console.log(`onSwitchChange(${feed}, ${value})`)
@@ -77,7 +71,7 @@ export default function ViewDevice({ navigation }) {
             <DropdownSelector 
               options={deviceTypeOptions}
               selectedValue={selectedType}
-              onSelectedValueChange={onSelectedTypeChange}
+              onSelectedValueChange={setSelectedType}
             />
           </HStack>
         </View>
@@ -134,12 +128,13 @@ export default function ViewDevice({ navigation }) {
 
 function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
   return (
-    <View minW={150}>
+    <>
       <Select
+        minWidth="140"
+        size="md"
         selectedValue={selectedValue}
         defaultValue={selectedValue}
         onValueChange={onSelectedValueChange}
-        size="md"
         dropdownIcon={<ChevronDownIcon size="5" marginRight={3} />}
         _selectedItem={{
           bg: "teal.600",
@@ -151,7 +146,7 @@ function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
           <Select.Item key={id} value={id} label={name} />
         ))}
       </Select>
-    </View>
+    </>
   )
 }
 
