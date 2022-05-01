@@ -1,3 +1,4 @@
+-- drop schema smartgarden;
 create schema if not exists smartgarden;
 use smartgarden;
 create table if not exists `Account` (
@@ -83,4 +84,11 @@ create table if not exists Expression (
     rhsValue float,
     primary key (sensorID, policyName, actuatorID, operator, rhsValue),
     foreign key (sensorID, policyName, actuatorID) references Applies(sensorID, policyName, actuatorID)
+);
+
+create table if not exists Log (
+	hardwareID VARCHAR(8) PRIMARY KEY,
+	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    activity VARCHAR(255) NOT NULL,
+    FOREIGN KEY (hardwareID) REFERENCES Hardware(ID)
 );

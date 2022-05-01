@@ -2,18 +2,17 @@ const gardenModel = require('../repository/garden')
 const handler = require('./handler')
 
 class GardenCtrler {
-    getList(req, res) {
-        const email = req.accountemail
-        handler(res, async () => {
-            const gardenList = await gardenModel.getList(email)
-            res.json(gardenList)
-        })
+    async getList(req, res) {
+        const email = req.accountEmail
+        const gardenList = await gardenModel.getList(email)
+        res.json(gardenList)
     }
     create(req, res) {
-        const { name, imgurl, description, group_key } = req.body
+        const data = req.body
+        console.log(data)
         handler(res, async () => {
-            await gardenModel.create({ name, imgurl, description, group_key })
-            res.json({ msg: 'OKE' })
+            const gardenID = await gardenModel.create(data)
+            res.json({ gardenID })
         })
     }
     remove(req, res) {
@@ -23,8 +22,12 @@ class GardenCtrler {
             res.json({ msg: 'OKE' })
         })
     }
-    modify(req, res) {
-        
+    getList(req, res) {
+        const useremail = req.query.useremail
+        handler(res, async () => {
+            const gardenList = await gardenModel.getList(useremail)
+            res.json(gardenList)
+        })
     }
 }
 

@@ -2,11 +2,11 @@ const dbQuery = require('./db')
 class Account {
     async getAccount(accountEmail) {
         try {
-            const queryStr = `SELECT EXISTS (SELECT accountemail FROM account WHERE accountemail = ?)`
-            const exists = await dbQuery(queryStr, [accountEmail])
-            return exists
+            const queryStr = `SELECT accountemail, password FROM account WHERE accountemail = ?`
+            const result = await dbQuery(queryStr, [accountEmail])
+            return result[0]
         } catch(err) {
-            return err
+            return "500"
         }
     }
 }

@@ -6,14 +6,15 @@ class GardenModel {
         const QUERY_STR = 'SELECT * FROM garden INNER JOIN adaclient WHERE garden.adaclient = adaclient.username'
         return await dbQuery(QUERY_STR)
     }
-    
+
     async getList(accountEmail) {
         try {
             const queryStr = `SELECT 
-                name, description, imgurl, group_key, 
-                adaclient.username as adaUsername, adaclient.userkey as adaKey
-            FROM garden JOIN adaclient ON garden.adaclient = adaclient.username
-            WHERE garden.accountemail = ?`
+                name, description, imgurl, group_key as groupKey, 
+                adaclient.username as adaUsername, adaclient.userkey as adaUserkey
+                FROM garden JOIN adaclient ON garden.adaclient = adaclient.username
+                WHERE garden.accountemail = ?
+            `
             const gardenList = await dbQuery(queryStr, [accountEmail])
             return gardenList
         }
@@ -21,21 +22,31 @@ class GardenModel {
             throw err
         }
     }
+
     async create(data) {
         try {
-            const queryStr = `INSERT INTO garden VALUES (? , ?)`
-            const gardenList = await dbQuery(queryStr, [generateID(), ...Object.values(data)])
-            return gardenList
+            const gardenID = generateID()
+            const gardenQueryStr = `INSERT INTO garden VALUES (?, ?, ?, ?, ?, ?, ?)`
+            const adaQueryStr = `INSERT INTO adaclient VALUES (?, ?)`
+
+            const gardenData = [gardenID, data.name, data.adaUserName, data.useremail, data.groupKey, data.description, data.imgurl]
+            const adaData = [data.adaUserName, data.adaUserKey]
+
+            await dbQuery(adaQueryStr, adaData)
+            await dbQuery(gardenQueryStr, gardenData)
+            
+            return gardenID
         }
         catch (err) {
             throw err
         }
     }
+
     async delete(gardenID) {
         try {
             const queryStr = `DELETE FROM garden where ID = ?`
             await dbQuery(queryStr, [gardenID])
-        } catch(err) {
+        } catch (err) {
             throw err
         }
     }
