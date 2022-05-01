@@ -1,32 +1,32 @@
 const schedule = require('node-schedule');
-const actuatorModel = require('../repository/actuator')
-const scheduleModel = require('../repository/schedule')
+const actuatorRepo = require('../repository/actuator')
+const scheduleRepo = require('../repository/schedule')
 
-const INFINITY_REPETITION = 0
+const FINISH_COUNT = 0
 
 class Scheduler{
     constructor(){
         this.job = []
     }
 
-    fireSchedule(cron_expr, scheduleInfo){
+    fireCron(cron_expr, scheduleInfo){
+        const key = [scheduleInfo.name, scheduleInfo.actuator_ID].join('/')
 
         const job = schedule.scheduleJob(cron_expr, () => {
-            actuatorModel.turnOn(scheduleInfo.actuator_ID)
-            console.log('fire')
-            scheduleModel.updateCount(scheduleInfo.actuator_ID, scheduleInfo.name, scheduleInfo.count + 1)
-            scheduleInfo.count += 1
-            if(scheduleInfo.count >= scheduleInfo.repetition && schedule.repetition != INFINITY_REPETITION)
-                {this.cancel(key)}
+            actuatorRepo.turnOn(scheduleInfo.actuator_ID)
+            console.log(`Schedule ${key} is triggered at ${new Date()}`)
+            scheduleRepo.updateCount(scheduleInfo.actuator_ID, scheduleInfo.name, scheduleInfo.count - 1)
+            if(scheduleInfo.count - 1 == FINISH_COUNT) {this.cancel(key)}
+            
+            if (scheduleInfo.count > FINISH_COUNT) {scheduleInfo.count -= 1}
         })
 
-        const key = [scheduleInfo.name, scheduleInfo.actuator_ID].join('/')
         this.job[key] = job
     }
 
     schedule(scheduleInfo){
 
-        if(scheduleInfo.count == scheduleInfo.repetition && scheduleInfo.repetition != INFINITY_REPETITION){
+        if(scheduleInfo.count === 0){
             console.log(`Schedule ${scheduleInfo.name}/${scheduleInfo.actuator_ID} has finished`)
             return
         }
@@ -44,11 +44,11 @@ class Scheduler{
         else if(unit === 'week'){cron_expr = `${minute} ${hour} */${step * 7} * *`}
 
         if(new Date() > scheduleInfo.startTime){
-            this.fireSchedule(cron_expr, scheduleInfo)
+            this.fireCron(cron_expr, scheduleInfo)
         } 
         else{
             schedule.scheduleJob(scheduleInfo.startTime, () => {
-                this.fireSchedule(cron_expr, scheduleInfo)
+                this.fireCron(cron_expr, scheduleInfo)
             })
         }
     }
@@ -58,4 +58,18 @@ class Scheduler{
     }
 }
 
-module.exports = (new Scheduler())
+const scheduler = new Scheduler()
+
+const startScheduling = async () => {
+    const schedules = await scheduleRepo.getAllSchedule()
+    for(var i = 0; i < schedules.length; i++){
+        try{
+            scheduler.schedule(schedules[i])
+        }
+        catch(error){
+            console.log(error)
+        }
+    }
+}
+
+module.exports = startScheduling

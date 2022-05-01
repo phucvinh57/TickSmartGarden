@@ -6,7 +6,7 @@ class GardenModel {
         const QUERY_STR = 'SELECT * FROM garden INNER JOIN adaclient WHERE garden.adaclient = adaclient.username'
         return await dbQuery(QUERY_STR)
     }
-    
+
     async getList(accountEmail) {
         try {
             const queryStr = `SELECT 
@@ -38,6 +38,15 @@ class GardenModel {
         } catch(err) {
             throw err
         }
+    }
+
+    async getFeeds(gardenID) {
+        const QUERY_STR =
+        `SELECT h.feedKey, g.adaclient as username, h.type
+        FROM garden as g join hardware as h on h.gardenID = g.ID
+        WHERE g.ID = '${gardenID}' `
+
+        return await dbQuery(QUERY_STR)
     }
 }
 
