@@ -10,7 +10,6 @@ class PolicyCtrler {
 
     async getActuatorPolicy(req, res){
         const actuatorID = req.params.actuatorID
-        console.log(actuatorID)
         const groupByPolicy = await policyRepo.getActuatorPolicy(actuatorID)
         res.status(200).send(groupByPolicy)
     }
