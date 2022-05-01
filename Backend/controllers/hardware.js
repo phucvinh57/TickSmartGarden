@@ -103,8 +103,14 @@ const updateSched = (req, res) => {
     const { newName, startTime, count, cycle, cycleUnit, operatingTime } = req.body
     handler(res, async () => {
         await dbQuery(`
-            UPDATE schedule SET (name, startTime, count, cycle, unit, operatingTime)
-            VALUES (?, ?, ?, ?, ?, ?) WHERE hardwareID = ? AND name = ?
+            UPDATE schedule SET 
+                name = ?,
+                startTime = ?,
+                count = ?,
+                cycle = ?,
+                unit = ?,
+                operatingTime = ?
+            WHERE hardwareID = ? AND name = ?;
         `, [newName, startTime, cycle, cycleUnit, count, operatingTime, hardwareID, oldName])
         res.json({ msg: 'OKE' })
     })
