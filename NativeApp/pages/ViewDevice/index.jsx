@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -20,21 +20,8 @@ import AppContainer from "../../components/AppContainer";
 
 import useLastData from '../../contexts/useLastData'
 import { makeChunks } from "../../components/SliderList/util";
-import { sleep } from "./utils";
 
-import { hardware as hardwares } from "./data";
-
-const deviceTypeOptions = [
-  { id: "All", name: "Tất cả" },
-  { id: "SensorLight", name: "Ánh sáng" },
-  { id: "SensorHumid", name: "Độ ẩm" },
-  { id: "SensorTemperature", name: "Nhiệt độ" },
-  { id: "ActuatorLight", name: "Đèn" },
-  { id: "ActuatorPump", name: "Máy bơm" },
-];
-
-
-export default function ViewDevice({ navigation }) {
+export default function ViewDevice({ navigation, hardwares, deviceTypeOptions }) {  
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
 
@@ -43,8 +30,9 @@ export default function ViewDevice({ navigation }) {
   const windowWidth = useWindowDimensions().width - 40;
   useEffect(() => {
     let itemPerPage = 8;
-    console.log(`hardwares.filter & done loading`)
+    // console.log(`hardwares.filter & done loading`)
     const arr = hardwares.filter((hw) => {
+      // fix logic for display all
       return selectedType == "All" || hw.type == selectedType;
     });
     setChunks(makeChunks(arr, itemPerPage));
@@ -54,6 +42,10 @@ export default function ViewDevice({ navigation }) {
   const [feeds, setFeeds] = useState(() => {
     return hardwares.map(hw => hw.feedkey)
   })
+  useEffect(() => {
+    setFeeds(hardwares.map(hw => hw.feedkey))
+  }, [hardwares])
+
   const [datum, publishMqtt] = useLastData(feeds)
 
   const onSwitchChange = (feed, value) => {
@@ -65,7 +57,7 @@ export default function ViewDevice({ navigation }) {
     <AppContainer
       title={
         <View style={{ width: "100%" }}>
-          <Text style={styles.textHeader}>Danh sách cảm biến</Text>
+          <Text style={styles.textHeader}>Danh sách thiết bị</Text>
           <HStack space={3} style={styles.filterBar}>
             <Text fontSize="md">Loại thiết bị:</Text>
             <DropdownSelector 
@@ -110,7 +102,9 @@ export default function ViewDevice({ navigation }) {
                         deviceInfo={item} 
                         lastData={datum[item.feedkey]}
                         onPress={() => {
-                          navigation.navigate("Root/MainApp/DeviceInfo");
+                          navigation.navigate("Root/MainApp/DeviceInfo", {
+                            hardwareId: item.id
+                          });
                         }}
                         onSwitchChange={(value) => onSwitchChange(item.feedkey, value)}
                       />
@@ -150,6 +144,11 @@ function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
   )
 }
 
+// Set default props
+// ViewDevice.defaultProps = {
+//   name: "cảm biến",
+// };
+
 const DEBUG_COLOR = {
   // WHITE: "white",
   // GRAY: "#555555",
@@ -171,7 +170,7 @@ const styles = StyleSheet.create({
   },
   flatListColumn: {
     width: "50%",
-    height: 110,
+    // height: 110,
     backgroundColor: DEBUG_COLOR.BLACK,
   },
   flatList: {

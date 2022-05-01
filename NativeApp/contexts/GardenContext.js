@@ -4,8 +4,12 @@ import GardenGroup from './mqttClient'
 
 const GardenContext = createContext()
 
+// Todo: Must be pass by QA's function
+const gardenId = "12fe34";
+
 const defaultGardenInfo = {
-  gardenname: "Vườn trồng rau",
+  ID: gardenId,
+  name: "",
   auth: {
     username: ADA_CLIENT,
     password: USER_KEY,
@@ -31,7 +35,7 @@ function GardenContextProvider({children}) {
   }, [gardenInfo]);
 
   return (
-    <GardenContext.Provider value={{gardenInfo, adaClient}}>
+    <GardenContext.Provider value={{gardenInfo, adaClient }}>
       {children}
     </GardenContext.Provider>
   );

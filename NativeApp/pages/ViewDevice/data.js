@@ -13,7 +13,6 @@ const pump1 = {
   feedkey: PUMP_FEED_KEY,
   type: "ActuatorPump", // in [ActuatorLight, ActuatorBump, SensorLight, SensorHumid, SensorTemperature]
   status: "Đang hoạt động",
-  isSensorType: false,
 };
 const light1 = {
   id: 2,
@@ -21,7 +20,6 @@ const light1 = {
   feedkey: LAMP_FEED_KEY,
   type: "ActuatorLight", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "Hoạt động kém",
-  isSensorType: false,
 };
 const sensorHumid1 = {
   id: 3,
@@ -29,7 +27,6 @@ const sensorHumid1 = {
   feedkey: HUMIDITY_SENSOR_FEED_KEY,
   type: "SensorHumid", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "Hoạt động kém",
-  isSensorType: true,
 };
 const sensorTemperature1 = {
   id: 4,
@@ -37,7 +34,6 @@ const sensorTemperature1 = {
   feedkey: TEMPERATURE_SENSOR_FEED_KEY,
   type: "SensorTemperature", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "I'm good babe",
-  isSensorType: true,
 };
 const sensorLight1 = {
   id: 5,
@@ -45,7 +41,6 @@ const sensorLight1 = {
   feedkey: LIGHT_SENSOR_FEED_KEY,
   type: "SensorLight", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "I'm good babe",
-  isSensorType: true,
 };
 
 

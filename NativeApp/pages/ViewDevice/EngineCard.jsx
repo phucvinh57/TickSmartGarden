@@ -81,7 +81,8 @@ function SensorCard({ isLoading, lastData, name, type, description, onPress }) {
       <View style={styles.cardBody}>
         <View flex={9}>
           {/* <Text>Col1</Text> */}
-          <Text fontSize="xs" numberOfLines={1} flex={1}>
+          <Text fontSize="xs" flexShrink={1}>
+          {/* <Text fontSize="xs" numberOfLines={2} flex={1}> */}
             {description}
           </Text>
           <Container
@@ -139,7 +140,8 @@ function ActuatorCard({
       <View style={styles.cardBody}>
         <View flex={9}>
           {/* <Text>Col1</Text> */}
-          <Text fontSize="xs" numberOfLines={1} flex={1}>
+          <Text fontSize="xs" flexShrink={1}>
+          {/* <Text fontSize="xs" numberOfLines={2} flex={1}> */}
             {description}
           </Text>
           <Container
@@ -178,6 +180,13 @@ function ActuatorCard({
   );
 }
 
+const DEBUG = {
+  // RED: "red",
+  // PINK: "pink",
+  // BLACK: "black",
+  // WHITE: "white",
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -187,11 +196,13 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     flexDirection: "row",
+    backgroundColor: DEBUG.PINK,
     justifyContent: "space-between",
     alignItems: "center",
   },
   image: {
     resizeMode: "contain",
+    backgroundColor: DEBUG.WHITE,
     width: 50,
     height: 50,
   },

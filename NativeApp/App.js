@@ -9,9 +9,11 @@ import EditPolicy from "./pages/editPolicy";
 import Homepage from "./pages/homepage";
 import AddGarden from "./pages/addGarden";
 import { GardenContextProvider } from './contexts/GardenContext';
+import ViewActuator from "./pages/ViewActuator";
 
 const Stack = createNativeStackNavigator();
 
+// initialRouteName="Root/MainApp/DeviceInfo"
 
 export default function App() {
   return (
@@ -20,6 +22,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator 
           initialRouteName="Root/Auth/Login"
+          // initialRouteName="Root/MainApp/ViewEngine"
           screenOptions={{headerShown: false}}
         >
           <Stack.Screen 
@@ -44,7 +47,7 @@ export default function App() {
           />
           <Stack.Screen
             name="Root/MainApp/ViewEngine"
-            component={ViewDevice}
+            component={ViewActuator}
           />
           <Stack.Screen
             name="Root/MainApp/DeviceInfo"
