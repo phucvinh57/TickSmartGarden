@@ -1,58 +1,92 @@
 import {SafeAreaView, StyleSheet, Text, TextInput, ScrollView, Image, TouchableOpacity, View, Button} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useState, useEffect} from "react";
+import { useState, useEffect, useCallback} from "react";
 import NumericInput from "react-native-numeric-input";
+import { useIsFocused } from "@react-navigation/native"
 
+import policyService from "../services/policy";
 import axios from "axios";
-import http from "../services/http";
 
 export default function EditPolicy({navigation}) {
     const action = ["ON", "OFF"]
-    const sensor = ["Cam bien 1", "Cam bien 2", "Cam bien 3"]
+    const [sensor, setSensor] = useState([])
     const operator = [">", "<", ">=", "<=", "="]
     const logic = ["AND", "OR"]
+    const [oldName, setOldName] = useState("")
     
     const [policy, setPolicy] = useState({
         name: "",
         logic: "",
         action: "",
         limit: "",
-        operatingTime: "",
-        expression: []
+        operatingTime: 0,
+        expressions: []
     })
 
+    const [oldPolicy, setOldPolicy] = useState({})
+
+    console.log('a')
+
+    // useEffect(() => {
+    //     console.log('b')
+    //     axios.get("http://192.168.1.11:8080/api/policys/0lamp0")
+    //         .then(res => {
+    //             if(JSON.stringify(res.data[0]) !== JSON.stringify(oldPolicy)) {
+    //                 setPolicy(res.data[0])
+    //                 setOldPolicy(res.data[0])
+    //                 setOldName(res.data[0].name)
+    //             }
+    //             //console.log(policy)
+    //         })
+    //         .catch(err => console.log(err))
+    // })
+
+    const isFocused = useIsFocused()
+
+    useEffect(() => {
+        console.log('here')
+        axios.get("http://192.168.1.11:8080/api/policys/0lamp0")
+        .then(res => {
+    
+                setPolicy(res.data[0])
+                setOldPolicy(res.data[0])
+                setOldName(res.data[0].name)
+            
+            //console.log(policy)
+        })
+        .catch(err => console.log(err))
+    },[isFocused])
+
+    useEffect(() => {
+        axios.get("http://192.168.1.11:8080/api/sensors/0garden0")
+            .then(res => {
+                setSensor(res.data)
+                //console.log(sensor)
+            })
+            .catch(err => console.log(err))
+
+    }, [])
 
     const handleAddExpression = () => {
         // setCallAdd(previousState => !previousState
-        setPolicy({...policy, expression: [...policy.expression, {
-            sensorID: sensor[0],
+        setPolicy({...policy, expressions: [...policy.expressions, {
+            sensorID: sensor[0].ID,
             operator: operator[0],
             rhsValue: 0
         }]})
     }
 
-    const handleClick = () => {
-        console.log('a')
-        axios.get('http://192.168.137.1:8080/api')
-        .then((res) => {
-            console.log(res.data)
-            //setPolicy(res.data[0])
-        })
-        .catch(err => {
+    const handleAccept = () => {
+        axios.post("http://192.168.1.11:8080/api/policys/update", {...policy, actuatorID: "0lamp0", oldName: oldName})
+        .catch(
+            err =>
             console.log(err)
-        })
+        )
     }
 
-    return(
-        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-            <Button
-                onPress={handleClick}
-                title="Learn More"
-                color="#841584"
-                accessibilityLabel="Learn more about this purple button"
-                />
-        </View>
-    )
+    const handleCancel = () => {
+        setPolicy(oldPolicy)
+    }
 
     return(
         <SafeAreaView style={{backgroundColor: "#28554e", flex: 1}}>
@@ -70,9 +104,10 @@ export default function EditPolicy({navigation}) {
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Tên chính sách</Text>
                             <TextInput style={styles.textInput} value={policy.name}
-                                onChangeText={value => {
-                                setPolicy({...policy, name: value})
-                            }}></TextInput>
+                                onChangeText = {value => {
+                                    setPolicy({...policy, name: value})
+                                }}>
+                            </TextInput>
                         </SafeAreaView>
 
                         <SafeAreaView style={{marginTop: 10, flexDirection: "row"}}>
@@ -127,7 +162,7 @@ export default function EditPolicy({navigation}) {
                         
 
                         <ScrollView style={{marginTop: 20}}>
-                            {policy.expression.length >0 && policy.expression.map((expressionItem, expressionIndex) => {
+                            {policy.expressions && policy.expressions.map((expressionItem, expressionIndex) => {
                                 return (
                             <SafeAreaView key = {expressionIndex}>
                                 {expressionIndex > 0 && 
@@ -162,14 +197,14 @@ export default function EditPolicy({navigation}) {
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policy.expression]
+                                                let newArr = [...policy.expressions]
                                                 newArr[expressionIndex].sensorID = itemValue
-                                                setPolicy({...policy, expression: newArr})
+                                                setPolicy({...policy, expressions: newArr})
                                             }}
                                         >
                                             {sensor.map((value, index) => {
                                                 return (
-                                                    <Picker.Item key={index} label={value} value={value} color="#28554e"/>
+                                                    <Picker.Item key={index} label={value.name} value={value.ID} color="#28554e"/>
                                                 )
                                             })}
                                         </Picker>
@@ -186,9 +221,9 @@ export default function EditPolicy({navigation}) {
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policy.expression]
+                                                let newArr = [...policy.expressions]
                                                 newArr[expressionIndex].operator = itemValue
-                                                setPolicy({...policy, expression: newArr})
+                                                setPolicy({...policy, expressions: newArr})
                                             }}
                                         >
                                             {operator.map((value, index) => {
@@ -206,9 +241,9 @@ export default function EditPolicy({navigation}) {
                                         totalHeight = {25}
                                         minValue = {0}
                                         onChange = {itemValue => {
-                                            let newArr = [...policy.expression]
+                                            let newArr = [...policy.expressions]
                                             newArr[expressionIndex].rhsValue = itemValue
-                                            setPolicy({...policy, expression: newArr})
+                                            setPolicy({...policy, expressions: newArr})
                                         }}
                                         borderColor = "#28554e"
                                         rounded
@@ -218,9 +253,9 @@ export default function EditPolicy({navigation}) {
                                         
                                     />
                                     <TouchableOpacity style={{width: 25, height: 25, backgroundColor: "#28554e", alignItems:"center", borderRadius: 5}} onPress={() => {
-                                        let temp = [...policy.expression]
+                                        let temp = [...policy.expressions]
                                         temp.splice(expressionIndex, 1)
-                                        setPolicy({...policy, expression: temp})
+                                        setPolicy({...policy, expressions: temp})
                                     }} >
                                         <Text style={{color: "#fff"}}>-</Text>
                                     </TouchableOpacity>
@@ -229,7 +264,22 @@ export default function EditPolicy({navigation}) {
                             </SafeAreaView>
                                 )
                             })}
+                            
+                            <SafeAreaView style={{marginTop: 10, marginRight: 10, flexDirection: "row", justifyContent: "flex-end"}}>
+                                <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#e3dede", alignItems:"center", justifyContent: "center", borderRadius: 5, marginRight: 10}} 
+                                    onPress = {handleCancel}
+                                >
+                                    <Text style={{color: "#28554e"}}>Hủy</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
+                                    onPress = {handleAccept}
+                                >
+                                    <Text style={{color: "#fff"}}>Thêm/Lưu</Text>
+                                </TouchableOpacity>
+                            </SafeAreaView>
                         </ScrollView>
+
+                        
 
                     </SafeAreaView>
             </SafeAreaView>
@@ -255,7 +305,8 @@ const styles = StyleSheet.create({
         width: '90%',
         height: 30,
         fontSize: 16,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color: "#28554e"
     },
     dropdown: {
         justifyContent: "center",
@@ -266,4 +317,9 @@ const styles = StyleSheet.create({
         borderColor:"#28554e",
         height: 25,
     },
+    button: {
+        alignItems: "center",
+        backgroundColor: "#DDDDDD",
+        padding: 10
+      },
 })
