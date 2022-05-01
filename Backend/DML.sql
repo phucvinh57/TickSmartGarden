@@ -5,9 +5,6 @@ SHOW TABLES;
 SELECT * FROM Actuator;
 
 INSERT INTO `Account` VALUES ('nhancu@gmail.com', 'Cù Đỗ Thanh Nhân', '123456');
-INSERT INTO AdaClient VALUES 
-('phucnguyensolver', 'aio_WdKD99iPo3Iz5esm4wu7n0F7tt4n');
-
 
 INSERT INTO garden VALUES 
 ('12fe33', 'Vườn trồng rau', 'phucnguyensolver', 'nhancu@gmail.com', 'tl-garden', "Chăn rau sạch", '');

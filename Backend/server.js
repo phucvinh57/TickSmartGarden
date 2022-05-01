@@ -12,7 +12,8 @@ app.use(express.json())
 
 
 app.get('/', (req, res) => {
-    res.json({ MSG: "OKE" })
+    // res.json({ MSG: "OKE" })
+    res.send( "OKE" )
 })
 
 route(app)
