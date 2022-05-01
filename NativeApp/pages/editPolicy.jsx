@@ -1,26 +1,58 @@
-import {SafeAreaView, StyleSheet, Text, TextInput, ScrollView, Image, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, StyleSheet, Text, TextInput, ScrollView, Image, TouchableOpacity, View, Button} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useState} from "react";
+import { useState, useEffect} from "react";
 import NumericInput from "react-native-numeric-input";
 
-export default function EditPolicy({navigation}) {
-    const [callAdd, setCallAdd] = useState(true)
-    const [input, setInput] = useState("")
-    const [state, setState] = useState("Bật")
-    const [sensors, setSensors] = useState(["Cam bien 1", "Cam bien 2", "Cam bien 3"])
-    const [operators, setOperators] = useState([">", "<", ">=", "<=", "="])
-    const [logic, setLogic] = useState("Và")
-    
-    const [policies, setPolicies] = useState([])
+import axios from "axios";
+import http from "../services/http";
 
-    const handleAddPolicy = () => {
-        // setCallAdd(previousState => !previousState)
-        setPolicies([...policies, {
-            sensor: sensors[0],
-            operator: operators[0],
-            number: 0
-        }])
+export default function EditPolicy({navigation}) {
+    const action = ["ON", "OFF"]
+    const sensor = ["Cam bien 1", "Cam bien 2", "Cam bien 3"]
+    const operator = [">", "<", ">=", "<=", "="]
+    const logic = ["AND", "OR"]
+    
+    const [policy, setPolicy] = useState({
+        name: "",
+        logic: "",
+        action: "",
+        limit: "",
+        operatingTime: "",
+        expression: []
+    })
+
+
+    const handleAddExpression = () => {
+        // setCallAdd(previousState => !previousState
+        setPolicy({...policy, expression: [...policy.expression, {
+            sensorID: sensor[0],
+            operator: operator[0],
+            rhsValue: 0
+        }]})
     }
+
+    const handleClick = () => {
+        console.log('a')
+        axios.get('http://192.168.137.1:8080/api')
+        .then((res) => {
+            console.log(res.data)
+            //setPolicy(res.data[0])
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }
+
+    return(
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+            <Button
+                onPress={handleClick}
+                title="Learn More"
+                color="#841584"
+                accessibilityLabel="Learn more about this purple button"
+                />
+        </View>
+    )
 
     return(
         <SafeAreaView style={{backgroundColor: "#28554e", flex: 1}}>
@@ -37,15 +69,15 @@ export default function EditPolicy({navigation}) {
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Tên chính sách</Text>
-                            <TextInput style={styles.textInput} value={input.policyName}
-                                onChangeText={text => {
-                                setInput(text)
+                            <TextInput style={styles.textInput} value={policy.name}
+                                onChangeText={value => {
+                                setPolicy({...policy, name: value})
                             }}></TextInput>
                         </SafeAreaView>
 
                         <SafeAreaView style={{marginTop: 10, flexDirection: "row"}}>
                             <Text style={[styles.textContent,{marginRight: 10}]}>Điều kiện</Text>
-                            <TouchableOpacity style={{width: 20, height: 20, backgroundColor: "#28554e", alignItems:"center"}} onPress={handleAddPolicy} >
+                            <TouchableOpacity style={{width: 20, height: 20, backgroundColor: "#28554e", alignItems:"center"}} onPress={handleAddExpression} >
                                 <Text style={{color: "#fff"}}>+</Text>
                             </TouchableOpacity>
                         </SafeAreaView>
@@ -60,59 +92,82 @@ export default function EditPolicy({navigation}) {
                                 marginRight: 10
                             }, styles.dropdown]}>
                                 <Picker
-                                    selectedValue = {state}
+                                    selectedValue = {policy.action}
                                     style ={{
                                         width: "100%"
                                     }}
-                                    onValueChange = {(itemValue, itemIndex) => setState(itemValue)}
+                                    onValueChange = {itemValue => setPolicy({...policy, action: itemValue})}
                                 >
-                                    <Picker.Item label="Bật" value="Bật" color="#28554e"/>
-                                    <Picker.Item label="Tắt" value="Tắt" color="#28554e"/>
+                                    {action.map((item, index) => {
+                                        return (
+                                            <Picker.Item key={index} label={item === "ON" ? "Bật" : "Tắt"} value={item} color="#28554e"/>
+                                        )
+                                    })}
                                 </Picker>
                             </View>
+                            <Text style={styles.textContent}>trong</Text>
+                            <NumericInput 
+                                //value = {policy.number}
+                                value = {policy.operatingTime}
+                                totalWidth = {50}
+                                totalHeight = {25}
+                                minValue = {0}
+                                onChange = {itemValue => {
+                                    setPolicy({...policy, operatingTime: itemValue})
+                                }}
+                                borderColor = "#28554e"
+                                rounded
+                                inputStyle={{color: "#28554e", fontSize: 16, fontWeight: "bold"}}
+                                containerStyle = {{borderWidth: 2, borderColor: "#28554e", marginRight: 5, marginLeft: 5}}
+                                type = "up-down"
+                            />
+
                             <Text style={styles.textContent}>khi</Text>
                         </SafeAreaView>
                         
 
                         <ScrollView style={{marginTop: 20}}>
-                            {policies.map((policyItem, policyIndex) => {
+                            {policy.expression.length >0 && policy.expression.map((expressionItem, expressionIndex) => {
                                 return (
-                            <SafeAreaView key = {policyIndex}>
-                                {policyIndex > 0 && 
+                            <SafeAreaView key = {expressionIndex}>
+                                {expressionIndex > 0 && 
                                 <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5}}>
                                     <View style = {[{
-                                    width: 105,
+                                    width: 100,
                                     marginLeft: 10,
                                     marginRight: 10
                                     }, styles.dropdown]}>
                                     <Picker
-                                        selectedValue = {logic}
+                                        selectedValue = {policy.logic}
                                         style ={{
                                             width: "100%"
                                         }}
-                                        onValueChange = {(itemValue) => setLogic(itemValue)}
+                                        onValueChange = {(itemValue) => setPolicy({...policy, logic: itemValue})}
                                     >
-                                        <Picker.Item label="Và" value="Và" color="#28554e"/>
-                                        <Picker.Item label="Hoặc" value="Hoặc" color="#28554e"/>
+                                        {logic.map((item, index) =>  {
+                                            return (
+                                                <Picker.Item key={index} label={item === "AND" ? "Và" : "Hoặc"} value={item} color="#28554e"/>
+                                            )
+                                        })}
                                     </Picker>
                                 </View>
                                 </SafeAreaView>}
                                 <SafeAreaView style={{flexDirection: "row", marginTop: 10}} >
                                     <View style = {[{
-                                        width: 150,
+                                        width: 160,
                                     }, styles.dropdown]}>
                                         <Picker
-                                            selectedValue = {policyItem.sensor}
+                                            selectedValue = {expressionItem.sensorID}
                                             style ={{
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policies]
-                                                newArr[policyIndex].sensor = itemValue
-                                                setPolicies(newArr)
+                                                let newArr = [...policy.expression]
+                                                newArr[expressionIndex].sensorID = itemValue
+                                                setPolicy({...policy, expression: newArr})
                                             }}
                                         >
-                                            {sensors.map((value, index) => {
+                                            {sensor.map((value, index) => {
                                                 return (
                                                     <Picker.Item key={index} label={value} value={value} color="#28554e"/>
                                                 )
@@ -121,24 +176,24 @@ export default function EditPolicy({navigation}) {
                                     </View>
                                     
                                     <View style = {[{
-                                        width: 80,
+                                        width: 78,
                                         marginLeft: 10,
                                         marginRight: 10
                                     }, styles.dropdown]}>
                                         <Picker
-                                            selectedValue = {state}
+                                            selectedValue = {expressionItem.operator}
                                             style ={{
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policies]
-                                                newArr[policyIndex].operator = itemValue
-                                                setPolicies(newArr)
+                                                let newArr = [...policy.expression]
+                                                newArr[expressionIndex].operator = itemValue
+                                                setPolicy({...policy, expression: newArr})
                                             }}
                                         >
-                                            {operators.map((value, index) => {
+                                            {operator.map((value, index) => {
                                                 return (
-                                                    <Picker.Item key={index} label={value} value={value} />
+                                                    <Picker.Item key={index} label={value} value={value} color="#28554e" />
                                                 )
                                             })}
                                         </Picker>
@@ -146,14 +201,14 @@ export default function EditPolicy({navigation}) {
 
                                     <NumericInput 
                                         //value = {policy.number}
-                                        value = {policyItem.number}
+                                        value = {expressionItem.rhsValue}
                                         totalWidth = {50}
                                         totalHeight = {25}
                                         minValue = {0}
-                                        onChange = {value => {
-                                            let newArr = [...policies]
-                                            newArr[policyIndex].number = value
-                                            setPolicies(newArr)
+                                        onChange = {itemValue => {
+                                            let newArr = [...policy.expression]
+                                            newArr[expressionIndex].rhsValue = itemValue
+                                            setPolicy({...policy, expression: newArr})
                                         }}
                                         borderColor = "#28554e"
                                         rounded
@@ -163,9 +218,9 @@ export default function EditPolicy({navigation}) {
                                         
                                     />
                                     <TouchableOpacity style={{width: 25, height: 25, backgroundColor: "#28554e", alignItems:"center", borderRadius: 5}} onPress={() => {
-                                        let temp = [...policies]
-                                        temp.splice(policyIndex, 1)
-                                        setPolicies(temp)
+                                        let temp = [...policy.expression]
+                                        temp.splice(expressionIndex, 1)
+                                        setPolicy({...policy, expression: temp})
                                     }} >
                                         <Text style={{color: "#fff"}}>-</Text>
                                     </TouchableOpacity>

@@ -91,7 +91,7 @@ export default function ViewEngine({navigation}) {
       </HStack>
 
       <View style={styles.flatListWrapper}>
-        {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
+      {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
         {/* TODO: Text: Đang kết nối */}
         {!isLoading && 
           <FlatList

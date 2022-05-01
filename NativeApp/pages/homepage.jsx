@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
 import Card from "../components/homepage/Card";
 import gardenData from "../components/homepage/gardenMockData.json";
-//import { useRoute } from "@react-navigation/native";
 import garden from "../services/garden";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -14,12 +13,12 @@ export default function Homepage({navigation}) {
     // const dispatch = useDispatch()
 
     // useEffect(() => {
-    //     garden.getAll("quanganh@gmail.com").then(res => {
+    //     garden.getAll("nhancu@gmail.com").then(res => {
     //         console.log(res.data)
     //         dispatch(initGardenList(res.data))
     //     })
     // },[])
-    //console.log(gardens);
+    console.log(gardens);
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>
