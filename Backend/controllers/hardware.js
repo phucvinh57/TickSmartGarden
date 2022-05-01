@@ -35,18 +35,6 @@ const getById = async (req, res) => {
     const gardenID = req.query.gardenID
     const hardwareID = req.query.hardwareID
     handler(res, async () => {
-        const a = {
-            sched: [{
-                name: '',
-                timestamp: '',
-                cycle: 5,
-                cycleUnit: '',
-            }],
-            policies: [{
-                name: '',
-                turnOn: Boolean
-            }],
-        }
         const hardware = await dbQuery(`
             SELECT hardware.name AS hardwareName, actuator.operatingTime, schedule.*
             FROM
@@ -56,7 +44,7 @@ const getById = async (req, res) => {
         `, [gardenID, hardwareID])
 
         const logs = await dbQuery(`
-            SELECT * FROM log WHERE hardware.ID = ?
+            SELECT * FROM log WHERE hardwareID = ?
         `, [hardwareID])
 
         if (hardware.length === 0) {
@@ -69,9 +57,10 @@ const getById = async (req, res) => {
                 logs: logs
             }
             hardware.forEach(i => {
+                console.log(i)
                 obj.scheds.push({
                     name: i.name,
-                    timestamp: i.startTime.slice(11), // get time only
+                    timestamp: i.startTime.toLocaleTimeString('it-IT'), // get time only
                     cycle: i.cycle,
                     cycleUnit: i.unit
                 })
@@ -81,12 +70,29 @@ const getById = async (req, res) => {
     })
 }
 
-const createSched = async(req, res) => {
+const createSched = (req, res) => {
+    const { name, startTime, count, cycle, cycleUnit, hardwareID, operatingTime } = req.body
+    handler(res, async () => {
+        await dbQuery(
+            `INSERT INTO schedule VALUES (?, ?, ?, ?, ?, ?)`,
+            [hardwareID, name, startTime, cycle, cycleUnit, count, operatingTime]
+        )
+        res.json({ msg: 'OKE' })
+    })
+}
 
+const createLog = (req, res) => {
+    const { hardwareID, action } = req.query
+    handler(res, async () => {
+        await dbQuery(`INSERT INTO log VALUES (?, NOW(), ?)`, [hardwareID, action])
+        res.json({ msg: 'OKE' })
+    })
 }
 
 module.exports = {
     toggle,
     getAll,
-    getById
+    getById,
+    createLog,
+    createSched
 }
