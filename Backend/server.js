@@ -9,8 +9,9 @@ app.use(express.json())
 const route = require('./routers')
 const gardenRepo = require('./repository/garden')
 const startPolicy = require('./crons/policy')
-const startScheduling = require('./crons/scheduler')
+const {startScheduling} = require('./crons/scheduler')
 const scheduleRepo = require('./repository/schedule')
+const GardenGroup = require('./repository/mqttClient')
 
 const PORT = process.env.PORT | 8080
 
@@ -39,10 +40,11 @@ const initMqttConnection = async (callback) => {
     }
 }
 
-app.get('/', (req, res) => {
-    // res.json({ MSG: "OKE" })
-    res.send( "OKE" )
-})
+// initMqttConnection(() => {
+//     console.log('Mqqt clients has been connected successfully')
+//     startPolicy()
+//     startScheduling()
+// })
 
 route(app)
 

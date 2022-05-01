@@ -3,6 +3,7 @@ const ClientGroup = require('../repository/mqttClient')
 const resource = require('../utils/resources')
 const dbQuery = require('../repository/db')
 const handler = require('./handler')
+const {updateSchedule} = require('../crons/scheduler')
 
 const toggle = function (req, res) {
     const key = req.params.feedKey
@@ -79,6 +80,7 @@ const createSched = (req, res) => {
         )
         res.json({ msg: 'OKE' })
     })
+    updateSchedule(name, startTime, count, cycle, cycleUnit, hardwareID, operatingTime)
 }
 
 const createLog = (req, res) => {
@@ -87,6 +89,7 @@ const createLog = (req, res) => {
         await dbQuery(`INSERT INTO log VALUES (?, NOW(), ?)`, [hardwareID, action])
         res.json({ msg: 'OKE' })
     })
+
 }
 
 module.exports = {

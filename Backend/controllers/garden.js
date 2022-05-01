@@ -3,7 +3,6 @@ const handler = require('./handler')
 
 class GardenCtrler {
     async getList(req, res) {
-        console.log('hohohoho')
         const email = req.query.accountEmail
         const gardenList = await gardenRepo.getList(email)
         res.json(gardenList)

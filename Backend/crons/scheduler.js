@@ -72,4 +72,10 @@ const startScheduling = async () => {
     }
 }
 
-module.exports = startScheduling
+const updateSchedule = (name, startTime, count, cycle, cycleUnit, hardwareID, operatingTime) => {
+    const scheduleInfo = {name: name, startTime: startTime, cycle: cycle, unit: cycleUnit, actuator_ID: hardwareID, operatingTime: operatingTime}
+    scheduler.cancel(`${scheduleInfo.name}/${scheduleInfo.actuator_ID}`)
+    scheduler.schedule(scheduleInfo)
+}
+
+module.exports = {startScheduling, updateSchedule}
