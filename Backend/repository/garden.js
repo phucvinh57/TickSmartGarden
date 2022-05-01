@@ -50,6 +50,15 @@ class GardenModel {
             throw err
         }
     }
+
+    async getFeeds(gardenID) {
+        const QUERY_STR =
+        `SELECT h.feedKey, g.adaclient as username, h.type
+        FROM garden as g join hardware as h on h.gardenID = g.ID
+        WHERE g.ID = '${gardenID}' `
+
+        return await dbQuery(QUERY_STR)
+    }
 }
 
 module.exports = new GardenModel()

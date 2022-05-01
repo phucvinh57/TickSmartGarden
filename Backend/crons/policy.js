@@ -1,18 +1,19 @@
 const GardenGroup = require('../repository/mqttClient')
-const PolicyModel = require('../repository/policy')
-const sensorModel = require('../repository/sensor')
-const actuatorModel = require('../repository/actuator')
+const policyRepo = require('../repository/policy')
+const sensorRepo = require('../repository/sensor')
+const actuatorRepo = require('../repository/actuator')
+const gardenRepo = require('../repository/garden')
 
 const startFeedPolicy = (username, feedKey) => {
     const evalPolicy = (policy) => {
         const logic = policy[0].logic
         return policy.reduce((prev, cur) => {
-            if(sensorModel.getValue(cur.sensorID)){
-                const evalExpr = eval(`${sensorModel.getValue(cur.sensorID)} ${cur.operator} ${cur.rhsValue}`)
+            if(sensorRepo.getValue(cur.sensorID)){
+                const evalExpr = eval(`${sensorRepo.getValue(cur.sensorID)} ${cur.operator} ${cur.rhsValue}`)
                 return logic === 'AND' ? prev && evalExpr : prev || cur
             }
-            else{
-                throw `Sensor ${policy.sensorID} value is not available yet`
+            else {
+                throw `Sensor ${cur.sensorID} value is not available yet`
             }
         }, logic === 'AND' ? true : false)
         
@@ -20,16 +21,16 @@ const startFeedPolicy = (username, feedKey) => {
 
     const handleMessage = async (topic, message) => {
         try{
-            sensorModel.updateSensor(await sensorModel.getSensorId(username, feedKey), parseFloat(message))
+            sensorRepo.updateSensor(await sensorRepo.getSensorId(username, feedKey), parseFloat(message))
         
-            const policyGroup = await policyModel.getPolicy(username, feedKey)
+            const policyGroup = await policyRepo.getPolicy(username, feedKey)
             for(var policyName in policyGroup){
                 const policy = policyGroup[policyName]
-                if(evalPolicy(policyGroup[policyName]) && !policyModel.isLimit(policyName)){
+                if(evalPolicy(policyGroup[policyName]) && !policyRepo.isLimit(policyName)){
                     console.log(`Policy ${policyName} is triggered`)
-                    policyModel.updateLastTriggered(policyName, new Date())
-                    policy[0].action === 'ON' ? actuatorModel.turnOn(policy[0].actuatorID, policy[0].operatingTime)
-                        : actuatorModel.turnOff(actuatorID)
+                    policyRepo.updateLastTriggered(policyName, new Date())
+                    policy[0].action === 'ON' ? actuatorRepo.turnOn(policy[0].actuatorID, policy[0].operatingTime)
+                        : actuatorRepo.turnOff(actuatorID)
                 }
             }
         }
@@ -41,4 +42,16 @@ const startFeedPolicy = (username, feedKey) => {
     GardenGroup.getAdaClient(username).sub(feedKey, handleMessage)
 }
 
-module.exports = startFeedPolicy
+const startPolicy = async () => {
+    const gardens = await gardenRepo.getAllGardens()
+    for(var i = 0; i < gardens.length; i++){
+        const feeds = (await gardenRepo.getFeeds(gardens[i].ID))
+                        .filter(feed => feed.type === 'sensor')
+        feeds.map(feed => {
+            const {feedKey, username} = feed
+            startFeedPolicy(username, feedKey)
+        })
+    }
+}
+
+module.exports = startPolicy

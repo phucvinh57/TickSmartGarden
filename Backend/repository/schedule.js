@@ -1,5 +1,6 @@
 const dbQuery = require('./db')
 
+const INFINITIVE_COUNT = -1
 class ScheduleModel{
     async getAllSchedule() {
         const QUERY_STR =
@@ -8,6 +9,8 @@ class ScheduleModel{
     }
 
     updateCount(actuatorID, name, count){
+        if(count < 0){count = INFINITIVE_COUNT}
+
         const QUERY_STR = 
         `UPDATE schedule
         SET count = ${count}

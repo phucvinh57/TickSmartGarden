@@ -15,6 +15,15 @@ class Sensor{
         return rows[0].id
     }
 
+    async getAllSensor(gardenID){
+        const QUERY_STR =
+            `SELECT h.ID, h.name
+            FROM hardware as h
+            WHERE h.gardenID = '${gardenID}' and h.type = 'sensor'`
+        
+        const sensors = await dbQuery(QUERY_STR)
+        return sensors
+    }
     // async getAllSensorFeed(){
     //     try{}
     // }
