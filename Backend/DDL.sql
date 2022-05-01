@@ -87,8 +87,9 @@ create table if not exists Expression (
 );
 
 create table if not exists Log (
-	hardwareID VARCHAR(8) PRIMARY KEY,
+	hardwareID VARCHAR(8),
 	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     activity VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`hardwareID`, `timestamp`),
     FOREIGN KEY (hardwareID) REFERENCES Hardware(ID)
 );
