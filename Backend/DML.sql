@@ -1,8 +1,7 @@
 USE smartgarden;
 SHOW TABLES;
 
-
-SELECT * FROM Actuator;
+INSERT INTO AdaClient VALUES ('phucnguyensolver', 'aio_Wiwr33wYXdYWCwKDehRFyRQOIVhF');
 
 INSERT INTO `Account` VALUES ('nhancu@gmail.com', 'Cù Đỗ Thanh Nhân', '123456');
 
@@ -10,7 +9,7 @@ INSERT INTO garden VALUES
 ('12fe33', 'Vườn trồng rau', 'phucnguyensolver', 'nhancu@gmail.com', 'tl-garden', "Chăn rau sạch", '');
 
 INSERT INTO hardware VALUES 
-('111111', 'Máy bơm 1', '12fe33', 'tl-garden.pump-0', 'actuator');
+('111111', 'Máy bơm 1', '12fe33', 'tl-garden.pump-0', 'SensorTemperature');
 
 insert into actuator VALUES ('111111', 60);
 insert into `schedule` values
