@@ -2,18 +2,19 @@ const gardenRepo = require('../repository/garden')
 const handler = require('./handler')
 
 class GardenCtrler {
-    getList(req, res) {
-        const email = req.accountemail
-        handler(res, async () => {
-            const gardenList = await gardenRepo.getList(email)
-            res.json(gardenList)
-        })
+    async getList(req, res) {
+        console.log('hohohoho')
+        const email = req.query.accountEmail
+        const gardenList = await gardenRepo.getList(email)
+        res.json(gardenList)
     }
+
     create(req, res) {
-        const { name, imgurl, description, group_key } = req.body
+        const data = req.body
+        console.log(data)
         handler(res, async () => {
-            await gardenRepo.create({ name, imgurl, description, group_key })
-            res.json({ msg: 'OKE' })
+            const gardenID = await gardenRepo.create(data)
+            res.json({ gardenID })
         })
     }
     remove(req, res) {
@@ -23,9 +24,7 @@ class GardenCtrler {
             res.json({ msg: 'OKE' })
         })
     }
-    modify(req, res) {
-        
-    }
+    
 }
 
 module.exports = new GardenCtrler()

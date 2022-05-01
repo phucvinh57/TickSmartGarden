@@ -3,6 +3,8 @@ const express = require('express')
 const app = express()
 var cors = require('cors')
 
+app.use(cors())
+app.use(express.json())
 
 const route = require('./routers')
 const gardenRepo = require('./repository/garden')
@@ -11,16 +13,6 @@ const startScheduling = require('./crons/scheduler')
 const scheduleRepo = require('./repository/schedule')
 
 const PORT = process.env.PORT | 8080
-
-const GardenGroup = require('./repository/mqttClient')
-
-// options = {
-//     clean: true,
-//     username: 'cudothanhnhan',
-//     password: 'aio_aCRK25GReOT6e519YKkjntognKix'
-// }
-
-// var client = null
 
 const initMqttConnection = async (callback) => {
     try{
@@ -52,8 +44,6 @@ const initMqttConnection = async (callback) => {
 //     startPolicy()
 //     startScheduling()
 // })
-app.use(cors())
-app.use(express.json())
 
 route(app)
 
