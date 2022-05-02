@@ -23,7 +23,7 @@ import AppContainer from "../../components/AppContainer";
 import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
 
-import { mockPolicyList, mockSchedList, mockLogList } from "./data";
+// import { mockPolicyList, mockSchedList, mockLogList } from "./data";
 import { makeChunks } from "../../components/SliderList/util";
 import hardware from "../../services/hardware";
 import { GardenContext } from "../../contexts/GardenContext";
@@ -79,10 +79,10 @@ export default function DeviceInfo({ route, navigation }) {
 
   const [datum, setDatum] = useState(defaultItem);
   const { gardenInfo } = useContext(GardenContext);
+  const gardenId = gardenInfo.ID;
 
   useEffect(() => {
     const fetchHardwareInfo = async () => {
-      const gardenId = gardenInfo.ID;
       const response = await hardware.getById(hardwareId, gardenId);
       const item = await response.data
       console.log('====================================');
@@ -136,9 +136,9 @@ export default function DeviceInfo({ route, navigation }) {
       title={
         <TouchableOpacity
           style={{ width: "100%" }}
-          onPress={() => navigation.navigate("Root/MainApp/ViewEngine")}
+          onPress={() => navigation.goBack()}
         >
-          <Text style={styles.textHeader}>{"< Thông tin máy bơm"}</Text>
+          <Text style={styles.textHeader}>{"< Thông tin " + datum.name}</Text>
         </TouchableOpacity>
       }
     >
@@ -184,7 +184,10 @@ export default function DeviceInfo({ route, navigation }) {
                   size="xs"
                   onPress={() => {
                     // alert("Thêm Lịch bơm");
-                    navigation.navigate('Root/MainApp/EditPolicy')
+                    navigation.navigate('Root/MainApp/EditPolicy', {
+                      hardwareId: hardwareId,
+                      gardenId: gardenId
+                    })
                   }}
                   style={{ backgroundColor: styles.active.color }}
                 >
@@ -208,8 +211,10 @@ export default function DeviceInfo({ route, navigation }) {
                 <Button
                   size="xs"
                   onPress={() => {
-                    alert("Thêm Chính sách");
-                    navigation.navigate("Root/MainApp/EditPolicy");
+                    navigation.navigate("Root/MainApp/EditSchedule", {
+                      hardwareId: hardwareId,
+                      gardenId: gardenId
+                    });
                   }}
                   style={{ backgroundColor: styles.active.color }}
                 >

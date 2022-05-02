@@ -1,25 +1,92 @@
-import {SafeAreaView, StyleSheet, Text, TextInput, ScrollView, Image, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, StyleSheet, Text, TextInput, ScrollView, Image, TouchableOpacity, View, Button} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useState} from "react";
+import { useState, useEffect, useCallback} from "react";
 import NumericInput from "react-native-numeric-input";
+import { useIsFocused } from "@react-navigation/native"
+
+import policyService from "../services/policy";
+import axios from "axios";
 
 export default function EditPolicy({navigation}) {
-    const [callAdd, setCallAdd] = useState(true)
-    const [input, setInput] = useState("")
-    const [state, setState] = useState("Bật")
-    const [sensors, setSensors] = useState(["Cam bien 1", "Cam bien 2", "Cam bien 3"])
-    const [operators, setOperators] = useState([">", "<", ">=", "<=", "="])
-    const [logic, setLogic] = useState("Và")
+    // const { hardwareId, gardenId } = route.params;
+    const action = ["ON", "OFF"]
+    const [sensor, setSensor] = useState([])
+    const operator = [">", "<", ">=", "<=", "="]
+    const logic = ["AND", "OR"]
+    const [oldName, setOldName] = useState("")
     
-    const [policies, setPolicies] = useState([])
+    const [policy, setPolicy] = useState({
+        name: "",
+        logic: "",
+        action: "",
+        limit: "",
+        operatingTime: 0,
+        expressions: []
+    })
 
-    const handleAddPolicy = () => {
-        // setCallAdd(previousState => !previousState)
-        setPolicies([...policies, {
-            sensor: sensors[0],
-            operator: operators[0],
-            number: 0
-        }])
+    const [oldPolicy, setOldPolicy] = useState({})
+
+    console.log('a')
+
+    // useEffect(() => {
+    //     console.log('b')
+    //     axios.get("http://192.168.1.11:8080/api/policys/0lamp0")
+    //         .then(res => {
+    //             if(JSON.stringify(res.data[0]) !== JSON.stringify(oldPolicy)) {
+    //                 setPolicy(res.data[0])
+    //                 setOldPolicy(res.data[0])
+    //                 setOldName(res.data[0].name)
+    //             }
+    //             //console.log(policy)
+    //         })
+    //         .catch(err => console.log(err))
+    // })
+
+    const isFocused = useIsFocused()
+
+    useEffect(() => {
+        console.log('here')
+        axios.get("http://192.168.1.11:8080/api/policys/0lamp0")
+        .then(res => {
+    
+                setPolicy(res.data[0])
+                setOldPolicy(res.data[0])
+                setOldName(res.data[0].name)
+            
+            //console.log(policy)
+        })
+        .catch(err => console.log(err))
+    },[isFocused])
+
+    useEffect(() => {
+        axios.get("http://192.168.1.11:8080/api/sensors/0garden0")
+            .then(res => {
+                setSensor(res.data)
+                //console.log(sensor)
+            })
+            .catch(err => console.log(err))
+
+    }, [])
+
+    const handleAddExpression = () => {
+        // setCallAdd(previousState => !previousState
+        setPolicy({...policy, expressions: [...policy.expressions, {
+            sensorID: sensor[0].ID,
+            operator: operator[0],
+            rhsValue: 0
+        }]})
+    }
+
+    const handleAccept = () => {
+        axios.post("http://192.168.1.11:8080/api/policys/update", {...policy, actuatorID: "0lamp0", oldName: oldName})
+        .catch(
+            err =>
+            console.log(err)
+        )
+    }
+
+    const handleCancel = () => {
+        setPolicy(oldPolicy)
     }
 
     return(
@@ -31,21 +98,27 @@ export default function EditPolicy({navigation}) {
                 borderTopRightRadius: 30,
                 justifyContent: "flex-start"
                 }}>
-                    <SafeAreaView style={{flex: 1, alignItems: "center", marginTop: 10}}>
-                        <Text style={styles.textHeader}>Thêm/chỉnh sửa chính sách</Text>
+                    <SafeAreaView style={{flex: 1, marginTop: 10, marginLeft: 10}}>
+                    <TouchableOpacity
+                        style={{ width: "100%" }}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.textHeader}>{`< Thêm/chỉnh sửa chính sách`}</Text>
+                    </TouchableOpacity>
                     </SafeAreaView>
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
                         <SafeAreaView style={{marginTop: 10}}>
                             <Text style={styles.textContent}>Tên chính sách</Text>
-                            <TextInput style={styles.textInput} value={input.policyName}
-                                onChangeText={text => {
-                                setInput(text)
-                            }}></TextInput>
+                            <TextInput style={styles.textInput} value={policy.name}
+                                onChangeText = {value => {
+                                    setPolicy({...policy, name: value})
+                                }}>
+                            </TextInput>
                         </SafeAreaView>
 
                         <SafeAreaView style={{marginTop: 10, flexDirection: "row"}}>
                             <Text style={[styles.textContent,{marginRight: 10}]}>Điều kiện</Text>
-                            <TouchableOpacity style={{width: 20, height: 20, backgroundColor: "#28554e", alignItems:"center"}} onPress={handleAddPolicy} >
+                            <TouchableOpacity style={{width: 20, height: 20, backgroundColor: "#28554e", alignItems:"center"}} onPress={handleAddExpression} >
                                 <Text style={{color: "#fff"}}>+</Text>
                             </TouchableOpacity>
                         </SafeAreaView>
@@ -60,85 +133,108 @@ export default function EditPolicy({navigation}) {
                                 marginRight: 10
                             }, styles.dropdown]}>
                                 <Picker
-                                    selectedValue = {state}
+                                    selectedValue = {policy.action}
                                     style ={{
                                         width: "100%"
                                     }}
-                                    onValueChange = {(itemValue, itemIndex) => setState(itemValue)}
+                                    onValueChange = {itemValue => setPolicy({...policy, action: itemValue})}
                                 >
-                                    <Picker.Item label="Bật" value="Bật" color="#28554e"/>
-                                    <Picker.Item label="Tắt" value="Tắt" color="#28554e"/>
+                                    {action.map((item, index) => {
+                                        return (
+                                            <Picker.Item key={index} label={item === "ON" ? "Bật" : "Tắt"} value={item} color="#28554e"/>
+                                        )
+                                    })}
                                 </Picker>
                             </View>
+                            <Text style={styles.textContent}>trong</Text>
+                            <NumericInput 
+                                //value = {policy.number}
+                                value = {policy.operatingTime}
+                                totalWidth = {50}
+                                totalHeight = {25}
+                                minValue = {0}
+                                onChange = {itemValue => {
+                                    setPolicy({...policy, operatingTime: itemValue})
+                                }}
+                                borderColor = "#28554e"
+                                rounded
+                                inputStyle={{color: "#28554e", fontSize: 16, fontWeight: "bold"}}
+                                containerStyle = {{borderWidth: 2, borderColor: "#28554e", marginRight: 5, marginLeft: 5}}
+                                type = "up-down"
+                            />
+
                             <Text style={styles.textContent}>khi</Text>
                         </SafeAreaView>
                         
 
                         <ScrollView style={{marginTop: 20}}>
-                            {policies.map((policyItem, policyIndex) => {
+                            {policy.expressions && policy.expressions.map((expressionItem, expressionIndex) => {
                                 return (
-                            <SafeAreaView key = {policyIndex}>
-                                {policyIndex > 0 && 
+                            <SafeAreaView key = {expressionIndex}>
+                                {expressionIndex > 0 && 
                                 <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5}}>
                                     <View style = {[{
-                                    width: 105,
+                                    width: 100,
                                     marginLeft: 10,
                                     marginRight: 10
                                     }, styles.dropdown]}>
                                     <Picker
-                                        selectedValue = {logic}
+                                        selectedValue = {policy.logic}
                                         style ={{
                                             width: "100%"
                                         }}
-                                        onValueChange = {(itemValue) => setLogic(itemValue)}
+                                        onValueChange = {(itemValue) => setPolicy({...policy, logic: itemValue})}
                                     >
-                                        <Picker.Item label="Và" value="Và" color="#28554e"/>
-                                        <Picker.Item label="Hoặc" value="Hoặc" color="#28554e"/>
+                                        {logic.map((item, index) =>  {
+                                            return (
+                                                <Picker.Item key={index} label={item === "AND" ? "Và" : "Hoặc"} value={item} color="#28554e"/>
+                                            )
+                                        })}
                                     </Picker>
                                 </View>
                                 </SafeAreaView>}
                                 <SafeAreaView style={{flexDirection: "row", marginTop: 10}} >
                                     <View style = {[{
-                                        width: 150,
+                                        width: 160,
                                     }, styles.dropdown]}>
                                         <Picker
-                                            selectedValue = {policyItem.sensor}
+                                            selectedValue = {expressionItem.sensorID}
                                             style ={{
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policies]
-                                                newArr[policyIndex].sensor = itemValue
-                                                setPolicies(newArr)
+                                                let newArr = [...policy.expressions]
+                                                newArr[expressionIndex].sensorID = itemValue
+                                                setPolicy({...policy, expressions: newArr})
                                             }}
                                         >
-                                            {sensors.map((value, index) => {
+                                            {sensor.map((value, index) => {
                                                 return (
-                                                    <Picker.Item key={index} label={value} value={value} color="#28554e"/>
+                                                    <Picker.Item key={index} label={value.name} value={value.ID} color="#28554e"/>
                                                 )
                                             })}
                                         </Picker>
                                     </View>
                                     
                                     <View style = {[{
-                                        width: 80,
+                                        width: 78,
                                         marginLeft: 10,
                                         marginRight: 10
                                     }, styles.dropdown]}>
                                         <Picker
-                                            selectedValue = {state}
+                                            selectedValue = {expressionItem.operator}
                                             style ={{
                                                 width: "100%"
                                             }}
                                             onValueChange = {(itemValue) => {
-                                                let newArr = [...policies]
-                                                newArr[policyIndex].operator = itemValue
-                                                setPolicies(newArr)
+                                                let newArr = [...policy.expressions]
+                                                newArr[expressionIndex].operator = itemValue
+                                                setPolicy({...policy, expressions: newArr})
                                             }}
                                         >
-                                            {operators.map((value, index) => {
+                                            {operator.map((value, index) => {
                                                 return (
-                                                    <Picker.Item key={index} label={value} value={value} />
+                                                    <Picker.Item key={index} label={value} value={value} color="#28554e" />
                                                 )
                                             })}
                                         </Picker>
@@ -146,14 +242,14 @@ export default function EditPolicy({navigation}) {
 
                                     <NumericInput 
                                         //value = {policy.number}
-                                        value = {policyItem.number}
+                                        value = {expressionItem.rhsValue}
                                         totalWidth = {50}
                                         totalHeight = {25}
                                         minValue = {0}
-                                        onChange = {value => {
-                                            let newArr = [...policies]
-                                            newArr[policyIndex].number = value
-                                            setPolicies(newArr)
+                                        onChange = {itemValue => {
+                                            let newArr = [...policy.expressions]
+                                            newArr[expressionIndex].rhsValue = itemValue
+                                            setPolicy({...policy, expressions: newArr})
                                         }}
                                         borderColor = "#28554e"
                                         rounded
@@ -163,9 +259,9 @@ export default function EditPolicy({navigation}) {
                                         
                                     />
                                     <TouchableOpacity style={{width: 25, height: 25, backgroundColor: "#28554e", alignItems:"center", borderRadius: 5}} onPress={() => {
-                                        let temp = [...policies]
-                                        temp.splice(policyIndex, 1)
-                                        setPolicies(temp)
+                                        let temp = [...policy.expressions]
+                                        temp.splice(expressionIndex, 1)
+                                        setPolicy({...policy, expressions: temp})
                                     }} >
                                         <Text style={{color: "#fff"}}>-</Text>
                                     </TouchableOpacity>
@@ -174,7 +270,22 @@ export default function EditPolicy({navigation}) {
                             </SafeAreaView>
                                 )
                             })}
+                            
+                            <SafeAreaView style={{marginTop: 10, marginRight: 10, flexDirection: "row", justifyContent: "flex-end"}}>
+                                <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#e3dede", alignItems:"center", justifyContent: "center", borderRadius: 5, marginRight: 10}} 
+                                    onPress = {handleCancel}
+                                >
+                                    <Text style={{color: "#28554e"}}>Hủy</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
+                                    onPress = {handleAccept}
+                                >
+                                    <Text style={{color: "#fff"}}>Thêm/Lưu</Text>
+                                </TouchableOpacity>
+                            </SafeAreaView>
                         </ScrollView>
+
+                        
 
                     </SafeAreaView>
             </SafeAreaView>
@@ -200,7 +311,8 @@ const styles = StyleSheet.create({
         width: '90%',
         height: 30,
         fontSize: 16,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color: "#28554e"
     },
     dropdown: {
         justifyContent: "center",
@@ -211,4 +323,9 @@ const styles = StyleSheet.create({
         borderColor:"#28554e",
         height: 25,
     },
+    button: {
+        alignItems: "center",
+        backgroundColor: "#DDDDDD",
+        padding: 10
+      },
 })

@@ -2,27 +2,20 @@ import { NativeBaseProvider } from "native-base";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { Login, Signup } from "./components/Auth";
-import DeviceInfo from "./pages/DeviceInfo";
-import ViewDevice from './pages/ViewDevice';
-import EditPolicy from "./pages/editPolicy";
-import Homepage from "./pages/homepage";
-import AddGarden from "./pages/addGarden";
 import { GardenContextProvider } from './contexts/GardenContext';
-import ViewActuator from "./pages/ViewActuator";
+import BottomTab from './navigation/BottomTab'
+import store from "./redux/store"
+import { Provider } from "react-redux";
 
-const Stack = createNativeStackNavigator();
-
-// initialRouteName="Root/MainApp/DeviceInfo"
 
 export default function App() {
   return (
+    <Provider store={store}>
     <GardenContextProvider>
     <NativeBaseProvider>
       <NavigationContainer>
-        <Stack.Navigator 
+        {/* <Stack.Navigator 
           initialRouteName="Root/Auth/Login"
-          // initialRouteName="Root/MainApp/ViewEngine"
           screenOptions={{headerShown: false}}
         >
           <Stack.Screen 
@@ -47,15 +40,17 @@ export default function App() {
           />
           <Stack.Screen
             name="Root/MainApp/ViewEngine"
-            component={ViewActuator}
+            component={ViewDevice}
           />
           <Stack.Screen
             name="Root/MainApp/DeviceInfo"
             component={DeviceInfo}
           />
-        </Stack.Navigator>
+        </Stack.Navigator> */}
+        <BottomTab />
       </NavigationContainer>
     </NativeBaseProvider>
     </GardenContextProvider>
+    </Provider>
   );
 }

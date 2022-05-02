@@ -20,13 +20,14 @@ const actuatorTypes = [
 
 const page = "sensor";
 
-export default function ViewActuator({ navigation }) {
+export default function ViewActuator({ route, navigation }) {
 
-  const { gardenInfo } = useContext(GardenContext);
+  const { gardenId, garden } = route.params;
+  // const { gardenInfo } = useContext(GardenContext);
   const [hardwares, setHardwares] = useState(null);
   useEffect(() => {
     const fetchHardwareList = async () => {      
-      const response = await hardware.getAll(gardenInfo.ID);
+      const response = await hardware.getAll(gardenId);
       let _datum = await response.data
 
       _datum = _datum.map((item) => ({

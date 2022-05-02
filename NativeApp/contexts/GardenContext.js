@@ -35,7 +35,7 @@ function GardenContextProvider({children}) {
   }, [gardenInfo]);
 
   return (
-    <GardenContext.Provider value={{gardenInfo, adaClient }}>
+    <GardenContext.Provider value={{ gardenInfo, adaClient, setGardenInfo }}>
       {children}
     </GardenContext.Provider>
   );

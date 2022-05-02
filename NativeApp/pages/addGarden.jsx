@@ -17,7 +17,7 @@ export default function AddGarden({navigation}) {
         adaUserName: "",
         adaUserKey: "",
     })
-    const dispatch = useDispatch()
+    //const dispatch = useDispatch()
 
     function onPressButton() {
         garden.create({...input, useremail: "quanganh@gmail.com"}).then(res => {

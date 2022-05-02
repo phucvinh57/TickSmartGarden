@@ -2,23 +2,23 @@ import React, { useEffect, useState } from "react";
 import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
 import Card from "../components/homepage/Card";
 import gardenData from "../components/homepage/gardenMockData.json";
-//import { useRoute } from "@react-navigation/native";
 import garden from "../services/garden";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
 
 export default function Homepage({navigation}) {
-    const [gardens, setGardens] = useState(gardenData);
-    // const gardens = useSelector(state => state.garden);
-    // const dispatch = useDispatch()
+    //const [gardens, setGardens] = useState(gardenData);
+    
+    const gardens = useSelector(state => state.garden);
+    const dispatch = useDispatch()
 
-    // useEffect(() => {
-    //     garden.getAll("quanganh@gmail.com").then(res => {
-    //         console.log(res.data)
-    //         dispatch(initGardenList(res.data))
-    //     })
-    // },[])
+    useEffect(() => {
+        garden.getAll("nhancu@gmail.com").then(res => {
+            // console.log(res.data)
+            dispatch(initGardenList(res.data))
+        })
+    },[])
     //console.log(gardens);
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
@@ -56,7 +56,16 @@ export default function Homepage({navigation}) {
                         <ScrollView style={{minWidth: 350, flex: 1}}>
                             {gardens.map((garden, index) => {
                                 return (
-                                    <TouchableOpacity key={index} onPress={() => navigation.navigate('Root/MainApp/ViewEngine')}>
+                                    <TouchableOpacity key={index} onPress={() => 
+                                    {
+                                        navigation.navigate('Root/MainApp/ViewEngine', {
+                                            // gardenId: garden.ID, // TODO: get from API
+                                            gardenId: '12fe34',
+                                            garden: garden
+                                        })
+                                        // setContext
+                                    }
+                                    }>
                                         <Card garden={garden} />
                                     </TouchableOpacity>
                                 )
