@@ -1,114 +1,156 @@
-import React, { useState, useEffect, useContext } from "react";
-import { ActivityIndicator, StyleSheet, TouchableWithoutFeedback } from "react-native";
-import EngineCard from "./EngineCard"
+import { useState, useEffect } from "react";
 import {
-  Box,
-  CheckIcon,
-  ChevronUpIcon,
-  FlatList,
-  HStack,
-  Select,
   Text,
   View,
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  FlatList,
+  Select,
+  HStack,
 } from "native-base";
 
-import { GardenContext } from "../../contexts/GardenContext";
-// import { GardenGroup } from "./mqttClient"
-const GardenGroup = require ("./mqttClient")
-import { actuatorTypes, sensorTypes, hardware } from "./data";
+import EngineCard from "./EngineCard";
+import SliderList from "../../components/SliderList";
+import AppContainer from "../../components/AppContainer";
 
-const deviceTypeOptions = actuatorTypes;
+import useLastData from '../../contexts/useLastData'
+import { makeChunks } from "../../components/SliderList/util";
 
-export default function ViewEngine({navigation}) {  
+export default function ViewDevice({ navigation, hardwares, deviceTypeOptions }) {  
   const [isLoading, setIsLoading] = useState(true);
-  const [client, setClient] = useState(null);
-  const [deviceList, setDeviceList] = useState(null); // filter later
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
 
-  const garden = useContext(GardenContext);
-  console.log({garden})
-
+  // for display only
+  const [chunks, setChunks] = useState([]);
+  const windowWidth = useWindowDimensions().width - 40;
   useEffect(() => {
-    let mounted = true;
-    const addClient = async () => {
-      if (mounted) {
-        console.log('try add client')
-        GardenGroup.addClient(garden.auth, () => {
-          setIsLoading(true)
-          setClient(GardenGroup.getAdaClient(garden.adaclient))
-          setDeviceList(hardware)
-          setSelectedType(deviceTypeOptions[0].id)
-          setIsLoading(false)
-        })
+    let itemPerPage = 8;
+    // console.log(`hardwares.filter & done loading`)
+    const arr = hardwares.filter((hw) => {
+      // fix logic for display all
+      return selectedType == "All" || hw.type == selectedType;
+    });
+    setChunks(makeChunks(arr, itemPerPage));
+    setIsLoading(false);
+  }, [selectedType]);
+
+  const [feeds, setFeeds] = useState(() => {
+    return hardwares.map(hw => hw.feedkey)
+  })
+  useEffect(() => {
+    setFeeds(hardwares.map(hw => hw.feedkey))
+  }, [hardwares])
+
+  const [datum, publishMqtt] = useLastData(feeds)
+
+  const onSwitchChange = (feed, value) => {
+    // console.log(`onSwitchChange(${feed}, ${value})`)
+    publishMqtt(feed, value)
+  }
+
+  return (
+    <AppContainer
+      title={
+        <View style={{ width: "100%" }}>
+          <Text style={styles.textHeader}>Danh sách thiết bị</Text>
+          <HStack space={3} style={styles.filterBar}>
+            <Text fontSize="md">Loại thiết bị:</Text>
+            <DropdownSelector 
+              options={deviceTypeOptions}
+              selectedValue={selectedType}
+              onSelectedValueChange={setSelectedType}
+            />
+          </HStack>
+        </View>
       }
-    }
+    >
+      <View>
+        <View style={styles.flatListWrapper}>
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color="red"
+              style={styles.loadingIcon}
+            />
+          )}
+          {!isLoading && (
+            <SliderList
+              data={chunks}
+              windowWidth={windowWidth}
+              renderer={(chunk) => (
+                <FlatList
+                  style={styles.flatList}
+                  data={chunk}
+                  numColumns={2}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item, index }) => (
+                    <View
+                      key={item.id}
+                      style={[
+                        styles.flatListColumn,
+                        index % 2 == 0
+                          ? styles.listItemLeft
+                          : styles.listItemRight,
+                      ]}
+                    >
+                      <EngineCard
+                        deviceInfo={item} 
+                        lastData={datum[item.feedkey]}
+                        onPress={() => {
+                          navigation.navigate("Root/MainApp/DeviceInfo", {
+                            hardwareId: item.id
+                          });
+                        }}
+                        onSwitchChange={(value) => onSwitchChange(item.feedkey, value)}
+                      />
+                    </View>
+                  )}
+                />
+              )}
+            />
+          )}
+        </View>
+      </View>
+    </AppContainer>
+  );
+}
 
-    addClient().catch(console.log)
-    return () => mounted = false
-  }, []);
-
-  const handleChangeDeviceType = (typeStr) => {
-    alert('select ' + typeStr)
-    setSelectedType(typeStr);
-  };
-
-  const DeviceTypeSelector = () => (
-    <Box w="1/3">
+function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
+  return (
+    <>
       <Select
-        selectedValue={selectedType}
-        defaultValue={selectedType}
-        onValueChange={handleChangeDeviceType}
+        minWidth="140"
         size="md"
-        dropdownIcon={<ChevronUpIcon size="6" />}
+        selectedValue={selectedValue}
+        defaultValue={selectedValue}
+        onValueChange={onSelectedValueChange}
+        dropdownIcon={<ChevronDownIcon size="5" marginRight={3} />}
         _selectedItem={{
           bg: "teal.600",
           backgroundColor: "#28554e",
           endIcon: <CheckIcon size="5" />,
         }}
       >
-        {deviceTypeOptions.map(({ id, name }) => (
+        {options.map(({ id, name }) => (
           <Select.Item key={id} value={id} label={name} />
         ))}
       </Select>
-    </Box>
-  );
-
-  const _renderListItem = ({ item, index }) => (
-    <View key={item.id} style={styles.flatListColumn}>
-      <TouchableWithoutFeedback onPress={() => navigation.navigate('Root/MainApp/DeviceInfo')}>
-        <View style={index % 2 == 0 ? styles.listItemLeft : styles.listItemRight}>
-          <EngineCard deviceInfo={item} client={client} />
-        </View>
-      </TouchableWithoutFeedback>
-    </View>
-  );
-
-  return (
-    <View style={styles.container}>
-      <HStack space={3} style={styles.filterBar}>
-        <Text fontSize="md">Lọc theo:</Text>
-        <DeviceTypeSelector />
-      </HStack>
-
-      <View style={styles.flatListWrapper}>
-      {isLoading && <ActivityIndicator size="large" color="red" style={styles.loadingIcon}/>}
-        {/* TODO: Text: Đang kết nối */}
-        {!isLoading && 
-          <FlatList
-            style={styles.flatList}
-            data={deviceList}
-            renderItem={_renderListItem}
-            keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-          />
-        }
-      </View>
-    </View>
-  );
+    </>
+  )
 }
 
+// Set default props
+// ViewDevice.defaultProps = {
+//   name: "cảm biến",
+// };
+
 const DEBUG_COLOR = {
-  WHITE: "white",
+  // WHITE: "white",
   // GRAY: "#555555",
   // PURPLE: "purple",
   // PINK: "pink",
@@ -117,43 +159,38 @@ const DEBUG_COLOR = {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: DEBUG_COLOR.GRAY,
-    width: "100%",
-    height: "100%",
-    flex: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-  },
   filterBar: {
     alignItems: "center",
     justifyContent: "flex-end",
   },
   flatListWrapper: {
-    paddingVertical: 15,
-    backgroundColor: DEBUG_COLOR.RED,
-    justifyContent: "space-between",
     flex: 1,
+    justifyContent: "space-between",
+    backgroundColor: DEBUG_COLOR.RED,
   },
   flatListColumn: {
     width: "50%",
-    height: 110,
+    // height: 110,
     backgroundColor: DEBUG_COLOR.BLACK,
   },
   flatList: {
     backgroundColor: DEBUG_COLOR.PINK,
   },
   listItemLeft: {
-    margin: 10,
-    marginLeft: 0,
-    flex: 1,
+    padding: 7,
+    paddingLeft: 0,
   },
   listItemRight: {
-    margin: 10,
-    marginRight: 0,
-    flex: 1,
+    padding: 7,
+    paddingRight: 0,
   },
   loadingIcon: {
     flex: 1,
-  }
+  },
+  textHeader: {
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#de7067",
+    fontWeight: "500",
+  },
 });

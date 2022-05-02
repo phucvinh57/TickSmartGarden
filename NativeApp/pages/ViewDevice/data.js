@@ -7,23 +7,12 @@ const LIGHT_SENSOR_FEED_KEY = "tl-garden.sensor-light-0";
 
 // --------------- AVAILABLE ---------------
 
-const actuatorTypes = [
-  { id: "ActuatorPump", name: "Máy bơm" },
-  { id: "ActuatorLight", name: "Đèn" },
-];
-const sensorTypes = [
-  { id: "SensorHumid", name: "Độ ẩm" },
-  { id: "SensorLight", name: "Ánh sáng" },
-  { id: "SensorTemperature", name: "Nhiệt độ" },
-];
-
 const pump1 = {
   id: 1,
   name: "Máy bơm 1",
   feedkey: PUMP_FEED_KEY,
   type: "ActuatorPump", // in [ActuatorLight, ActuatorBump, SensorLight, SensorHumid, SensorTemperature]
   status: "Đang hoạt động",
-  isSensorType: false,
 };
 const light1 = {
   id: 2,
@@ -31,7 +20,6 @@ const light1 = {
   feedkey: LAMP_FEED_KEY,
   type: "ActuatorLight", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "Hoạt động kém",
-  isSensorType: false,
 };
 const sensorHumid1 = {
   id: 3,
@@ -39,7 +27,6 @@ const sensorHumid1 = {
   feedkey: HUMIDITY_SENSOR_FEED_KEY,
   type: "SensorHumid", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "Hoạt động kém",
-  isSensorType: true,
 };
 const sensorTemperature1 = {
   id: 4,
@@ -47,7 +34,6 @@ const sensorTemperature1 = {
   feedkey: TEMPERATURE_SENSOR_FEED_KEY,
   type: "SensorTemperature", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "I'm good babe",
-  isSensorType: true,
 };
 const sensorLight1 = {
   id: 5,
@@ -55,23 +41,24 @@ const sensorLight1 = {
   feedkey: LIGHT_SENSOR_FEED_KEY,
   type: "SensorLight", // in [ActuatorLight, ActuatorPump, SensorLight, SensorHumid, SensorTemperature]
   status: "I'm good babe",
-  isSensorType: true,
 };
 
 
 const hardware = [
-  // // {
-  // //   name: "Nhiệt độ",
-  // //   feedkey: TEMPERATURE_SENSOR_FEED_KEY,
-  // //   type: "sensor",
-  // // },
   pump1,
   light1,
   sensorHumid1,
   sensorTemperature1,
   sensorLight1,
+  
+  {...pump1, id: 11, name: "Máy bơm 2"},
+  {...light1, id: 12, name: "Đèn 2"},
+  {...sensorHumid1, id: 13, name: "Độ ẩm 2"},
+  {...sensorTemperature1, id: 14, name: "Nhiệt độ 2"},
+  {...sensorLight1, id: 15, name: "Ánh sáng 2"},
+  {...sensorHumid1, id: 23, name: "Độ ẩm 3"},
+  {...sensorTemperature1, id: 24, name: "Nhiệt độ 3"},
+  {...sensorLight1, id: 25, name: "Ánh sáng 3"},
 ];
 
 module.exports.hardware = hardware;
-module.exports.actuatorTypes = actuatorTypes;
-module.exports.sensorTypes = sensorTypes;

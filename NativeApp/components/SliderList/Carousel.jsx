@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Image, FlatList, TouchableOpacity, Pressable, useWindowDimensions } from "react-native";
 import SliderList from ".";
-import { makeChunks } from "../../pages/DeviceInfo/util";
+import { makeChunks } from "./util";
 
 // Data will be used to compose our slides
 const rawdata = [

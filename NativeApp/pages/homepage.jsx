@@ -8,17 +8,18 @@ import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
 
 export default function Homepage({navigation}) {
-    const [gardens, setGardens] = useState(gardenData);
-    // const gardens = useSelector(state => state.garden);
-    // const dispatch = useDispatch()
+    //const [gardens, setGardens] = useState(gardenData);
+    
+    const gardens = useSelector(state => state.garden);
+    const dispatch = useDispatch()
 
-    // useEffect(() => {
-    //     garden.getAll("nhancu@gmail.com").then(res => {
-    //         console.log(res.data)
-    //         dispatch(initGardenList(res.data))
-    //     })
-    // },[])
-    console.log(gardens);
+    useEffect(() => {
+        garden.getAll("nhancu@gmail.com").then(res => {
+            // console.log(res.data)
+            dispatch(initGardenList(res.data))
+        })
+    },[])
+    //console.log(gardens);
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>
@@ -55,7 +56,16 @@ export default function Homepage({navigation}) {
                         <ScrollView style={{minWidth: 350, flex: 1}}>
                             {gardens.map((garden, index) => {
                                 return (
-                                    <TouchableOpacity key={index} onPress={() => navigation.navigate('Root/MainApp/ViewEngine')}>
+                                    <TouchableOpacity key={index} onPress={() => 
+                                    {
+                                        navigation.navigate('Root/MainApp/ViewEngine', {
+                                            // gardenId: garden.ID, // TODO: get from API
+                                            gardenId: '12fe34',
+                                            garden: garden
+                                        })
+                                        // setContext
+                                    }
+                                    }>
                                         <Card garden={garden} />
                                     </TouchableOpacity>
                                 )

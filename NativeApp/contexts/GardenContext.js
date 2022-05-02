@@ -1,13 +1,15 @@
-import { createContext, useState } from 'react';
-import { ADA_CLIENT, USER_KEY, GROUP_KEY } from '../env';
+import { createContext, useEffect, useState } from 'react';
+import { ADA_CLIENT, USER_KEY } from '../env';
+import GardenGroup from './mqttClient'
 
 const GardenContext = createContext()
 
+// Todo: Must be pass by QA's function
+const gardenId = "12fe34";
+
 const defaultGardenInfo = {
-  gardenname: "Vườn trồng rau",
-  adaclient: ADA_CLIENT,
-  userkey: USER_KEY,
-  groupkey: GROUP_KEY,
+  ID: gardenId,
+  name: "",
   auth: {
     username: ADA_CLIENT,
     password: USER_KEY,
@@ -16,9 +18,24 @@ const defaultGardenInfo = {
 
 function GardenContextProvider({children}) {
   const [gardenInfo, setGardenInfo] = useState(defaultGardenInfo);
+  const [adaClient, setAdaClient] = useState(null)
+
+  const onGardenChange = (garden) => {
+    setGardenInfo(garden)
+  }
+
+  useEffect(() => {
+    const username = gardenInfo.auth.username
+    const client = GardenGroup.getAdaClient(username)
+    if (!client) {
+      GardenGroup.addClient(gardenInfo.auth, () => {
+        setAdaClient(GardenGroup.getAdaClient(username))
+      })
+    }
+  }, [gardenInfo]);
 
   return (
-    <GardenContext.Provider value={gardenInfo}>
+    <GardenContext.Provider value={{ gardenInfo, adaClient, setGardenInfo }}>
       {children}
     </GardenContext.Provider>
   );

@@ -1,8 +1,17 @@
+const mockDeviceInfo = {
+  name: 'Máy bơm 1',
+  processingTime: 3,
+  timeUnit: 'Phút',
+}
+
 const mockSchedList = [
   {
     name: "Bơm sáng 1",
-    cycle: "8:00 mỗi ngày",
+    timestamp: new Date(),
+    cycle: 1,
+    cycleUnit: "ngày",
   },
+  // cycle: "8:00 mỗi ngày",
   {
     name: "Bơm trưa 1",
     cycle: "13:00 mỗi 3 ngày",
@@ -40,6 +49,7 @@ const mockSchedList = [
 const mockPolicyList = [
   {
     name: "Rửa bụi",
+    turnOn: true,
     action: "Bật máy bơm",
   },
   {

@@ -1,50 +1,121 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { useContext, useEffect, useRef, useState } from "react";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import {
   Box,
+  Heading,
   FormControl,
   HStack,
   Input,
-  Switch,
   AddIcon,
   Button,
-  Heading,
-  View,
   VStack,
-  Text,
-  ScrollView,
 } from "native-base";
+
+import AppContainer from "../../components/AppContainer";
 import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
 
-import { mockPolicyList, mockSchedList, mockLogList } from "./data";
-import { makeChunks } from "./util";
+// import { mockPolicyList, mockSchedList, mockLogList } from "./data";
+import { makeChunks } from "../../components/SliderList/util";
+import hardware from "../../services/hardware";
+import { GardenContext } from "../../contexts/GardenContext";
 
-function getLogList() {
-  return mockLogList.map((item) => ({
-    time: item.time,
-    activity: item.activity,
-  }));
-}
+// function getLogList() {
+//   return mockLogList.map((item) => ({
+//     time: item.time,
+//     activity: item.activity,
+//   }));
+// }
 
-const getSchedList = () =>
-  mockSchedList.map((item) => ({ name: item.name, description: item.cycle }));
-const getPolicyList = () =>
-  mockPolicyList.map((item) => ({ name: item.name, description: item.action }));
+// const getSchedList = () =>
+//   mockSchedList.map((item) => ({ name: item.name, description: item.cycle }));
+// const getPolicyList = () =>
+//   mockPolicyList.map((item) => ({ name: item.name, description: item.action }));
 
-export default function DeviceInfo({ navigation }) {
+let defaultItem = {
+  name: "$Máy bơm 1",
+  operatingTime: 3,
+  timeUnit: "$phút",
+  scheds: [
+    { name: "Bơm Chiều", timestamp: "17:35:15", cycle: 3, cycleUnit: "day" },
+  ],
+  logs: [],
+  policies: [],
+};
+
+const adapter = {
+  makeSched: ({ name, timestamp, cycle, cycleUnit }) => ({
+    name: name,
+    description: `${timestamp.slice(0, 5)} mỗi ${cycle} ${cycleUnit}`,
+  }),
+  // makePolicy: ({ name, turnOn }) => ({
+  //   name: name,
+  //   description: `${turnOn ? "Bật" : "Tắt"} mỗi ${cycle} ${cycleUnit}`,
+  // }),
+  makePolicy: (_item) => ({
+    name: 'mockedName',
+    description: 'mockedDescription'
+  }),
+  makeLog: (_item) => ({
+    time: 'mockedTime',
+    activity: 'mockedactivity'
+  }),
+};
+
+
+export default function DeviceInfo({ route, navigation }) {
   console.log("hello DeviceInfo");
 
-  const [schedList, setSchedList] = useState(makeChunks(getSchedList(), 3));
-  const [policyList, setPolicyList] = useState(makeChunks(getPolicyList(), 3));
-  const [logList, setLogList] = useState(getLogList());
+  const { hardwareId } = route.params;
+  const [isLoading, setIsLoading] = useState(true);
 
+  const [datum, setDatum] = useState(defaultItem);
+  const { gardenInfo } = useContext(GardenContext);
+  const gardenId = gardenInfo.ID;
+
+  useEffect(() => {
+    const fetchHardwareInfo = async () => {
+      const response = await hardware.getById(hardwareId, gardenId);
+      const item = await response.data
+      console.log('====================================');
+      // console.log(JSON.stringify(item, null, 2));
+      console.log({item});
+      console.log('====================================');
+
+      const _datum = {
+        name: item.name,
+        operatingTime: item.operatingTime,
+        timeUnit: item.timeUnit,
+        scheds: item.scheds.map(adapter.makeSched),
+        // logs: item.logs.map(makeLog),
+        // policies: item.policies.map(makePolicy),
+        // scheds: [],
+        logs: [],
+        policies: [],
+      }
+      setDatum(_datum)
+      setIsLoading(false)
+    };
+    fetchHardwareInfo().catch(console.error);
+  }, []);
+
+  
   // Width of the window will be width of our slides
   const windowWidth = useWindowDimensions().width - 40;
-  
+  const scrollRef = useRef();
+
   const renderCardItems = (items) => {
+    // <HStack justifyContent="space-between">
     return (
-      <HStack justifyContent="space-between">
+      <HStack justifyContent="flex-start">
         {items.map((item) => (
           <View key={item.name} style={styles.cardItem}>
             <Text style={styles.textTitle} numberOfLines={2}>
@@ -59,124 +130,132 @@ export default function DeviceInfo({ navigation }) {
     );
   };
 
-  return (
-    <View style={{marginTop: 25}}>
-    <ScrollView>
-      <VStack style={styles.container} space={3}>
-        <Box>
-          <FormControl isReadOnly>
-            <Heading style={styles.textHeading} size="sm">
-              Tên thiết bị
-            </Heading>
-            <Input type="text" placeholder="Máy bơm, Đèn ..." />
-          </FormControl>
-
-          <HStack
-            style={{
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 2 }}>
-              <Heading style={styles.textHeading} size="sm">
-                Thời gian hoạt động
-              </Heading>
-              <HStack
-                space={2}
-                style={{ alignItems: "center", backgroundColor: DEBUG.WHITE }}
-              >
-                <View style={{ width: "70%", alignItems: "center" }}>
-                  <Input keyboardType="numeric" placeholder="123456" />
-                </View>
-                <Heading style={styles.textHeading} size="xs">
-                  Phút
+  return (<>
+    { isLoading && <ActivityIndicator></ActivityIndicator> }
+    { !isLoading && <AppContainer
+      title={
+        <TouchableOpacity
+          style={{ width: "100%" }}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.textHeader}>{"< Thông tin " + datum.name}</Text>
+        </TouchableOpacity>
+      }
+    >
+      <View style={styles.appBody}>
+        <ScrollView ref={scrollRef}>
+          <VStack space={3}>
+            <Box>
+              <FormControl isReadOnly>
+                <Heading style={styles.textHeading} size="sm">
+                  Tên thiết bị
                 </Heading>
+                <Input
+                  type="text"
+                  placeholder="Máy bơm, Đèn ..."
+                  value={datum.name}
+                />
+              </FormControl>
+
+              <View flex={2}>
+                <Heading style={styles.textHeading} size="sm">
+                  Thời gian hoạt động
+                </Heading>
+                <HStack space={2} alignItems="center">
+                  <View style={{ width: "70%", alignItems: "center" }}>
+                    <Input
+                      keyboardType="numeric"
+                      value={String(datum.operatingTime)}
+                    />
+                  </View>
+                  <Heading style={styles.textHeading} size="xs">
+                    {datum.timeUnit}
+                  </Heading>
+                </HStack>
+              </View>
+            </Box>
+
+            <Box>
+              <HStack space={2}>
+                <Heading style={styles.textHeading} size="sm">
+                  Lịch bơm
+                </Heading>
+                <Button
+                  size="xs"
+                  onPress={() => {
+                    // alert("Thêm Lịch bơm");
+                    navigation.navigate('Root/MainApp/EditPolicy', {
+                      hardwareId: hardwareId,
+                      gardenId: gardenId
+                    })
+                  }}
+                  style={{ backgroundColor: styles.active.color }}
+                >
+                  <AddIcon size="3" color="white" />
+                </Button>
               </HStack>
-            </View>
-            <View style={{ flex: 1, alignItems: "center" }}>
+
+              <SliderList
+                data={makeChunks(datum.scheds, 3)}
+                renderer={renderCardItems}
+                // onItemPress={() => navigation.navigate('Root/MainApp/EditPolicy')}
+                windowWidth={windowWidth}
+              />
+            </Box>
+
+            <Box>
+              <HStack space={2}>
+                <Heading style={styles.textHeading} size="sm">
+                  Chính sách
+                </Heading>
+                <Button
+                  size="xs"
+                  onPress={() => {
+                    navigation.navigate("Root/MainApp/EditSchedule", {
+                      hardwareId: hardwareId,
+                      gardenId: gardenId
+                    });
+                  }}
+                  style={{ backgroundColor: styles.active.color }}
+                >
+                  <AddIcon size="3" color="white" />
+                </Button>
+              </HStack>
+
+              <SliderList
+                data={makeChunks(datum.policies, 3)}
+                renderer={renderCardItems}
+                windowWidth={windowWidth}
+              />
+            </Box>
+
+            <Box>
               <Heading style={styles.textHeading} size="sm">
-                Bật/Tắt
+                Lịch sử hoạt động
               </Heading>
-              <Switch size="sm" onToggle={() => {}} isChecked={true} />
-            </View>
-          </HStack>
-        </Box>
-
-        <Box>
-          <HStack space={2}>
-            <Heading style={styles.textHeading} size="sm">
-              Lịch bơm
-            </Heading>
-            <Button
-              size="xs"
-              onPress={() => {
-                alert("Thêm Lịch bơm");
-              }}
-              style={{ backgroundColor: styles.active.color }}
-            >
-              <AddIcon size="3" color="white" />
-            </Button>
-          </HStack>
-
-          <SliderList
-            data={schedList}
-            renderer={renderCardItems}
-            dotColor="#28554E"
-            windowWidth={windowWidth}
-          />
-        </Box>
-
-        <Box>
-          <HStack space={2}>
-            <Heading style={styles.textHeading} size="sm">
-              Chính sách
-            </Heading>
-            <Button
-              size="xs"
-              onPress={() => {
-                alert("Thêm Chính sách");
-                navigation.navigate('Root/MainApp/EditPolicy')
-              }}
-              style={{ backgroundColor: styles.active.color }}
-            >
-              <AddIcon size="3" color="white" />
-            </Button>
-          </HStack>
-
-          <SliderList
-            data={policyList}
-            renderer={renderCardItems}
-            dotColor="#28554E"
-            windowWidth={windowWidth}
-          />
-        </Box>
-
-        <Box>
-          <Heading style={styles.textHeading} size="sm">
-            Lịch sử hoạt động
-          </Heading>
-          <LogTable data={logList} itemsPerPage={5} />
-        </Box>
-      </VStack>
-    </ScrollView>
-    </View>
-  );
+              <LogTable
+                data={datum.logs}
+                itemsPerPage={5}
+                onPageChange={() => scrollRef?.current.scrollToEnd({animated: true})}
+              />
+            </Box>
+          </VStack>
+        </ScrollView>
+      </View>
+    </AppContainer> }
+  </>);
 }
 
 const DEBUG = {
-  // RED: "red",
-  // PINK: "pink",
-  // BLACK: "black",
-  // WHITE: "white",
+  RED: "red",
+  PINK: "pink",
+  BLACK: "black",
+  WHITE: "white",
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    // backgroundColor: DEBUG.PINK,
-    // marginHorizontal: 20,
-    // marginTop: 25,
-    paddingHorizontal: 20,
-    // paddingTop: 25,
+  appBody: {
+    width: "100%",
   },
   cardItem: {
     backgroundColor: "#eaf5ef",
@@ -206,5 +285,11 @@ const styles = StyleSheet.create({
   },
   active: {
     color: "#28554e",
+  },
+  textHeader: {
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#de7067",
+    fontWeight: "500",
   },
 });

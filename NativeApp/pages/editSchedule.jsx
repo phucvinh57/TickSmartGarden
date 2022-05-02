@@ -23,8 +23,13 @@ export default function EditSchedule({navigation}) {
                 borderTopRightRadius: 30,
                 justifyContent: "flex-start"
                 }}>
-                    <SafeAreaView style={{flex: 1, alignItems: "center", marginTop: 10}}>
-                        <Text style={styles.textHeader}>Thêm/chỉnh sửa lịch bơm</Text>
+                    <SafeAreaView style={{flex: 1, marginTop: 10, marginLeft: 10}}>
+                    <TouchableOpacity
+                        style={{ width: "100%" }}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.textHeader}>{`< Thêm/chỉnh sửa lịch bơm`}</Text>
+                    </TouchableOpacity>
                     </SafeAreaView>
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
                         <SafeAreaView style={{marginTop: 10}}>

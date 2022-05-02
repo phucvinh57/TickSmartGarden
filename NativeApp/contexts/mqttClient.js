@@ -31,6 +31,29 @@ class AdaClient {
     }
   }
 
+  subArray(keys, onMessage) {
+    try {
+      const topics = [...keys].map((key) => {
+        return [this.username, "feeds", key].join("/");
+      })
+      
+      this.client.subscribe(topics, (err) => {
+        err && console.log(err);
+        !err &&
+          this.client.on("message", (incomeTopic, message) => {
+            if (topics.includes(incomeTopic)) {
+              console.log(
+                `Message on topic ${incomeTopic}. Message: ${message}`
+              );
+              onMessage(incomeTopic, message);
+            }
+          });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   sub(key, onMessage) {
     try {
       const topic = [this.username, "feeds", key].join("/");
@@ -39,9 +62,9 @@ class AdaClient {
         !err &&
           this.client.on("message", (incomeTopic, message) => {
             if (topic === incomeTopic) {
-              // console.log(
-              //   `Message on topic ${incomeTopic}. Message: ${message}`
-              // );
+              console.log(
+                `Message on topic ${incomeTopic}. Message: ${message}`
+              );
               onMessage(incomeTopic, message);
             }
           });
@@ -78,8 +101,17 @@ class ClientGroup {
   }
 
   getAdaClient(username) {
-    return this.clients.filter((client) => client.username === username)[0];
+    const numberOfClient = this.clients.length
+    console.log({numberOfClient}) 
+    const arr = this.clients.filter((client) => {
+      return client.username === username
+    })
+    if (arr && arr != []) {
+      return arr[0]
+    }
+    return null
   }
 }
 
-module.exports = new ClientGroup();
+const GardenGroup = new ClientGroup();
+export default GardenGroup
