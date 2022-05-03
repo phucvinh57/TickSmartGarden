@@ -38,7 +38,7 @@ const inferDataUnit = (deviceType) => {
     case DeviceTypeString.SensorHumid:
       return '%';
     case DeviceTypeString.SensorLight:
-      return '**';
+      return ' Lux';
     case DeviceTypeString.SensorTemperature:
       return '℃';
     default:
@@ -46,8 +46,8 @@ const inferDataUnit = (deviceType) => {
   }
 }
 
-const inferIsSensorType = (device) => {
-  if (device.name[0] == "S") // in "Sensor"
+const inferIsSensorType = (deviceName) => {
+  if (deviceName[0] == "S") // in "Sensor"
     return true;
   return false;
 };

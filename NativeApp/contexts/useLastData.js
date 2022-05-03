@@ -1,69 +1,56 @@
-import { useState, useEffect, useContext } from 'react'
-import { GardenContext } from './GardenContext'
+import { useState, useEffect } from 'react'
 
-function DEBUG_LOG(msg) {
-  // console.log(msg)
-}
 
-function onlyUnique(value, index, self) {
-  return self.indexOf(value) === index;
-}
+export default function useLastData(adaClient, feeds) {
 
-export default function useLastData(_feeds) {
-  const feeds = _feeds.filter(onlyUnique)
-
-  // DEBUG_LOG(`useLastData(${feeds})`)
-  const { adaClient: client } = useContext(GardenContext)
-
-  const [lastData, setLastData] = useState(() => {
-    let dict = {}
-    for (let i in feeds) {
-      dict[feeds[i]] = null
-    }
-    return dict
-  })
+  const [datum, setLastData] = useState({})
 
   useEffect(() => {
+    let mounted = true
     const subscribeMqtt = async () => {
-      if (!client) return
-      DEBUG_LOG('subscribeMqtt')
-      client.subArray(feeds, _handleMessageArrived)
+      if (!adaClient) return
+      if (!feeds) return
+      adaClient.subArray(feeds, (incomingTopic, message) => {
+        let topic = [...feeds].filter(f => String(incomingTopic).includes(f))[0]
+        if (!topic || !mounted) return
+        setLastData(prevData => ({
+          ...prevData,
+          [topic]: String(message)
+        }))
+      })
     }
     subscribeMqtt().catch(console.error)
-  }, [client]);
+
+    return () => { mounted = false }
+  }, [adaClient]);
   
+
   useEffect(() => {
+    let mounted = true
     const fetchInitValue = async () => {
-      if (!client) return
-      DEBUG_LOG('fetchInitValue ')
+      if (!adaClient) return
+      if (!feeds) return
+      console.log('fetchInitValue ')
       for (let i in feeds) {
-        let value = await client.fetchLastData(feeds[i])
-        _handleMessageArrived(feeds[i], value)
+        const incomingTopic = feeds[i]
+        const message = await adaClient.fetchLastData(incomingTopic)
+        let topic = [...feeds].filter(f => String(incomingTopic).includes(f))[0]
+        if (!topic || !mounted) return
+        setLastData(prevData => ({
+          ...prevData,
+          [topic]: String(message)
+        }))
       }
     }
     fetchInitValue().catch(console.error)
-  }, [])
 
-  const _handleMessageArrived = (incomingTopic, message) => {
-    let topic = null
-    for (let i in feeds) {
-      if (String(incomingTopic).includes(feeds[i])) {
-        topic = feeds[i]
-        break
-      }
-    }
-    DEBUG_LOG(`_handleMessageArrived(${topic}, ${message})`)
-    setLastData(prevData => ({
-      ...prevData,
-      [topic]: String(message)
-    }))
-  }
+    return () => { mounted = false }
+  }, [])
   
-  const publish = (feedKey, value) => {
-    DEBUG_LOG(`publish(${feedKey}, ${value})`)
-    if (!client) return
-    client.pub(feedKey, value)
+  const publishMqtt = (feedKey, value) => {
+    // if (!adaClient) return
+    adaClient.pub(feedKey, value)
   }
-  
-  return [lastData, publish]
+ 
+  return [datum, publishMqtt]
 }

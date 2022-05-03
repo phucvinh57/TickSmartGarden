@@ -3,27 +3,42 @@ import { Text } from "react-native";
 import ViewDevice from "../ViewDevice";
 
 import hardware from "../../services/hardware";
-import { GardenContext } from "../../contexts/GardenContext";
+import GardenGroup from "../../contexts/mqttClient";
 
-const sensorTypes = [
-  { id: "All", name: "Tất cả" },
-  { id: "SensorLight", name: "Ánh sáng" },
-  { id: "SensorHumid", name: "Độ ẩm" },
-];
+import {AuthContext} from "../../contexts/AuthContext"
 
-const actuatorTypes = [
+const allTypes = [
   { id: "All", name: "Tất cả" },
-  { id: "SensorTemperature", name: "Nhiệt độ" },
   { id: "ActuatorLight", name: "Đèn" },
   { id: "ActuatorPump", name: "Máy bơm" },
+  { id: "SensorLight", name: "Ánh sáng" },
+  { id: "SensorHumid", name: "Độ ẩm" },
+  { id: "SensorTemperature", name: "Nhiệt độ" },
 ];
-
-const page = "sensor";
 
 export default function ViewActuator({ route, navigation }) {
 
-  const { gardenId, garden } = route.params;
-  // const { gardenInfo } = useContext(GardenContext);
+  const { gardenId, ada } = route.params;
+  
+  const { auth, setAuth } = useContext(AuthContext)
+
+  const [adaClient, setAdaClient] = useState();
+  useEffect(() => {
+    if (!ada) return;
+    const {username, userkey} = ada
+    const client = GardenGroup.getAdaClient(username);
+    if (!client) {
+      GardenGroup.addClient({ 
+        username: username,
+        password: userkey,
+      }, () => {
+        setAdaClient(GardenGroup.getAdaClient(username));
+      });
+    } else {
+      setAdaClient(client);
+    }
+  }, [ada]);
+
   const [hardwares, setHardwares] = useState(null);
   useEffect(() => {
     const fetchHardwareList = async () => {      
@@ -37,26 +52,30 @@ export default function ViewActuator({ route, navigation }) {
         ...item,
       }));
       setHardwares(_datum)
-      console.log(JSON.stringify(_datum, null, 2));
     };
     fetchHardwareList().catch(console.error);
-  }, []);
+  }, [adaClient]);
 
-  if (hardwares == null) return <Text>Loading ... </Text>;
-  if (page == "actuator")
-    return (
-      <ViewDevice
-        navigation={navigation}
-        hardwares={hardwares}
-        deviceTypeOptions={sensorTypes}
-      />
-    );
-  if (page == "sensor")
-    return (
-      <ViewDevice
-        navigation={navigation}
-        hardwares={hardwares}
-        deviceTypeOptions={actuatorTypes}
-      />
-    );
+  if (!hardwares || !adaClient) return <Text>Loading ... </Text>;
+  return (
+    <ViewDevice
+      navigation={navigation}
+      hardwares={hardwares}
+      deviceTypeOptions={allTypes}
+      adaClient={adaClient}
+      gardenId={gardenId}      
+      onPress={hardwareId => {
+        setAuth(lastAuth => ({
+          ...lastAuth,
+          hardwareId: hardwareId,
+          gardenId: gardenId,
+        }))
+
+        navigation.navigate('Root/MainApp/DeviceInfo', {
+          // gardenId: gardenId,
+          // hardwareId: hardwareId,
+        })
+      }}
+    />
+  );
 }

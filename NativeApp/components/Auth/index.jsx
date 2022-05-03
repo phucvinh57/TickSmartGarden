@@ -11,11 +11,29 @@ import {
   HStack,
   Center,
 } from "native-base";
+import { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
+import { AuthContext } from "../../contexts/AuthContext";
+import Toast from 'react-native-simple-toast';
+
+const defaultEmail = "nhancu@gmail.com"
 
 function Login({ navigation }) {
+  
+  const [email, setEmail] = useState(defaultEmail);
+  const { tryLogin } = useContext(AuthContext);
+  const [loginFail, setLoginFail] = useState(false);
+
   const onLoginPress = () => {
-    navigation.navigate("Root/MainApp/Homepage")
+    setLoginFail(false)
+    tryLogin(email).then(ok => {
+      if (ok) {
+        navigation.navigate("Root/MainApp/Homepage")
+      } else {
+        Toast.show('Invalid login!', Toast.SHORT, Toast.CENTER);
+        setLoginFail(true)
+      }
+    })
   }
 
   const onGotoSignup = () => {
@@ -34,7 +52,9 @@ function Login({ navigation }) {
       <Box style={styles.formContainer}>
         <View style={styles.formHeader}>
           <Heading size="lg" mb="2" style={styles.textColor}>Welcome back</Heading>
-          <Text>Log in to your account</Text>
+          <Text>
+            { loginFail ? `Login failed! Try again` : `Log in to your account`}
+          </Text>
           <Image
             style={[styles.logo, styles.asideLogo]}
             source={require('../../assets/leaf.png')}
@@ -44,16 +64,13 @@ function Login({ navigation }) {
         <FormControl isRequired marginBottom={2}>
           <Stack>
             <FormControl.Label>Username</FormControl.Label>
-            <Input type="text" placeholder="alex12, wayne12 ..." />
+            <Input type="text" defaultValue={email} onChangeText={setEmail} />
           </Stack>
         </FormControl>
         <FormControl isRequired marginBottom={2}>
           <Stack>
             <FormControl.Label>Password</FormControl.Label>
-            <Input type="password" />
-            {/* <FormControl.HelperText>
-              Must be atleast 8 characters.
-            </FormControl.HelperText> */}
+            <Input type="password" defaultValue="123456" />
             <FormControl.ErrorMessage
               leftIcon={<WarningOutlineIcon size="xs" />}
             >

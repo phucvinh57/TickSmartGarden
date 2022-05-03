@@ -8,7 +8,7 @@ function inferTableLabel(offset, currPageLength, totalLength) {
 }
 
 const LogTable = ({ itemsPerPage, data, onPageChange }) => {
-  console.log(`LogTable({ ${itemsPerPage}, ${data} })`)
+  // console.log(`LogTable({ ${itemsPerPage}, ${data} })`)
   const [chunks, setChunks] = React.useState([[]]);
   const [currPage, setCurrPage] = React.useState(0);
   const [tableLabel, setTableLabel] = React.useState("");
@@ -38,6 +38,14 @@ const LogTable = ({ itemsPerPage, data, onPageChange }) => {
 
   return (
     <DataTable>
+      <DataTable.Pagination
+        page={currPage}
+        numberOfPages={chunks.length}
+        onPageChange={handlePageChange}
+        itemsPerPage={itemsPerPage}
+        optionsPerPage={3}
+        label={tableLabel}
+      />
       <DataTable.Header>
         <DataTable.Title>Thời gian</DataTable.Title>
         <DataTable.Title>Hoạt động</DataTable.Title>
@@ -49,15 +57,6 @@ const LogTable = ({ itemsPerPage, data, onPageChange }) => {
           <DataTable.Cell>{activity}</DataTable.Cell>
         </DataTable.Row>
       ))}
-
-      <DataTable.Pagination
-        page={currPage}
-        numberOfPages={chunks.length}
-        onPageChange={handlePageChange}
-        itemsPerPage={itemsPerPage}
-        optionsPerPage={3}
-        label={tableLabel}
-      />
     </DataTable>
   );
 };

@@ -1,5 +1,13 @@
 import { connect } from "@taoqf/react-native-mqtt";
 
+const DEBUG = {
+  log: function (msg) {
+    // console.log('====================================');
+    console.log(msg)
+    // console.log('====================================');
+  }
+}
+
 function getMqttConnection(username, key) {
   const url = `mqtts://${username}:${key}@io.adafruit.com`;
   return connect(url);
@@ -16,7 +24,7 @@ class AdaClient {
     const _username = this.username;
     const _adakey = this.password;
     const url = `https://io.adafruit.com/api/v2/${_username}/feeds/${_feedkey}/data/last?x-aio-key=${_adakey}`;
-    // console.log(url)
+    // DEBUG.log(url)
     const response = await fetch(url);
     const status = await response.json();
     return status.value;
@@ -27,7 +35,7 @@ class AdaClient {
     try {
       this.client.publish(topic, message);
     } catch (error) {
-      console.log(error);
+      DEBUG.log(error);
     }
   }
 
@@ -38,11 +46,11 @@ class AdaClient {
       })
       
       this.client.subscribe(topics, (err) => {
-        err && console.log(err);
+        err && DEBUG.log(err);
         !err &&
           this.client.on("message", (incomeTopic, message) => {
             if (topics.includes(incomeTopic)) {
-              console.log(
+              DEBUG.log(
                 `Message on topic ${incomeTopic}. Message: ${message}`
               );
               onMessage(incomeTopic, message);
@@ -50,7 +58,7 @@ class AdaClient {
           });
       });
     } catch (error) {
-      console.log(error);
+      DEBUG.log(error);
     }
   }
 
@@ -58,11 +66,11 @@ class AdaClient {
     try {
       const topic = [this.username, "feeds", key].join("/");
       this.client.subscribe(topic, (err) => {
-        err && console.log(err);
+        err && DEBUG.log(err);
         !err &&
           this.client.on("message", (incomeTopic, message) => {
             if (topic === incomeTopic) {
-              console.log(
+              DEBUG.log(
                 `Message on topic ${incomeTopic}. Message: ${message}`
               );
               onMessage(incomeTopic, message);
@@ -70,7 +78,7 @@ class AdaClient {
           });
       });
     } catch (error) {
-      console.log(error);
+      DEBUG.log(error);
     }
   }
 }
@@ -87,11 +95,13 @@ class ClientGroup {
       ) === -1
     ) {
       const client = getMqttConnection(options.username, options.password);
-      client.on("error", (err) => {
-        console.log("connection error", err);
-      });
+      // client.on("error", () => {
+      //   DEBUG.log("getMqttConnection");
+      //   DEBUG.log({options});
+      // });
+      client.on("error", console.error);
       client.on("connect", () => {
-        console.log(`Connected to adaclient ${options.username}`);
+        DEBUG.log(`Connected to adaclient ${options.username}`);
         this.clients.push(
           new AdaClient(options.username, options.password, client)
         );
@@ -102,7 +112,7 @@ class ClientGroup {
 
   getAdaClient(username) {
     const numberOfClient = this.clients.length
-    console.log({numberOfClient}) 
+    DEBUG.log({numberOfClient}) 
     const arr = this.clients.filter((client) => {
       return client.username === username
     })

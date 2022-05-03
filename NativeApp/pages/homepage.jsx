@@ -1,24 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
+import React, { useContext, useEffect,  } from "react";
+import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity} from "react-native";
 import Card from "../components/homepage/Card";
-import gardenData from "../components/homepage/gardenMockData.json";
+// import gardenData from "../components/homepage/gardenMockData.json";
 import garden from "../services/garden";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Homepage({navigation}) {
-    //const [gardens, setGardens] = useState(gardenData);
     
+    const {auth, tryLogout} = useContext(AuthContext)
+    const {email} = auth
     const gardens = useSelector(state => state.garden);
     const dispatch = useDispatch()
 
     useEffect(() => {
-        garden.getAll("nhancu@gmail.com").then(res => {
+        garden.getAll(email).then(res => {
             // console.log(res.data)
             dispatch(initGardenList(res.data))
         })
     },[])
+
+    const onLogoutPress = () => {
+        // tryLogout().then(navigation.popToTop())
+        tryLogout()
+    }
+
     //console.log(gardens);
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
@@ -36,7 +44,9 @@ export default function Homepage({navigation}) {
                             </View>
                         </View>
                         <View style={{flex: 1}}>
+                            <TouchableOpacity onPress={onLogoutPress}>
                             <Text style={styles.textHeader1}>Log Out</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -59,11 +69,12 @@ export default function Homepage({navigation}) {
                                     <TouchableOpacity key={index} onPress={() => 
                                     {
                                         navigation.navigate('Root/MainApp/ViewEngine', {
-                                            // gardenId: garden.ID, // TODO: get from API
-                                            gardenId: '12fe34',
-                                            garden: garden
+                                            gardenId: garden.ID,
+                                            ada: {
+                                                username: garden.adaUsername,
+                                                userkey: garden.adaUserkey,
+                                            }
                                         })
-                                        // setContext
                                     }
                                     }>
                                         <Card garden={garden} />

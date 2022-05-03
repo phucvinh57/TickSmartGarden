@@ -22,90 +22,141 @@ import {
 import AppContainer from "../../components/AppContainer";
 import SliderList from "../../components/SliderList";
 import LogTable from "./LogTable";
-
-// import { mockPolicyList, mockSchedList, mockLogList } from "./data";
 import { makeChunks } from "../../components/SliderList/util";
+
 import hardware from "../../services/hardware";
-import { GardenContext } from "../../contexts/GardenContext";
-
-// function getLogList() {
-//   return mockLogList.map((item) => ({
-//     time: item.time,
-//     activity: item.activity,
-//   }));
-// }
-
-// const getSchedList = () =>
-//   mockSchedList.map((item) => ({ name: item.name, description: item.cycle }));
-// const getPolicyList = () =>
-//   mockPolicyList.map((item) => ({ name: item.name, description: item.action }));
-
-let defaultItem = {
-  name: "$Máy bơm 1",
-  operatingTime: 3,
-  timeUnit: "$phút",
-  scheds: [
-    { name: "Bơm Chiều", timestamp: "17:35:15", cycle: 3, cycleUnit: "day" },
-  ],
-  logs: [],
-  policies: [],
-};
-
-const adapter = {
-  makeSched: ({ name, timestamp, cycle, cycleUnit }) => ({
-    name: name,
-    description: `${timestamp.slice(0, 5)} mỗi ${cycle} ${cycleUnit}`,
-  }),
-  // makePolicy: ({ name, turnOn }) => ({
-  //   name: name,
-  //   description: `${turnOn ? "Bật" : "Tắt"} mỗi ${cycle} ${cycleUnit}`,
-  // }),
-  makePolicy: (_item) => ({
-    name: 'mockedName',
-    description: 'mockedDescription'
-  }),
-  makeLog: (_item) => ({
-    time: 'mockedTime',
-    activity: 'mockedactivity'
-  }),
-};
+import schedule from "../../services/schedule";
+import policy from "../../services/policy";
+import logger from "../../services/logger";
+import { AuthContext } from "../../contexts/AuthContext";
 
 
 export default function DeviceInfo({ route, navigation }) {
-  console.log("hello DeviceInfo");
+  const {auth} = useContext(AuthContext)
 
-  const { hardwareId } = route.params;
-  const [isLoading, setIsLoading] = useState(true);
+  const { hardwareId, gardenId } = auth;
 
-  const [datum, setDatum] = useState(defaultItem);
-  const { gardenInfo } = useContext(GardenContext);
-  const gardenId = gardenInfo.ID;
+  function en2vn(str) {
+    const ens = ['min', 'hour', 'day', 'week', 'month', 'ON', 'OFF']
+    const vns = ['phút', 'giờ', 'ngày', 'tuần', 'tháng', 'Bật', 'Tắt']
+    return vns[ens.indexOf(str)]
+  }
+
+  const navigateToSchedule = (schedule) => {
+    navigation.navigate("Root/MainApp/EditSchedule", {
+      raw: schedule
+    });
+  }
+
+  const navigateToPolicy = (policy) => {
+    navigation.navigate("Root/MainApp/EditPolicy", {
+      raw: policy
+    });
+  }
+  
+  const [loadedName, setLoadedName] = useState(false);
+  const [loadedSched, setLoadedSched] = useState(false);
+  const [loadedPolicy, setLoadedPolicy] = useState(false);
+  const [loadedLog, setLoadedLog] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [datum, setDatum] = useState({
+    name: "Thiết bị",
+    operatingTime: -1,
+    timeUnit: "--",
+    scheds: [],
+    logs: [],
+    policies: [],
+  });
 
   useEffect(() => {
     const fetchHardwareInfo = async () => {
       const response = await hardware.getById(hardwareId, gardenId);
       const item = await response.data
-      console.log('====================================');
-      // console.log(JSON.stringify(item, null, 2));
-      console.log({item});
-      console.log('====================================');
-
-      const _datum = {
-        name: item.name,
-        operatingTime: item.operatingTime,
-        timeUnit: item.timeUnit,
-        scheds: item.scheds.map(adapter.makeSched),
-        // logs: item.logs.map(makeLog),
-        // policies: item.policies.map(makePolicy),
-        // scheds: [],
-        logs: [],
-        policies: [],
-      }
-      setDatum(_datum)
+      setDatum(lastdatum => ({
+        ...lastdatum,
+        name: item[0]?.hardwareName,
+        operatingTime: item[0]?.operatingTime,
+        timeUnit: 'phút',
+      }))
       setIsLoading(false)
+      setLoadedName(true)
     };
     fetchHardwareInfo().catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (!loadedName) return
+    const makeSched = (raw) => {
+      const { name, startTime, cycle, unit } = raw
+      const hour = new Date(startTime)?.getHours()?.toString()
+      const min  = new Date(startTime)?.getMinutes()?.toString()
+      return ({
+        name: name,
+        description: `${hour}:${min} mỗi ${cycle} ${en2vn(unit)}`,
+        onPress: () => navigateToSchedule(raw)
+      });
+    }
+  
+    const fetchSchedList = async () => {
+      const response = await schedule.getById(hardwareId);
+      const item = await response.data
+      setDatum(lastdatum => ({
+        ...lastdatum,
+        scheds: [...item].map(makeSched)
+      }))
+      setLoadedSched(true)
+    };
+    fetchSchedList().catch(console.error);
+  }, [loadedName]);
+
+  
+  useEffect(() => {
+    if (!loadedName) return
+    const makeLog = ({ time, activity }) => {
+      const dateString = new Date(time).toLocaleDateString('vn-VN') || '--'
+      const timeString = new Date(time).toLocaleTimeString('vn-VN') || '--'
+      return ({
+        time: dateString + ' ' + timeString,
+        activity: activity,
+      });
+    }
+  
+    const fetchLogList = async () => {
+      const response = await logger.getById(hardwareId);
+      const item = await response.data
+      setDatum(lastdatum => ({
+        ...lastdatum,
+        logs: [...item].map(makeLog)
+      }))
+      setLoadedLog(true)
+    };
+    fetchLogList().catch(console.error);
+  }, [loadedName]);
+
+
+  useEffect(() => {
+    if (!loadedName) return
+    const makePolicy = (raw) => {
+      const { name, action } = raw;
+      return ({
+        name: name,
+        description: `${en2vn(action)} ${datum.name}`,
+        onPress: () => navigateToPolicy(raw)
+      });
+    }
+  
+    const fetchPolicyList = async () => {
+      const response = await policy.getById(hardwareId);
+      const item = await response.data
+      setDatum(lastdatum => ({
+        ...lastdatum,
+        policies: [...item].map(makePolicy)
+      }))
+      setLoadedPolicy(true)
+    };
+    fetchPolicyList().catch(console.error);
+  }, [loadedName]);
 
   
   // Width of the window will be width of our slides
@@ -113,17 +164,18 @@ export default function DeviceInfo({ route, navigation }) {
   const scrollRef = useRef();
 
   const renderCardItems = (items) => {
-    // <HStack justifyContent="space-between">
     return (
-      <HStack justifyContent="flex-start">
+      <HStack justifyContent="space-between">
         {items.map((item) => (
           <View key={item.name} style={styles.cardItem}>
+            <TouchableOpacity onPress={item.onPress} style={styles.cardItemInner}>
             <Text style={styles.textTitle} numberOfLines={2}>
               {item.name}
             </Text>
             <Text color={styles.textContent} numberOfLines={2}>
               {item.description}
             </Text>
+          </TouchableOpacity>
           </View>
         ))}
       </HStack>
@@ -131,34 +183,38 @@ export default function DeviceInfo({ route, navigation }) {
   };
 
   return (<>
-    { isLoading && <ActivityIndicator></ActivityIndicator> }
+    { isLoading && <CustomActivityIndicator />}
     { !isLoading && <AppContainer
       title={
+        loadedName ?
         <TouchableOpacity
           style={{ width: "100%" }}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.textHeader}>{"< Thông tin " + datum.name}</Text>
         </TouchableOpacity>
+        : <Text> {"------"} </Text>
       }
     >
       <View style={styles.appBody}>
         <ScrollView ref={scrollRef}>
           <VStack space={3}>
+            { !loadedName ? <CustomActivityIndicator /> :
             <Box>
               <FormControl isReadOnly>
-                <Heading style={styles.textHeading} size="sm">
+                <Heading style={styles.textHeading} size="md">
                   Tên thiết bị
                 </Heading>
                 <Input
                   type="text"
                   placeholder="Máy bơm, Đèn ..."
                   value={datum.name}
+                  size="lg"
                 />
               </FormControl>
 
               <View flex={2}>
-                <Heading style={styles.textHeading} size="sm">
+                <Heading style={styles.textHeading} size="md">
                   Thời gian hoạt động
                 </Heading>
                 <HStack space={2} alignItems="center">
@@ -166,6 +222,7 @@ export default function DeviceInfo({ route, navigation }) {
                     <Input
                       keyboardType="numeric"
                       value={String(datum.operatingTime)}
+                      size="lg"
                     />
                   </View>
                   <Heading style={styles.textHeading} size="xs">
@@ -173,22 +230,17 @@ export default function DeviceInfo({ route, navigation }) {
                   </Heading>
                 </HStack>
               </View>
-            </Box>
+            </Box>}
 
+            { !loadedSched ? <CustomActivityIndicator /> :
             <Box>
               <HStack space={2}>
-                <Heading style={styles.textHeading} size="sm">
+                <Heading style={styles.textHeading} size="md">
                   Lịch bơm
                 </Heading>
                 <Button
                   size="xs"
-                  onPress={() => {
-                    // alert("Thêm Lịch bơm");
-                    navigation.navigate('Root/MainApp/EditPolicy', {
-                      hardwareId: hardwareId,
-                      gardenId: gardenId
-                    })
-                  }}
+                  onPress={() => navigateToSchedule()}
                   style={{ backgroundColor: styles.active.color }}
                 >
                   <AddIcon size="3" color="white" />
@@ -198,24 +250,19 @@ export default function DeviceInfo({ route, navigation }) {
               <SliderList
                 data={makeChunks(datum.scheds, 3)}
                 renderer={renderCardItems}
-                // onItemPress={() => navigation.navigate('Root/MainApp/EditPolicy')}
                 windowWidth={windowWidth}
               />
-            </Box>
+            </Box>}
 
+            { !loadedPolicy ? <CustomActivityIndicator /> :
             <Box>
               <HStack space={2}>
-                <Heading style={styles.textHeading} size="sm">
+                <Heading style={styles.textHeading} size="md">
                   Chính sách
                 </Heading>
                 <Button
                   size="xs"
-                  onPress={() => {
-                    navigation.navigate("Root/MainApp/EditSchedule", {
-                      hardwareId: hardwareId,
-                      gardenId: gardenId
-                    });
-                  }}
+                  onPress={() => navigateToSchedule()}
                   style={{ backgroundColor: styles.active.color }}
                 >
                   <AddIcon size="3" color="white" />
@@ -227,10 +274,11 @@ export default function DeviceInfo({ route, navigation }) {
                 renderer={renderCardItems}
                 windowWidth={windowWidth}
               />
-            </Box>
+            </Box>}
 
+            { !loadedLog ? <CustomActivityIndicator /> :
             <Box>
-              <Heading style={styles.textHeading} size="sm">
+              <Heading style={styles.textHeading} size="md">
                 Lịch sử hoạt động
               </Heading>
               <LogTable
@@ -238,12 +286,16 @@ export default function DeviceInfo({ route, navigation }) {
                 itemsPerPage={5}
                 onPageChange={() => scrollRef?.current.scrollToEnd({animated: true})}
               />
-            </Box>
+            </Box>}
           </VStack>
         </ScrollView>
       </View>
     </AppContainer> }
   </>);
+}
+
+const CustomActivityIndicator = () => {
+  return <ActivityIndicator />
 }
 
 const DEBUG = {
@@ -264,6 +316,11 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginVertical: 12,
     padding: 7,
+    paddingVertical: 12,
+  },
+  cardItemInner: {
+    flex:1,
+    justifyContent: "space-between",
   },
   textTitle: {
     color: "#28554e",

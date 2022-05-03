@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -21,35 +21,33 @@ import AppContainer from "../../components/AppContainer";
 import useLastData from '../../contexts/useLastData'
 import { makeChunks } from "../../components/SliderList/util";
 
-export default function ViewDevice({ navigation, hardwares, deviceTypeOptions }) {  
+
+export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaClient }) {  
+  
+  const feeds = hardwares.map(hw => hw.feedkey)
+
+  const [datum, publishMqtt] = useLastData(adaClient, feeds)
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
+
 
   // for display only
   const [chunks, setChunks] = useState([]);
   const windowWidth = useWindowDimensions().width - 40;
   useEffect(() => {
     let itemPerPage = 8;
-    // console.log(`hardwares.filter & done loading`)
+    const listOptionId = deviceTypeOptions.map(o => o.id)
     const arr = hardwares.filter((hw) => {
-      // fix logic for display all
-      return selectedType == "All" || hw.type == selectedType;
+      if (selectedType == 'All') {
+        return listOptionId.includes(hw.type)
+      }
+      return hw.type == selectedType;
     });
     setChunks(makeChunks(arr, itemPerPage));
     setIsLoading(false);
   }, [selectedType]);
 
-  const [feeds, setFeeds] = useState(() => {
-    return hardwares.map(hw => hw.feedkey)
-  })
-  useEffect(() => {
-    setFeeds(hardwares.map(hw => hw.feedkey))
-  }, [hardwares])
-
-  const [datum, publishMqtt] = useLastData(feeds)
-
   const onSwitchChange = (feed, value) => {
-    // console.log(`onSwitchChange(${feed}, ${value})`)
     publishMqtt(feed, value)
   }
 
@@ -101,12 +99,8 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions })
                       <EngineCard
                         deviceInfo={item} 
                         lastData={datum[item.feedkey]}
-                        onPress={() => {
-                          navigation.navigate("Root/MainApp/DeviceInfo", {
-                            hardwareId: item.id
-                          });
-                        }}
                         onSwitchChange={(value) => onSwitchChange(item.feedkey, value)}
+                        onPress={() => onPress(item.id)}
                       />
                     </View>
                   )}
@@ -143,11 +137,6 @@ function DropdownSelector({selectedValue, onSelectedValueChange, options}) {
     </>
   )
 }
-
-// Set default props
-// ViewDevice.defaultProps = {
-//   name: "cảm biến",
-// };
 
 const DEBUG_COLOR = {
   // WHITE: "white",

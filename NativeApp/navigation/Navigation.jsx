@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import DeviceInfo from "../pages/DeviceInfo";
@@ -7,15 +7,22 @@ import EditSchedule from "../pages/editSchedule"
 import Homepage from "../pages/homepage";
 import AddGarden from "../pages/addGarden";
 import ViewActuator from "../pages/ViewActuator";
+import { Login, Signup } from "../components/Auth";
+import { AuthContext } from '../contexts/AuthContext';
+// import useLogging from '../contexts/useLogging';
 
 const Stack = createNativeStackNavigator()
 
 const HomepageScreenNavigator = () => {
+    const { auth } = useContext(AuthContext)
+    const isSignedIn = auth ? true : false
+    
     return(
         <Stack.Navigator 
-            initialRouteName='Root/MainApp/Homepage'
             screenOptions={{headerShown: false}}
         >
+        { isSignedIn ? (
+            <>
             <Stack.Screen 
                 name="Root/MainApp/Homepage"
                 component={Homepage}
@@ -36,34 +43,23 @@ const HomepageScreenNavigator = () => {
                 name="Root/MainApp/EditSchedule"
                 component={EditSchedule}
             />
-            {/* <Stack.Screen 
-            name="Root/Auth/Login" 
-            component={Login} 
-          />
-          <Stack.Screen 
-            name="Root/Auth/Signup" 
-            component={Signup} 
-          />
-          <Stack.Screen 
-            name="Root/MainApp/Homepage" 
-            component={Homepage} 
-          />
-          <Stack.Screen 
-            name="Root/MainApp/AddGarden" 
-            component={AddGarden} 
-          />
-          <Stack.Screen
-            name="Root/MainApp/EditPolicy"
-            component={EditPolicy}
-          />
-          <Stack.Screen
-            name="Root/MainApp/ViewEngine"
-            component={ViewDevice}
-          />
-          <Stack.Screen
-            name="Root/MainApp/DeviceInfo"
-            component={DeviceInfo}
-          /> */}
+            <Stack.Screen 
+                name="Root/MainApp/AddGarden" 
+                component={AddGarden} 
+            />
+            </>
+        ) : (
+            <>
+            <Stack.Screen 
+                name="Root/Auth/Login" 
+                component={Login} 
+            />
+            <Stack.Screen 
+                name="Root/Auth/Signup" 
+                component={Signup} 
+            />
+            </>
+        ) }
         </Stack.Navigator>
     )
 }
