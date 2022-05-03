@@ -6,7 +6,8 @@ class Log {
         const QUERY_STR = 
         `SELECT timestamp as time, activity
         FROM log
-        WHERE hardwareID = '${actuatorID}'`
+        WHERE hardwareID = '${actuatorID}'
+        ORDER BY timestamp DESC`
 
         const logs = await dbQuery(QUERY_STR)
         return logs

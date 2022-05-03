@@ -104,7 +104,8 @@ connection.query(`
         rhsValue float,
         primary key (sensorID, policyName, actuatorID, operator, rhsValue),
         foreign key (sensorID, policyName, actuatorID) references Applies(sensorID, policyName, actuatorID)
-);`)
+    );`
+)
 
 const dbQuery = util.promisify(connection.query).bind(connection)
 
