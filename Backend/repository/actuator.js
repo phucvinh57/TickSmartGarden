@@ -2,27 +2,42 @@ const dbQuery = require('./db')
 const mqttClient = require('./mqttClient')
 
 const TIMING_UNIT = 30 * 1000
+const TIMING_LIMIT = 5 * 60 * 1000
 class Actuator {
     constructor() {
         this.keys = []
+        this.policyActuator = {}
     }
 
-    async turnOff(actuatorID) {
+    isPolicyHold(actuatorID){
+        return this.policyActuator.actuatorID ? this.policyActuator.actuatorID : false
+    }
+
+    async turnOff(actuatorID, byPolicy = false) {
         try {
             const { feedkey, username } = await this.getFeedKey(actuatorID)
             mqttClient.getAdaClient(username).pub(feedkey, '0')
+            if (byPolicy){
+                this.policyActuator.actuatorID = true
+                setTimeout(() => this.policyActuator.actuatorID = false, TIMING_LIMIT)
+            }
         }
         catch (error) {
             console.log(error)
         }
     }
 
-    async turnOn(actuatorID, operatingTime) {
+    async turnOn(actuatorID, operatingTime, byPolicy = false) {
         try {
             const { feedkey, username } = await this.getFeedKey(actuatorID)
             console.log(`Actuator turned on ${feedkey} ${username}`)
+            if(byPolicy){
+                this.policyActuator.actuatorID = true
+                setTimeout(() => this.policyActuator.actuatorID = false, TIMING_LIMIT)
+            }
             mqttClient.getAdaClient(username).pub(feedkey, '1')
             setTimeout(() => this.turnOff(actuatorID), operatingTime * TIMING_UNIT)
+            
         }
         catch (error) {
             console.log(error)

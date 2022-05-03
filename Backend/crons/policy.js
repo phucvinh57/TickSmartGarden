@@ -31,10 +31,10 @@ const startFeedPolicy = (username, feedKey) => {
                     if(evalPolicy(policyGroup[policyName]) && !policyRepo.isLimit(policyName)){
                         console.log(`Policy ${policyName} is triggered`)
                         policyRepo.updateLastTriggered(policyName, new Date())
-                        policy[0].action === 'ON' ? actuatorRepo.turnOn(policy[0].actuatorID, policy[0].operatingTime)
-                            : actuatorRepo.turnOff(policy[0].actuatorID)
+                        policy[0].action === 'ON' ? actuatorRepo.turnOn(policy[0].actuatorID, policy[0].operatingTime, true)
+                            : actuatorRepo.turnOff(policy[0].actuatorID, true)
                         var LOG_ACTION = `Bật bởi chính sách ${policyName.split('/')[0]}`
-                        await dbQuery(`INSERT INTO log VALUES (?, NOW(), ?)`, [policy[0].actuatorID, LOG_ACTION])
+                        await dbQuery(`INSERT INTO log(hardwareID, timestamp, activity) VALUES (?, NOW(), ?)`, [policy[0].actuatorID, LOG_ACTION])
                     }
                 }
                 catch(error){
@@ -54,7 +54,7 @@ const startPolicy = async () => {
     const gardens = await gardenRepo.getAllGardens()
     for(var i = 0; i < gardens.length; i++){
         const feeds = (await gardenRepo.getFeeds(gardens[i].ID))
-                        .filter(feed => feed.type === 'sensor')
+                        .filter(feed => feed.type.includes('Sensor'))
         feeds.map(feed => {
             const {feedKey, username} = feed
             startFeedPolicy(username, feedKey)

@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const actuatorRepo = require('../repository/actuator')
 const scheduleRepo = require('../repository/schedule')
+const dbQuery = require('../repository/db')
 
 const FINISH_COUNT = 0
 
@@ -13,12 +14,21 @@ class Scheduler{
         const key = [scheduleInfo.name, scheduleInfo.actuator_ID].join('/')
 
         const job = schedule.scheduleJob(cron_expr, () => {
-            actuatorRepo.turnOn(scheduleInfo.actuator_ID)
-            console.log(`Schedule ${key} is triggered at ${new Date()}`)
-            scheduleRepo.updateCount(scheduleInfo.actuator_ID, scheduleInfo.name, scheduleInfo.count - 1)
-            if(scheduleInfo.count - 1 == FINISH_COUNT) {this.cancel(key)}
-            
-            if (scheduleInfo.count > FINISH_COUNT) {scheduleInfo.count -= 1}
+            if (! actuatorRepo.isPolicyHold(scheduleInfo.actuator_ID)) {
+                actuatorRepo.turnOn(scheduleInfo.actuator_ID, scheduleInfo.operatingTime)
+                console.log(`Schedule ${key} is triggered at ${new Date()}`)
+                scheduleRepo.updateCount(scheduleInfo.actuator_ID, scheduleInfo.name, scheduleInfo.count - 1)
+                if(scheduleInfo.count - 1 == FINISH_COUNT) {this.cancel(key)}
+                
+                if (scheduleInfo.count > FINISH_COUNT) {scheduleInfo.count -= 1}
+                var LOG_ACTION = `Bật bởi lịch ${scheduleInfo.name}`
+                dbQuery(`INSERT INTO log(hardwareID, timestamp, activity) VALUES (?, NOW(), ?)`, [scheduleInfo.actuator_ID, LOG_ACTION])
+            }
+            else {
+                var LOG_ACTION = `Tới lịch bơm nhưng không bơm vì có một chính sách đang kích hoạt`
+                dbQuery(`INSERT INTO log(hardwareID, timestamp, activity) VALUES (?, NOW(), ?)`, [scheduleInfo.actuator_ID, LOG_ACTION])
+                console.log('Policy is hold. Cannot schedule')
+            }
         })
 
         this.job[key] = job

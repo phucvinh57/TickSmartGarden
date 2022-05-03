@@ -126,6 +126,7 @@ class PolicyModel{
     }
 
     async addPolicy(policy){
+        console.log(policy)
         const NAME = policy.name
         const ACTUATOR_ID = policy.actuatorID
         

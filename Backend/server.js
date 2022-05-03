@@ -40,11 +40,11 @@ const initMqttConnection = async (callback) => {
     }
 }
 
-// initMqttConnection(() => {
-//     console.log('Mqqt clients has been connected successfully')
-//     startPolicy()
-//     startScheduling()
-// })
+initMqttConnection(() => {
+    console.log('Mqqt clients has been connected successfully')
+    startPolicy()
+    startScheduling()
+})
 
 route(app)
 
