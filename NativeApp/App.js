@@ -14,39 +14,6 @@ export default function App() {
     <GardenContextProvider>
     <NativeBaseProvider>
       <NavigationContainer>
-        {/* <Stack.Navigator 
-          initialRouteName="Root/Auth/Login"
-          screenOptions={{headerShown: false}}
-        >
-          <Stack.Screen 
-            name="Root/Auth/Login" 
-            component={Login} 
-          />
-          <Stack.Screen 
-            name="Root/Auth/Signup" 
-            component={Signup} 
-          />
-          <Stack.Screen 
-            name="Root/MainApp/Homepage" 
-            component={Homepage} 
-          />
-          <Stack.Screen 
-            name="Root/MainApp/AddGarden" 
-            component={AddGarden} 
-          />
-          <Stack.Screen
-            name="Root/MainApp/EditPolicy"
-            component={EditPolicy}
-          />
-          <Stack.Screen
-            name="Root/MainApp/ViewEngine"
-            component={ViewDevice}
-          />
-          <Stack.Screen
-            name="Root/MainApp/DeviceInfo"
-            component={DeviceInfo}
-          />
-        </Stack.Navigator> */}
         <BottomTab />
       </NavigationContainer>
     </NativeBaseProvider>

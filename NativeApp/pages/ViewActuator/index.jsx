@@ -21,8 +21,14 @@ const actuatorTypes = [
 const page = "sensor";
 
 export default function ViewActuator({ route, navigation }) {
-
-  const { gardenId, garden } = route.params;
+  let gardenId = ""
+  if (route.params) {
+    const { garden } = route.params;
+    gardenId = garden.ID
+  }
+  else {
+    gardenId = "0garden0"
+  }
   // const { gardenInfo } = useContext(GardenContext);
   const [hardwares, setHardwares] = useState(null);
   useEffect(() => {

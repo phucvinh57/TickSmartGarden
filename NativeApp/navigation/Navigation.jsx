@@ -7,6 +7,8 @@ import EditSchedule from "../pages/editSchedule"
 import Homepage from "../pages/homepage";
 import AddGarden from "../pages/addGarden";
 import ViewActuator from "../pages/ViewActuator";
+import AddPolicy from '../pages/addPolicy';
+import AddSchedule from '../pages/addSchedule';
 
 const Stack = createNativeStackNavigator()
 
@@ -98,10 +100,10 @@ export {AddGardenScreenNavigator}
 
 const EditPolicyScreenNavigator = () => {
     return(
-        <Stack.Navigator initialRouteName='Root/MainApp/EditPolicy'>
+        <Stack.Navigator initialRouteName='Root/MainApp/AddPolicy'>
             <Stack.Screen 
-                name = "Root/MainApp/EditPolicy"
-                component={EditPolicy}
+                name = "Root/MainApp/AddPolicy"
+                component={AddPolicy}
                 options = {{headerShown: false}}
             />
         </Stack.Navigator>
@@ -111,10 +113,10 @@ export {EditPolicyScreenNavigator}
 
 const EditScheduleScreenNavigator = () => {
     return(
-        <Stack.Navigator initialRouteName='Root/MainApp/EditSchedule'>
+        <Stack.Navigator initialRouteName='Root/MainApp/AddSchedule'>
             <Stack.Screen 
-                name = "Root/MainApp/EditSchedule"
-                component={EditSchedule}
+                name = "Root/MainApp/AddSchedule"
+                component={AddSchedule}
                 options = {{headerShown: false}}
             />
         </Stack.Navigator>

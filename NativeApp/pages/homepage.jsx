@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
 import Card from "../components/homepage/Card";
 import gardenData from "../components/homepage/gardenMockData.json";
@@ -6,6 +6,7 @@ import garden from "../services/garden";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
+import { GardenContext } from "../contexts/GardenContext";
 
 export default function Homepage({navigation}) {
     //const [gardens, setGardens] = useState(gardenData);
@@ -20,6 +21,10 @@ export default function Homepage({navigation}) {
         })
     },[])
     //console.log(gardens);
+
+    //use Context
+    const { onGardenChange} = useContext(GardenContext);
+
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>
@@ -60,10 +65,10 @@ export default function Homepage({navigation}) {
                                     {
                                         navigation.navigate('Root/MainApp/ViewEngine', {
                                             // gardenId: garden.ID, // TODO: get from API
-                                            gardenId: '12fe34',
                                             garden: garden
                                         })
                                         // setContext
+                                        onGardenChange(garden)
                                     }
                                     }>
                                         <Card garden={garden} />

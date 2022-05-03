@@ -21,7 +21,14 @@ function GardenContextProvider({children}) {
   const [adaClient, setAdaClient] = useState(null)
 
   const onGardenChange = (garden) => {
-    setGardenInfo(garden)
+    setGardenInfo({
+      ID: garden.ID,
+      name: garden.name,
+      auth: {
+        username: garden.adaUsername,
+        password: garden.adaUserkey,
+      }
+    })
   }
 
   useEffect(() => {
@@ -35,7 +42,7 @@ function GardenContextProvider({children}) {
   }, [gardenInfo]);
 
   return (
-    <GardenContext.Provider value={{ gardenInfo, adaClient, setGardenInfo }}>
+    <GardenContext.Provider value={{ gardenInfo, adaClient, setGardenInfo, onGardenChange }}>
       {children}
     </GardenContext.Provider>
   );

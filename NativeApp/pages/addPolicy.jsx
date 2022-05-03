@@ -4,85 +4,65 @@ import { useState, useEffect, useCallback} from "react";
 import NumericInput from "react-native-numeric-input";
 import { useIsFocused } from "@react-navigation/native"
 import policyService from "../services/policy";
+import hardwareService from "../services/hardware"
 import axios from "axios";
 import hardware from "../services/hardware";
 
-export default function EditPolicy({navigation}) {
+export default function AddPolicy({navigation}) {
     // const { hardwareId, gardenId } = route.params;
     const action = ["ON", "OFF"]
     const [sensor, setSensor] = useState([])
+    const [hardware, setHardware] = useState([])
     const operator = [">", "<", ">=", "<=", "="]
     const logic = ["AND", "OR"]
     const [oldName, setOldName] = useState("")
 
+    const gardenId = "0garden0"
     const hardwareId = "0lamp0"
     
     const [policy, setPolicy] = useState({
         name: "",
-        logic: "",
-        action: "",
+        logic: logic[0],
+        action: action[0],
         limit: "",
         operatingTime: 0,
         expressions: []
     })
 
-    const [oldPolicy, setOldPolicy] = useState({})
-
-    // useEffect(() => {
-    //     console.log('b')
-    //     axios.get("http://192.168.1.11:8080/api/policys/0lamp0")
-    //         .then(res => {
-    //             if(JSON.stringify(res.data[0]) !== JSON.stringify(oldPolicy)) {
-    //                 setPolicy(res.data[0])
-    //                 setOldPolicy(res.data[0])
-    //                 setOldName(res.data[0].name)
-    //             }
-    //             //console.log(policy)
-    //         })
-    //         .catch(err => console.log(err))
-    // })
-
-    const isFocused = useIsFocused()
+    const [oldPolicy, setOldPolicy] = useState({
+        name: "",
+        logic: logic[0],
+        action: action[0],
+        limit: "",
+        operatingTime: 0,
+        expressions: []
+    })
 
     useEffect(() => {
-        console.log('here')
-        policyService.get(hardwareId)
-        .then(res => {
-                console.log(res.data)
-                setPolicy(res.data[0])
-                setOldPolicy(res.data[0])
-                setOldName(res.data[0].name)
-            
-            //console.log(policy)
-        })
-        .catch(err => console.log(err))
-    },[isFocused])
-
-    useEffect(() => {
-        axios.get("http://192.168.1.188:8080/api/sensors/0garden0")
+        hardwareService.getAll(gardenId)
             .then(res => {
-                setSensor(res.data)
-                //console.log(sensor)
+                const sensorData = res.data.filter(value => {
+                    return value.type.match("Sensor")
+                })
+                setSensor(sensorData)
             })
-            .catch(err => console.log(err))
-
+            .catch(err =>
+                console.log(err)    
+            )
     }, [])
 
     const handleAddExpression = () => {
         // setCallAdd(previousState => !previousState
         setPolicy({...policy, expressions: [...policy.expressions, {
             sensorID: sensor[0].ID,
-            operator: operator[0],
+            operator: operator[ 0],
             rhsValue: 0
         }]})
     }
 
     const handleAccept = () => {
-        axios.post("http://192.168.1.188:8080/api/policys/update", {...policy, actuatorID: "0lamp0", oldName: oldName})
-        .catch(
-            err =>
-            console.log(err)
-        )
+        console.log(policy)
+        policyService.create({...policy, actuatorID: hardwareId})
     }
 
     const handleCancel = () => {
@@ -103,7 +83,7 @@ export default function EditPolicy({navigation}) {
                         style={{ width: "100%" }}
                         onPress={() => navigation.goBack()}
                     >
-                        <Text style={styles.textHeader}>{`< Chỉnh sửa chính sách`}</Text>
+                        <Text style={styles.textHeader}>{`< Thêm chính sách mới`}</Text>
                     </TouchableOpacity>
                     </SafeAreaView>
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
@@ -149,7 +129,7 @@ export default function EditPolicy({navigation}) {
                             <Text style={styles.textContent}>trong</Text>
                             <NumericInput 
                                 //value = {policy.number}
-                                initValue = {policy.operatingTime}
+                                value = {policy.operatingTime}
                                 totalWidth = {50}
                                 totalHeight = {25}
                                 minValue = {0}
@@ -242,7 +222,7 @@ export default function EditPolicy({navigation}) {
 
                                     <NumericInput 
                                         //value = {policy.number}
-                                        initValue = {expressionItem.rhsValue}
+                                        value = {expressionItem.rhsValue}
                                         totalWidth = {50}
                                         totalHeight = {25}
                                         minValue = {0}
