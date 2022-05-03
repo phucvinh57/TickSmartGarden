@@ -40,12 +40,16 @@ class ClientGroup {
         try {
             //Check if added yet
             if (this.clients.findIndex(client => client.username === options.username) === -1) {
+                console.log('Add client')
                 const client = mqtt.connect(resource.MQTT_URL, options)
                 client.on('connect', () => {
                     console.log(`Connected to adaclient ${options.username}`)
                     this.clients.push(new AdaClient(options.username, client))
                     callback && callback()
                 })
+            }
+            else {
+                callback && callback()
             }
         }
         catch (error) {

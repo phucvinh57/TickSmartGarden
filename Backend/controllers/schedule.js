@@ -1,22 +1,25 @@
-const { updateSchedule } = require('../crons/scheduler')
+const { updateScheduler, deleteScheduler } = require('../crons/scheduler')
 const generateID = require('../utils/generateID')
 const dbQuery = require('../repository/db')
 const handler = require('./handler')
 
 const createSched = (req, res) => {
-    const { name, startTime, count, cycle, cycleUnit, operatingTime } = req.body
+    const { name, startTime, count, cycle, unit, operatingTime, hardwareID } = req.body
     handler(res, async () => {
-        await dbQuery(
-            `INSERT INTO schedule VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [generateID(), name, startTime, cycle, cycleUnit, count, operatingTime]
-        )
+        var time = new Date(startTime)
+        time.setTime(time.getTime() + 7 * 60 * 60 * 1000)
+        time = time.toISOString().slice(0, 19).replace('T', ' ')
+
+        const QUERY_STR =
+        `INSERT INTO schedule VALUES ('${hardwareID}', '${name}', '${time}', ${cycle}, '${unit}', ${count}, ${operatingTime})`
+        
+        await dbQuery(QUERY_STR)
         res.json({ msg: 'OKE' })
     })
-    updateSchedule(name, startTime, count, cycle, cycleUnit, hardwareID, operatingTime)
+    updateScheduler(name, new Date(startTime), count, cycle, unit, hardwareID, operatingTime)
 }
 
 const updateSched = (req, res) => {
-    console.log('Update schedule')
 
     const { oldName, hardwareID, name, startTime, count, cycle, unit, operatingTime } = req.body
     // console.log(hardwareID, oldName)
@@ -24,19 +27,7 @@ const updateSched = (req, res) => {
     var time = new Date(startTime)
     time.setTime(time.getTime() + 7 * 60 * 60 * 1000)
     handler(res, async () => {
-        // await dbQuery(`
-        //     UPDATE schedule SET 
-        //         name = ?,
-        //         startTime = ?,
-        //         count = ?,
-        //         cycle = ?,
-        //         unit = ?,
-        //         operatingTime = ?
-        //     WHERE actuator_ID = ? AND name = ?;
-        // `, [
-        //     name, time.toISOString().slice(0, 19).replace('T', ' '),
-        //     count, cycle, count, unit, operatingTime, hardwareID, oldName
-        // ])
+
         const QUERY_STR = `
             UPDATE schedule SET 
                 name = '${name}',
@@ -48,18 +39,21 @@ const updateSched = (req, res) => {
             WHERE actuator_ID = '${hardwareID}' AND name = '${oldName}'
         `
         await dbQuery(QUERY_STR)
+        updateScheduler(name, new Date(startTime), count, cycle, unit, hardwareID, operatingTime)
         res.json({ msg: 'OKE' })
     })
 }
 
 const deleteSched = (req, res) => {
-    const { schedName, hardwareID } = req.query
+    const { schedName, hardwareID } = req.body
     handler(res, async () => {
-        await dbQuery(`
-            DELETE FROM schedule WHERE name = ? AND hardwareID = ?
-        `, [schedName, hardwareID])
+        const QUERY_STR =
+        `DELETE FROM schedule
+        WHERE name = '${schedName}' and actuator_ID = '${hardwareID}'`
+        await dbQuery(QUERY_STR)
         res.json({ msg: 'OKE' })
     })
+    deleteScheduler(schedName, hardwareID)
 }
 
 const getSched = async (req, res) => {

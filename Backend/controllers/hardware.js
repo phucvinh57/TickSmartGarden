@@ -3,18 +3,25 @@ const ClientGroup = require('../repository/mqttClient')
 const resource = require('../utils/resources')
 const dbQuery = require('../repository/db')
 const handler = require('./handler')
+const actuatorRepo = require('../repository/actuator')
 
+const toggle = async (req, res) => {
+    const {action, hardwareID} = req.body
+    const operatingTime = await actuatorRepo.getOperatingTime(hardwareID)
+    console.log("Toggle called " + operatingTime)
+    if (action == 'ON'){
+        console.log("ON trigger")
+        actuatorRepo.turnOn(hardwareID, operatingTime)
+        var LOG_ACTION = `Bật bằng tay`
+        await dbQuery(`INSERT INTO log(hardwareID, timestamp, activity) VALUES (?, NOW(), ?)`, [hardwareID, LOG_ACTION])
 
-const toggle = function (req, res) {
-    const key = req.params.feedKey
-    const username = req.params.username
-    const action = req.query.action
-    console.log(req.params)
-
-    const msg = action === resource.ON_STR ? '1' : '0'
-    const client = ClientGroup.getAdaClient(username)
-    client.pub(key, msg)
-    res.send('Hello')
+    }
+    else {
+        var LOG_ACTION = `Tắt bằng tay`
+        await dbQuery(`INSERT INTO log(hardwareID, timestamp, activity) VALUES (?, NOW(), ?)`, [hardwareID, LOG_ACTION])
+        actuatorRepo.turnOff(hardwareID)
+    }
+    res.send('OK')
 }
 
 const getAll = async (req, res) => {

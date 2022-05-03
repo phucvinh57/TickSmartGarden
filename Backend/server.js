@@ -19,6 +19,7 @@ const initMqttConnection = async (callback) => {
     try{
         const gardens = await gardenRepo.getAllGardens()
         var count  = gardens.length
+        
         const trackGarden = (idx) => {
             const options = {
                 username: gardens[idx].username,
@@ -26,9 +27,10 @@ const initMqttConnection = async (callback) => {
             }
             
             GardenGroup.addClient(options, () => {
-                count -= 1
-                count !== 0 ? trackGarden(idx + 1)
-                    : callback()
+                callback()
+                // count -= 1
+                // count !== 0 ? trackGarden(idx + 1)
+                //     : callback()
             })
         }
         

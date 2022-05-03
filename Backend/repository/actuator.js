@@ -1,7 +1,8 @@
 const dbQuery = require('./db')
 const mqttClient = require('./mqttClient')
 
-const TIMING_UNIT = 30 * 1000
+const TIMING_UNIT = 60 * 1000
+
 const TIMING_LIMIT = 5 * 60 * 1000
 class Actuator {
     constructor() {
@@ -10,16 +11,24 @@ class Actuator {
     }
 
     isPolicyHold(actuatorID){
-        return this.policyActuator.actuatorID ? this.policyActuator.actuatorID : false
+        return this.policyActuator[actuatorID] ? this.policyActuator[actuatorID] : false
     }
 
+    async getOperatingTime(actuatorID){
+        const QUERY_STR = 
+        `SELECT operatingTime
+        FROM actuator
+        WHERE hardwareID = '${actuatorID}'`
+        const operatingTime = await dbQuery(QUERY_STR)
+        return operatingTime[0].operatingTime
+    }
     async turnOff(actuatorID, byPolicy = false) {
         try {
             const { feedkey, username } = await this.getFeedKey(actuatorID)
             mqttClient.getAdaClient(username).pub(feedkey, '0')
             if (byPolicy){
-                this.policyActuator.actuatorID = true
-                setTimeout(() => this.policyActuator.actuatorID = false, TIMING_LIMIT)
+                this.policyActuator[actuatorID] = true
+                setTimeout(() => this.policyActuator[actuatorID] = false, TIMING_LIMIT)
             }
         }
         catch (error) {
@@ -36,7 +45,7 @@ class Actuator {
                 setTimeout(() => this.policyActuator.actuatorID = false, TIMING_LIMIT)
             }
             mqttClient.getAdaClient(username).pub(feedkey, '1')
-            setTimeout(() => this.turnOff(actuatorID), operatingTime * TIMING_UNIT)
+            setTimeout(() => {this.turnOff(actuatorID)}, operatingTime * TIMING_UNIT )
             
         }
         catch (error) {
