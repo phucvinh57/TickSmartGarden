@@ -7,35 +7,33 @@ import policy from "../services/policy";
 import moment from 'moment';
 import { AuthContext } from "../contexts/AuthContext";
 
-export default function EditSchedule({route, navigation}) {
-    const {raw} = route.params
+export default function AddSchedule({route, navigation}) {
     //const {hardwareId, gardenId, name} = route.params()
-    
-    // const hardwareId = '0lamp0'
     const {auth: {hardwareId}} = useContext(AuthContext)
-
+    // const hardwareId = '0lamp0'
     //const cycleUnit = ["Giây", "Phút", "Giờ"]
-    const cycleUnit = ["second", "min", "hour"]
-    const cycleUnitVie = ["Giây", "Phút", "Giờ"]
+    const cycleUnit = ["min", "hour", "day", "week"]
+    const cycleUnitVie = ["Phút", "Giờ", "Ngày", "Tuần"]
+    let datetime = new Date("2022-04-07T15:33:55.000Z")
     const [schedule, setSchedule] = useState({
         name: "",
-        startTime: new Date(),
+        startTime: datetime,
         cycle: 0,
-        unit: "",
+        unit: cycleUnit[0],
+        count: 0,
+        operatingTime: 5,
+    })
+
+    const [oldSchedule, setOldSchedule] = useState({
+        name: "",
+        startTime: datetime,
+        cycle: 0,
+        unit: cycleUnit[0],
         count: 0
     })
 
-    const [oldSchedule, setOldSchedule] = useState({})
-    const [dateString, setDateString] = useState("")
-    const [timeString, setTimeString] = useState("")
-
-    useEffect(() => {
-            let datetime = new Date(raw.startTime)
-            setSchedule({...raw, startTime: datetime})
-            setOldSchedule({...raw, startTime: datetime})
-            setDateString(moment(datetime).format("DD/MM/YYYY"))
-            setTimeString(moment(datetime).format("hh:mm:ss A"))
-    }, [])
+    const [dateString, setDateString] = useState(moment(datetime).format("DD/MM/YYYY"))
+    const [timeString, setTimeString] = useState(moment(datetime).format("hh:mm:ss A"))
 
     const handleChangeDate = (value) => {
         setDateString(value)
@@ -56,9 +54,9 @@ export default function EditSchedule({route, navigation}) {
     }
 
     const handleAccept = () => {
-        scheduleService.update({...schedule, hardwareID: hardwareId, oldName: oldSchedule.name}).then(() => {
+        scheduleService.create({...schedule, hardwareID: hardwareId}).then(() => {
             navigation.goBack()
-        })
+        }).catch(console.err)
     }
 
     console.log(schedule)
@@ -77,7 +75,7 @@ export default function EditSchedule({route, navigation}) {
                         style={{ width: "100%" }}
                         onPress={() => navigation.goBack()}
                     >
-                        <Text style={styles.textHeader}>{`< Chỉnh sửa lịch bơm`}</Text>
+                        <Text style={styles.textHeader}>{`< Thêm lịch bơm`}</Text>
                     </TouchableOpacity>
                     </SafeAreaView>
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
@@ -186,7 +184,7 @@ export default function EditSchedule({route, navigation}) {
                                 <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
                                    onPress={handleAccept}
                                 >
-                                    <Text style={{color: "#fff"}}>Lưu</Text>
+                                    <Text style={{color: "#fff"}}>Thêm</Text>
                                 </TouchableOpacity>
                         </SafeAreaView>
                         

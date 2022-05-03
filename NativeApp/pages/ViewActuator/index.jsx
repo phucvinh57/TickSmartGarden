@@ -6,6 +6,7 @@ import hardware from "../../services/hardware";
 import GardenGroup from "../../contexts/mqttClient";
 
 import {AuthContext} from "../../contexts/AuthContext"
+import { useIsFocused } from "@react-navigation/native";
 
 const allTypes = [
   { id: "All", name: "Tất cả" },
@@ -39,6 +40,8 @@ export default function ViewActuator({ route, navigation }) {
     }
   }, [ada]);
 
+  const isFocused = useIsFocused()
+  
   const [hardwares, setHardwares] = useState(null);
   useEffect(() => {
     const fetchHardwareList = async () => {      
@@ -54,7 +57,7 @@ export default function ViewActuator({ route, navigation }) {
       setHardwares(_datum)
     };
     fetchHardwareList().catch(console.error);
-  }, [adaClient]);
+  }, [adaClient, isFocused]);
 
   if (!hardwares || !adaClient) return <Text>Loading ... </Text>;
   return (

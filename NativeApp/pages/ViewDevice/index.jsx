@@ -20,6 +20,7 @@ import AppContainer from "../../components/AppContainer";
 
 import useLastData from '../../contexts/useLastData'
 import { makeChunks } from "../../components/SliderList/util";
+import hardware from "../../services/hardware";
 
 
 export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaClient }) {  
@@ -47,8 +48,16 @@ export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaC
     setIsLoading(false);
   }, [selectedType]);
 
-  const onSwitchChange = (feed, value) => {
-    publishMqtt(feed, value)
+  
+  const onSwitchChange = (_hardwareId, value) => {
+    const turnOnNotOff = (value == "1")
+    
+    // get operatingTime
+    hardware.toggle(turnOnNotOff, _hardwareId)
+    
+    console.log('====================================');
+    console.log(turnOnNotOff, _hardwareId);
+    console.log('====================================');
   }
 
   return (
@@ -99,7 +108,7 @@ export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaC
                       <EngineCard
                         deviceInfo={item} 
                         lastData={datum[item.feedkey]}
-                        onSwitchChange={(value) => onSwitchChange(item.feedkey, value)}
+                        onSwitchChange={(value) => onSwitchChange(item.id, value)}
                         onPress={() => onPress(item.id)}
                       />
                     </View>

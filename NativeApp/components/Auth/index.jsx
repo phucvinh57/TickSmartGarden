@@ -19,7 +19,9 @@ import Toast from 'react-native-simple-toast';
 const defaultEmail = "nhancu@gmail.com"
 
 function Login({ navigation }) {
-  
+  console.log('====================================');
+  console.log("Login render");
+  console.log('====================================');
   const [email, setEmail] = useState(defaultEmail);
   const { tryLogin } = useContext(AuthContext);
   const [loginFail, setLoginFail] = useState(false);

@@ -10,6 +10,19 @@ class Hardware{
     getNhan() {
         return http.get(`/policys/0lamp0`)
     }
+    toggle(turnOnNotOff, hardwareID) {
+        return http.post(`/hardware/toggle`, {
+           action: turnOnNotOff ? "ON" : "OFF",
+           hardwareID: hardwareID,
+        })
+    }
+    update(hardwareID, name, operatingTime) {
+        return http.post(`/hardware/update`, {
+            hardwareID: hardwareID,
+            name: name,
+            operatingTime: operatingTime,            
+        })
+    }
 }
 
 export default new Hardware();

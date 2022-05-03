@@ -1,5 +1,5 @@
-import React, { useContext, useEffect,  } from "react";
-import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { ImageBackground, Text, View, StyleSheet, SafeAreaView, ScrollView, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
 import Card from "../components/homepage/Card";
 // import gardenData from "../components/homepage/gardenMockData.json";
 import garden from "../services/garden";
@@ -28,6 +28,10 @@ export default function Homepage({navigation}) {
     }
 
     //console.log(gardens);
+
+    //use Context
+    // const { onGardenChange} = useContext(GardenContext);
+
     return (
         <ImageBackground source ={require('../assets/homepageTree.png')} resizeMode="cover" style={styles.image}>
             <SafeAreaView style={{flex: 1}}>

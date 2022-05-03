@@ -29,6 +29,7 @@ import schedule from "../../services/schedule";
 import policy from "../../services/policy";
 import logger from "../../services/logger";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useIsFocused } from "@react-navigation/native";
 
 
 export default function DeviceInfo({ route, navigation }) {
@@ -69,6 +70,15 @@ export default function DeviceInfo({ route, navigation }) {
     policies: [],
   });
 
+  const handleUpdateInfo = () => {
+    console.log('====================================');
+    console.log(hardwareId, datum.name, datum.operatingTime);
+    console.log('====================================');
+    hardware.update(hardwareId, datum.name, datum.operatingTime).catch(console.error)
+  }
+
+  const isFocused = useIsFocused()
+
   useEffect(() => {
     const fetchHardwareInfo = async () => {
       const response = await hardware.getById(hardwareId, gardenId);
@@ -83,7 +93,7 @@ export default function DeviceInfo({ route, navigation }) {
       setLoadedName(true)
     };
     fetchHardwareInfo().catch(console.error);
-  }, []);
+  }, [isFocused]);
 
   useEffect(() => {
     if (!loadedName) return
@@ -99,7 +109,7 @@ export default function DeviceInfo({ route, navigation }) {
     }
   
     const fetchSchedList = async () => {
-      const response = await schedule.getById(hardwareId);
+      const response = await schedule.get(hardwareId);
       const item = await response.data
       setDatum(lastdatum => ({
         ...lastdatum,
@@ -108,7 +118,7 @@ export default function DeviceInfo({ route, navigation }) {
       setLoadedSched(true)
     };
     fetchSchedList().catch(console.error);
-  }, [loadedName]);
+  }, [loadedName, isFocused]);
 
   
   useEffect(() => {
@@ -156,7 +166,7 @@ export default function DeviceInfo({ route, navigation }) {
       setLoadedPolicy(true)
     };
     fetchPolicyList().catch(console.error);
-  }, [loadedName]);
+  }, [loadedName, isFocused]);
 
   
   // Width of the window will be width of our slides
@@ -165,7 +175,7 @@ export default function DeviceInfo({ route, navigation }) {
 
   const renderCardItems = (items) => {
     return (
-      <HStack justifyContent="space-between">
+      <HStack justifyContent="flex-start">
         {items.map((item) => (
           <View key={item.name} style={styles.cardItem}>
             <TouchableOpacity onPress={item.onPress} style={styles.cardItemInner}>
@@ -201,15 +211,20 @@ export default function DeviceInfo({ route, navigation }) {
           <VStack space={3}>
             { !loadedName ? <CustomActivityIndicator /> :
             <Box>
-              <FormControl isReadOnly>
+              <FormControl>
                 <Heading style={styles.textHeading} size="md">
                   Tên thiết bị
                 </Heading>
                 <Input
-                  type="text"
+                  // type="text"
+                  keyboardType="text"
                   placeholder="Máy bơm, Đèn ..."
-                  value={datum.name}
+                  defaultValue={datum.name}
                   size="lg"
+                  onChangeText={(text) => setDatum({
+                    ...datum,
+                    name: text,
+                  })}
                 />
               </FormControl>
 
@@ -217,17 +232,32 @@ export default function DeviceInfo({ route, navigation }) {
                 <Heading style={styles.textHeading} size="md">
                   Thời gian hoạt động
                 </Heading>
+                <HStack alignItems="center" justifyContent="space-between">
                 <HStack space={2} alignItems="center">
-                  <View style={{ width: "70%", alignItems: "center" }}>
+                  <View style={{ width: "50%", alignItems: "center" }}>
                     <Input
                       keyboardType="numeric"
-                      value={String(datum.operatingTime)}
+                      defaultValue={String(datum.operatingTime)}
                       size="lg"
+                      onChangeText={(text) => {
+                        setDatum({
+                          ...datum,
+                          text
+                        })
+                      }}
                     />
                   </View>
                   <Heading style={styles.textHeading} size="xs">
                     {datum.timeUnit}
                   </Heading>
+                </HStack>
+                {/* <Text>FU</Text> */}
+                <TouchableOpacity style={{width: 90, height: 40, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
+                    onPress={handleUpdateInfo}
+                >
+                    <Text style={{color: "#fff"}}>Lưu</Text>
+                </TouchableOpacity>
+
                 </HStack>
               </View>
             </Box>}
@@ -240,7 +270,7 @@ export default function DeviceInfo({ route, navigation }) {
                 </Heading>
                 <Button
                   size="xs"
-                  onPress={() => navigateToSchedule()}
+                  onPress={() => navigation.navigate("Root/MainApp/AddSchedule")}
                   style={{ backgroundColor: styles.active.color }}
                 >
                   <AddIcon size="3" color="white" />
@@ -262,7 +292,7 @@ export default function DeviceInfo({ route, navigation }) {
                 </Heading>
                 <Button
                   size="xs"
-                  onPress={() => navigateToSchedule()}
+                  onPress={() => navigation.navigate("Root/MainApp/AddPolicy")}
                   style={{ backgroundColor: styles.active.color }}
                 >
                   <AddIcon size="3" color="white" />

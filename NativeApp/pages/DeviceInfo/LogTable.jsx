@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Text, View } from "react-native";
 import { DataTable } from "react-native-paper";
 import { makeChunks } from '../../components/SliderList/util'
 
@@ -54,7 +55,12 @@ const LogTable = ({ itemsPerPage, data, onPageChange }) => {
       {chunks[currPage].map(({ time, activity }, index) => (
         <DataTable.Row key={`Row_${index}`}>
           <DataTable.Cell>{time}</DataTable.Cell>
-          <DataTable.Cell>{activity}</DataTable.Cell>
+          <View style={{
+            maxWidth: "75%",
+            justifyContent: "center",
+          }} >
+            <Text numberOfLines={3}>{activity}</Text>
+          </View>
         </DataTable.Row>
       ))}
     </DataTable>
