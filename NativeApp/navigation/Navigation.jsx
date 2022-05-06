@@ -12,6 +12,7 @@ import { AuthContext } from '../contexts/AuthContext';
 // import useLogging from '../contexts/useLogging';
 import AddPolicy from '../pages/addPolicy';
 import AddSchedule from '../pages/addSchedule';
+import Chart from '../pages/chart';
 
 const Stack = createNativeStackNavigator()
 
@@ -52,6 +53,10 @@ const HomepageScreenNavigator = () => {
             <Stack.Screen 
                 name = "Root/MainApp/AddPolicy"
                 component={AddPolicy}
+            />
+            <Stack.Screen 
+                name = "Root/MainApp/Chart"
+                component={Chart}
             />
             </>
         ) : (
@@ -113,10 +118,10 @@ export {EditPolicyScreenNavigator}
 
 const EditScheduleScreenNavigator = () => {
     return(
-        <Stack.Navigator initialRouteName='Root/MainApp/AddSchedule'>
+        <Stack.Navigator initialRouteName='Root/MainApp/Chart'>
             <Stack.Screen 
-                name = "Root/MainApp/AddSchedule"
-                component={AddSchedule}
+                name = "Root/MainApp/Chart"
+                component={Chart}
                 options = {{headerShown: false}}
             />
         </Stack.Navigator>

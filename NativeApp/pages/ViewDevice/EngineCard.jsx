@@ -81,6 +81,7 @@ function SensorCard({ isLoading, lastData, name, type, description, onPress }) {
   const sensorValue = parseInt(lastData) || null;
 
   return (
+    <TouchableOpacity onPress={onPress}>
     <VStack style={styles.container}>
       <Text fontSize={"sm"} bold>
         {name}
@@ -113,6 +114,7 @@ function SensorCard({ isLoading, lastData, name, type, description, onPress }) {
         </View>
       </View>
     </VStack>
+    </TouchableOpacity>
   );
 }
 

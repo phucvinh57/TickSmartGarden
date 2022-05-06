@@ -1,0 +1,122 @@
+import { LineChart } from 'react-native-line-chart'
+import {View, Text, Dimensions, SafeAreaView, TouchableOpacity, StyleSheet} from 'react-native'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
+import { useIsFocused } from '@react-navigation/native'
+
+export default function Chart({route, navigation}) {
+    //const {username, feed_key} = route.params // TODO: truyen username va feed_key
+    const username = 'cudothanhnhan'
+    const feed_key = 'tl-garden.sensor-temperature-0'
+    const limit = 10
+    const isFocused = useIsFocused()
+
+    const [data, setData] = useState([])
+
+    useEffect(() => {
+        axios.get(`https://io.adafruit.com/api/v2/${username}/feeds/${feed_key}/data?limit=${limit}`)
+        .then(
+            res => {
+                let temp = res.data.map(item => item.value).reverse()
+                setData(temp)
+            }
+        )
+        .catch(err => console.log(err))
+    }, [isFocused])
+
+    console.log(data)
+
+    if(data.length == 0) return <Text>Loading...</Text>
+    return (
+        <SafeAreaView style={{backgroundColor: "#28554e", flex: 1}}>
+            <SafeAreaView style={{flex: 1}}></SafeAreaView>
+            <SafeAreaView
+                style = {{
+                    flex: 15,
+                    backgroundColor: "#ffff",
+                    borderTopLeftRadius: 30,
+                    borderTopRightRadius: 30,
+                    justifyContent: 'flex-start'
+                }}
+            >
+                <SafeAreaView style={{flex: 1}}>
+                <TouchableOpacity
+                    style = {{width: "100%", marginTop: 10, marginLeft: 10}}
+                    onPress = {() => navigation.goBack()}
+                >
+                    <Text style={styles.textHeader}>{`< Thống kê biểu đồ`}</Text>
+                </TouchableOpacity>
+                </SafeAreaView>
+                <SafeAreaView style={{flex: 10, justifyContent: "flex-start", alignItems: 'center'}}>
+                <LineChart
+                data={{
+                    labels: [1,2,3,4,5,6,7,8,9,10],
+                    datasets: [{
+                        data: data
+                    }]
+                    }}
+                    width={0.9 * Dimensions.get('window').width} // from react-native
+                    height={220}
+                    chartConfig={{
+                    backgroundColor: '#de7067',
+                    backgroundGradientFrom: '#2e9790',
+                    backgroundGradientTo: '#3D7E44',
+                    decimalPlaces: 2, // optional, defaults to 2dp
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                    style: {
+                        borderRadius: 16
+                    }
+                    }}
+                    bezier
+                    style={{
+                    marginVertical: 8,
+                    borderRadius: 16,
+                    }}
+                />
+                </SafeAreaView>
+            </SafeAreaView>
+        </SafeAreaView>
+    )
+}
+
+const styles = StyleSheet.create({
+    textHeader: {
+        fontSize: 24,
+        color: "#de7067",
+        fontWeight: "500",
+    },
+    textContent: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: "#7F4B1E"
+    },
+    textInput: {
+        borderColor: "#28554e",
+        borderRadius: 5,
+        borderWidth: 2,
+        width: '90%',
+        height: 30,
+        fontSize: 16,
+        fontWeight: "bold"
+    },
+    dropdown: {
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "stretch",
+        borderWidth: 2,
+        borderRadius: 5,
+        borderColor:"#28554e",
+        height: 25,
+    },
+    textInputDateTime : {
+        borderColor: "#28554e",
+        borderRadius: 5,
+        borderWidth: 2,
+        width: '35%',
+        height: 30,
+        fontSize: 16,
+        fontWeight: "bold",
+        marginLeft: 10,
+        marginRight: 10
+    }
+})
