@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 
 export default function useLastData(adaClient, feeds) {
 
-  const [datum, setLastData] = useState({})
+  const [datum, setDatum] = useState({})
 
   useEffect(() => {
     let mounted = true
@@ -13,7 +13,7 @@ export default function useLastData(adaClient, feeds) {
       adaClient.subArray(feeds, (incomingTopic, message) => {
         let topic = [...feeds].filter(f => String(incomingTopic).includes(f))[0]
         if (!topic || !mounted) return
-        setLastData(prevData => ({
+        setDatum(prevData => ({
           ...prevData,
           [topic]: String(message)
         }))
@@ -36,7 +36,7 @@ export default function useLastData(adaClient, feeds) {
         const message = await adaClient.fetchLastData(incomingTopic)
         let topic = [...feeds].filter(f => String(incomingTopic).includes(f))[0]
         if (!topic || !mounted) return
-        setLastData(prevData => ({
+        setDatum(prevData => ({
           ...prevData,
           [topic]: String(message)
         }))

@@ -14,23 +14,23 @@ import {
   HStack,
 } from "native-base";
 
-import EngineCard from "./EngineCard";
+import { ActuatorCard, SensorCard } from "./EngineCard";
 import SliderList from "../../components/SliderList";
 import AppContainer from "../../components/AppContainer";
 
 import useLastData from '../../contexts/useLastData'
-import { makeChunks } from "../../components/SliderList/util";
 import hardware from "../../services/hardware";
+import { infers, makeChunks } from "./utils";
+import { AuthContext } from "../../contexts/AuthContext";
 
 
-export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaClient }) {  
+export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, adaClient, gardenId }) {  
   
   const feeds = hardwares.map(hw => hw.feedkey)
-
-  const [datum, publishMqtt] = useLastData(adaClient, feeds)
+  
+  const [datum] = useLastData(adaClient, feeds)
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
-
 
   // for display only
   const [chunks, setChunks] = useState([]);
@@ -50,15 +50,53 @@ export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaC
 
   
   const onSwitchChange = (_hardwareId, value) => {
-    const turnOnNotOff = (value == "1")
-    
-    // get operatingTime
-    hardware.toggle(turnOnNotOff, _hardwareId)
-    
-    console.log('====================================');
-    console.log(turnOnNotOff, _hardwareId);
-    console.log('====================================');
+    const turnOnNotOff = (value == "0")
+    hardware.toggle(turnOnNotOff, _hardwareId).catch(console.error)
   }
+
+  const { setAuth } = useContext(AuthContext)
+  const onPress = (hardwareId, isSensor, item) => { 
+    setAuth(lastAuth => ({
+      ...lastAuth,
+      hardwareId: hardwareId,
+      gardenId: gardenId,
+    }))
+    navigation.navigate(isSensor ? 'Root/MainApp/Chart' : 'Root/MainApp/DeviceInfo', item)
+  }
+
+  const renderFlatListItem = ({ item, index }) => {
+    const {id, name, type, status, feedkey} = item;
+    const isSensor = infers.inferIsSensorType(type)
+
+    return (
+    <View
+      key={id}
+      style={[
+        styles.flatListColumn,
+        index % 2 == 0
+          ? styles.listItemLeft
+          : styles.listItemRight,
+      ]}
+    >
+      { isSensor ? 
+        <SensorCard 
+          lastData={datum[feedkey]}
+          name={name}
+          type={type}
+          description={status}
+          onPress={() => onPress(id, true)}
+        /> :
+        <ActuatorCard 
+          lastData={datum[feedkey]}
+          name={name}
+          type={type}
+          description={status}
+          onPress={() => onPress(id, false, {raw: item})}
+          onToggle={() => onSwitchChange(id, datum[feedkey])}
+        />
+      }
+    </View>
+  )}
 
   return (
     <AppContainer
@@ -78,14 +116,12 @@ export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaC
     >
       <View>
         <View style={styles.flatListWrapper}>
-          {isLoading && (
+          {isLoading ?
             <ActivityIndicator
               size="large"
               color="red"
               style={styles.loadingIcon}
-            />
-          )}
-          {!isLoading && (
+            /> :
             <SliderList
               data={chunks}
               windowWidth={windowWidth}
@@ -95,28 +131,11 @@ export default function ViewDevice({ onPress, hardwares, deviceTypeOptions, adaC
                   data={chunk}
                   numColumns={2}
                   keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item, index }) => (
-                    <View
-                      key={item.id}
-                      style={[
-                        styles.flatListColumn,
-                        index % 2 == 0
-                          ? styles.listItemLeft
-                          : styles.listItemRight,
-                      ]}
-                    >
-                      <EngineCard
-                        deviceInfo={item} 
-                        lastData={datum[item.feedkey]}
-                        onSwitchChange={(value) => onSwitchChange(item.id, value)}
-                        onPress={() => onPress(item.id)}
-                      />
-                    </View>
-                  )}
+                  renderItem={renderFlatListItem}
                 />
               )}
             />
-          )}
+          }
         </View>
       </View>
     </AppContainer>
