@@ -10,7 +10,7 @@ class GardenModel {
     async getList(accountEmail) {
         try {
             const queryStr = `SELECT 
-                name, description, imgurl, group_key as groupKey, 
+                ID, name, description, imgurl, group_key as groupKey, 
                 adaclient.username as adaUsername, adaclient.userkey as adaUserkey
                 FROM garden JOIN adaclient ON garden.adaclient = adaclient.username
                 WHERE garden.accountemail = ?
