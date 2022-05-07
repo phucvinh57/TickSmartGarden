@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const hardwareService = require('../controllers/hardware')
+const hardwareCtrler = require('../controllers/hardware')
 
-router.get('/:username/:feedKey', hardwareService.toggle);
-router.get('/all', hardwareService.getAll)
+router.get('/:username/:feedKey', hardwareCtrler.toggle);
+router.get('/all', hardwareCtrler.getAll)
+router.get('/', hardwareCtrler.getById)
+router.post('/update', hardwareCtrler.updateHardware)
+router.post('/toggle', hardwareCtrler.toggle)
 
 module.exports = router;

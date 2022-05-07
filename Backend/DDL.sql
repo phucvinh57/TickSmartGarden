@@ -1,4 +1,4 @@
--- drop schema smartgarden;
+drop schema smartgarden;
 create schema if not exists smartgarden;
 use smartgarden;
 create table if not exists `Account` (
@@ -29,7 +29,7 @@ create table if not exists Hardware(
 	`name` varchar(30),
     gardenID varchar(30) not null,
 	feedkey varchar(50) not null,
-    `type` enum('sensor', 'actuator') not null,
+    `type` enum('ActuatorLight', 'ActuatorPump', 'SensorLight', 'SensorHumid', 'SensorTemperature') not null,
     foreign key (gardenID) references Garden(ID)
 );
 
@@ -87,8 +87,9 @@ create table if not exists Expression (
 );
 
 create table if not exists Log (
-	hardwareID VARCHAR(8) PRIMARY KEY,
+	hardwareID VARCHAR(8),
 	`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     activity VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`hardwareID`, `timestamp`),
     FOREIGN KEY (hardwareID) REFERENCES Hardware(ID)
 );
