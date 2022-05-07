@@ -1,190 +1,103 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
-import { infers, sleep } from "./utils";
-import {
-  Container,
-  VStack,
-  Center,
-  Switch,
-  Image,
-  Text,
-  View,
-} from "native-base";
-import { useState, useEffect, useContext } from "react";
-import {AuthContext} from "../../contexts/AuthContext"
-import logger from "../../services/logger";
+import { infers } from "./utils";
+import { VStack, Center, Switch, Image, Text, View } from "native-base";
+import { useState, useEffect } from "react";
 
-function EngineCard({ deviceInfo, lastData, onPress, onSwitchChange }) {
-  const {
-    name,
-    type,
-    status: description,
-  } = deviceInfo;
-  
-  const isSensor = infers.inferIsSensorType(type)
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(lastData ? false : true);
-  }, [lastData]);
-
-
-  const {auth} = useContext(AuthContext);
-
-  const onToggle = () => {
-    if (lastData === null) return
-    if (onSwitchChange instanceof Function) {
-      (async () => {
-        setIsLoading(true)
-        onSwitchChange(lastData == "1" ? "0" : "1")
-        // const msg = (lastData == "1") ? "Tắt" : "Bật"
-        // console.log('====================================');
-        // console.log(`${auth.hardwareId} -> ${msg}`);
-        // console.log('====================================');
-        // const response = await logger.create(auth.hardwareId, `${msg} bởi người dùng`)
-        // console.log('====================================');
-        // console.log(response.data);
-        // console.log('====================================');
-      })().catch(console.error)
-    }
-  };
-
-  if (isSensor) {
-    return (
-      <SensorCard
-        isLoading={isLoading}
-        lastData={lastData}
-        name={name}
-        type={type}
-        description={description}
-        onPress={onPress}
-      />
-    );
-  } else {
-    return (
-      <ActuatorCard
-        isLoading={isLoading}
-        lastData={lastData}
-        name={name}
-        type={type}
-        description={description}
-        onToggle={onToggle}
-        onPress={onPress}
-      />
-    );
-  }
-}
-
-// ------------------- SENSOR -------------------
-
-function SensorCard({ isLoading, lastData, name, type, description, onPress }) {
-  const sensorValue = parseInt(lastData) || null;
-
+function UtilCard({ name, type, description, onPress, children }) {
   return (
     <TouchableOpacity onPress={onPress}>
-    <VStack style={styles.container}>
-      <Text fontSize={"sm"} bold>
-        {name}
-      </Text>
-      <View style={styles.cardBody} flex="1">
-        <View flex={9}>
-          {/* <Text>Col1</Text> */}
-          <Text fontSize="sm" flexShrink={1} mb=".3em">
-            {description}
-          </Text>
-          <View>
-              {isLoading && <ActivityIndicator size="small" color="red" />}
-              {!isLoading && (
-                <Text fontSize="md" style={styles.sensorValue}>
-                  {`${sensorValue}${infers.inferDataUnit(type)}`}
-                </Text>
-              )}
+      <VStack style={styles.container}>
+        <Text fontSize={"sm"} bold>
+          {name}
+        </Text>
+        <View style={styles.cardBody}>
+          <View flex={9}>
+            {/* <Text>Col1</Text> */}
+            <Text fontSize="sm" flexShrink={1} mb=".3em">
+              {description}
+            </Text>
+            <View>{children}</View>
+          </View>
+
+          <View flex={5}>
+            {/* <Text>Col2</Text> */}
+            <Center>
+              <Image
+                style={styles.image}
+                source={infers.inferDeviceImage(type)}
+                alt="device-image"
+              />
+            </Center>
           </View>
         </View>
-
-        <View flex={5}>
-          {/* <Text>Col2</Text> */}
-          <Center>
-            <Image
-              style={styles.image}
-              source={infers.inferDeviceImage(type)}
-              alt="device-image"
-            />
-          </Center>
-        </View>
-      </View>
-    </VStack>
+      </VStack>
     </TouchableOpacity>
   );
 }
 
+function SensorCard({ lastData, name, type, description, onPress }) {
+  const isLoading = lastData ? false : true;
+  const sensorValue = parseInt(lastData) || "--";
+
+  return (
+    <UtilCard
+      name={name}
+      type={type}
+      description={description}
+      onPress={onPress}
+    >
+      {isLoading && <ActivityIndicator size="small" color="red" />}
+      {!isLoading && (
+        <Text fontSize="md" style={[styles.sensorValue, { maxHeight: 25 }]}>
+          {`${sensorValue}${infers.inferDataUnit(type)}`}
+        </Text>
+      )}
+    </UtilCard>
+  );
+}
 // ------------------- ACTUATOR -------------------
 
 function ActuatorCard({
-  isLoading,
   lastData,
+  onToggle,
   name,
   type,
   description,
-  onToggle,
   onPress,
 }) {
+  const [isLoading, setIsLoading] = useState(lastData ? false : true);
+  useEffect(() => {
+    setIsLoading(lastData ? false : true);
+  }, lastData);
+
   const isOn = lastData == "1" ? true : false;
+  const handleToggle = () => {
+    setIsLoading(true);
+    onToggle();
+  };
 
   return (
-    <TouchableOpacity onPress={onPress}>
-    
-    <VStack style={styles.container}>
-      <Text fontSize={"sm"} bold>
-        {name}
-      </Text>
-      <View style={styles.cardBody} flex="1">
-        <View flex={9}>
-          {/* <Text>Col1</Text> */}
-          <Text fontSize="sm" flexShrink={1} mb=".3em">
-            {description}
-          </Text>
-          {/* <View>
-              {isLoading && <ActivityIndicator size="small" color="red" />}
-              {!isLoading && (
-                <Text fontSize="md" style={styles.sensorValue}>
-                  {`${sensorValue}${infers.inferDataUnit(type)}`}
-                </Text>
-              )}
-          </View> */}
-          <View alignItems="flex-start" 
-          style={{
-            // backgroundColor: "green",
-            justifyContent: "center",
-            height: 20,
-          }}
-          >
-              {isLoading && <ActivityIndicator size="small" color="red" />}
-              {!isLoading && (
-                <Switch
-                  onToggle={onToggle}
-                  isChecked={isOn}
-                  onTrackColor="#2e9790"
-                  flex={1}
-                  size="sm"
-                />
-              )}
-            </View>
-        </View>
-
-        <View flex={5}>
-          {/* <Text>Col2</Text> */}
-          <Center>
-            <Image
-              style={styles.image}
-              source={infers.inferDeviceImage(type)}
-              alt="device-image"
-            />
-          </Center>
-        </View>
-      </View>
-    </VStack>
-    </TouchableOpacity>
+    <UtilCard
+      name={name}
+      type={type}
+      description={description}
+      onPress={onPress}
+    >
+      {isLoading && (
+        <ActivityIndicator size="small" color="red" style={{ height: 25 }} />
+      )}
+      {!isLoading && (
+        <Switch
+          style={{ height: 25 }}
+          onToggle={handleToggle}
+          isChecked={isOn}
+          onTrackColor="#2e9790"
+          flex={1}
+          alignSelf="center"
+          size="sm"
+        />
+      )}
+    </UtilCard>
   );
 }
 
@@ -221,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EngineCard;
+export { SensorCard, ActuatorCard };
