@@ -61,7 +61,7 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
       hardwareId: hardwareId,
       gardenId: gardenId,
     }))
-    navigation.navigate(isSensor ? 'Root/MainApp/Chart' : 'Root/MainApp/DeviceInfo', item)
+    navigation.navigate(isSensor ? 'Root/MainApp/Chart' : 'Root/MainApp/DeviceInfo', {raw: item})
   }
 
   const renderFlatListItem = ({ item, index }) => {
@@ -84,14 +84,14 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
           name={name}
           type={type}
           description={status}
-          onPress={() => onPress(id, true)}
+          onPress={() => onPress(id, true, item)}
         /> :
         <ActuatorCard 
           lastData={datum[feedkey]}
           name={name}
           type={type}
           description={status}
-          onPress={() => onPress(id, false, {raw: item})}
+          onPress={() => onPress(id, false)}
           onToggle={() => onSwitchChange(id, datum[feedkey])}
         />
       }
