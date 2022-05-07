@@ -1,13 +1,19 @@
 import { LineChart } from 'react-native-line-chart'
 import {View, Text, Dimensions, SafeAreaView, TouchableOpacity, StyleSheet} from 'react-native'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useIsFocused } from '@react-navigation/native'
+import { AuthContext } from '../contexts/AuthContext'
+import CustomLoading from '../components/CustomLoading'
 
 export default function Chart({route, navigation}) {
-    //const {username, feed_key} = route.params // TODO: truyen username va feed_key
-    const username = 'cudothanhnhan'
-    const feed_key = 'tl-garden.sensor-temperature-0'
+    const {raw} = route.params
+    console.log('====================================');
+    console.log(raw);
+    console.log('====================================');
+    const {feedkey: feed_key} = raw
+    const {auth: {ada: {username}}} = useContext(AuthContext)
+    
     const limit = 10
     const isFocused = useIsFocused()
 
