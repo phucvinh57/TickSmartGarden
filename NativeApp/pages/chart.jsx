@@ -1,17 +1,23 @@
 import { LineChart } from 'react-native-line-chart'
-import {View, Text, Dimensions, SafeAreaView, TouchableOpacity, StyleSheet} from 'react-native'
+import {View, Text, Dimensions, SafeAreaView, TouchableOpacity, StyleSheet, ScrollView} from 'react-native'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useIsFocused } from '@react-navigation/native'
+import { DataTable } from 'react-native-paper'
+import moment from 'moment'
 
 export default function Chart({route, navigation}) {
-    //const {username, feed_key} = route.params // TODO: truyen username va feed_key
+    //const {username, feed_key, name} = route.params // TODO: truyen username va feed_key
+    const {raw} = route.params
+    console.log(item)
     const username = 'cudothanhnhan'
     const feed_key = 'tl-garden.sensor-temperature-0'
+    const name = 'Độ ẩm'
     const limit = 10
     const isFocused = useIsFocused()
 
     const [data, setData] = useState([])
+    const [log, setLog] = useState([])
 
     useEffect(() => {
         axios.get(`https://io.adafruit.com/api/v2/${username}/feeds/${feed_key}/data?limit=${limit}`)
@@ -19,14 +25,13 @@ export default function Chart({route, navigation}) {
             res => {
                 let temp = res.data.map(item => item.value).reverse()
                 setData(temp)
+                setLog(res.data)
             }
         )
         .catch(err => console.log(err))
     }, [isFocused])
 
-    console.log(data)
-
-    if(data.length == 0) return <Text>Loading...</Text>
+    if(data.length == 0 && log.length == 0) return <Text>Loading...</Text>
     return (
         <SafeAreaView style={{backgroundColor: "#28554e", flex: 1}}>
             <SafeAreaView style={{flex: 1}}></SafeAreaView>
@@ -58,9 +63,8 @@ export default function Chart({route, navigation}) {
                     width={0.9 * Dimensions.get('window').width} // from react-native
                     height={220}
                     chartConfig={{
-                    backgroundColor: '#de7067',
-                    backgroundGradientFrom: '#2e9790',
-                    backgroundGradientTo: '#3D7E44',
+                    backgroundGradientFrom: '#3D7E44',
+                    backgroundGradientTo: '#eaf5ef',
                     decimalPlaces: 2, // optional, defaults to 2dp
                     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                     style: {
@@ -73,6 +77,24 @@ export default function Chart({route, navigation}) {
                     borderRadius: 16,
                     }}
                 />
+                <Text style={styles.textContent}>Biểu đồ {name}</Text>
+                <Text style={{color: '#898989'}}>Lịch sử hoạt động</Text>
+                <ScrollView style={{minWidth: 350, flex: 1}}>
+                <DataTable>
+                    <DataTable.Header>
+                        <DataTable.Title>Thời gian</DataTable.Title>
+                        <DataTable.Title>Giá trị</DataTable.Title>
+                    </DataTable.Header>
+                    {log.map((item, index) => {
+                        return (
+                            <DataTable.Row key={index}>
+                                <DataTable.Cell>{moment(new Date(item.created_at)).format('DD/MM/YYYY hh:mm:ss')}</DataTable.Cell>
+                                <DataTable.Cell>{item.value}</DataTable.Cell>
+                            </DataTable.Row>
+                        )
+                    })}
+                </DataTable>
+                </ScrollView>
                 </SafeAreaView>
             </SafeAreaView>
         </SafeAreaView>
