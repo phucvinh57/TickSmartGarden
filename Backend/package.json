@@ -10,7 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "mqtt": "^4.3.7"
+    "mqtt": "^4.3.7",
+    "mysql2": "^2.3.3",
+    "node-schedule": "^2.1.0",
+    "short-unique-id": "^4.4.4"
   }
 }

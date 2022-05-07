@@ -1,23 +1,22 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const router = require('./routers')
-const gardenDal = require('./dal/garden.dal')
-const db = require('./services/db')
+var cors = require('cors')
 
-const GardenGroup = require('./repos/mqttClient')
+app.use(cors())
+app.use(express.json())
 
-// options = {
-//     clean: true,
-//     username: 'cudothanhnhan',
-//     password: 'aio_aCRK25GReOT6e519YKkjntognKix'
-// }
+const route = require('./routers')
+const gardenRepo = require('./repository/garden')
+const startPolicy = require('./crons/policy')
+const startScheduling = require('./crons/scheduler')
+const scheduleRepo = require('./repository/schedule')
 
-var client = null
+const PORT = process.env.PORT | 8080
 
-const startServer = async () => {
+const initMqttConnection = async (callback) => {
     try{
-        db.connect();
-        const gardens = await gardenDal.getAllGardens()
+        const gardens = await gardenRepo.getAllGardens()
         var count  = gardens.length
         const trackGarden = (idx) => {
             const options = {
@@ -26,15 +25,9 @@ const startServer = async () => {
             }
             
             GardenGroup.addClient(options, () => {
-                // client = GardenGroup.getAdaClient('cudothanhnhan')
-                // client.sub('tl-garden', (topic, message) => {
-                //     console.log('Yayyy')
-                // }, false)
-                // app.listen(8080, () => {console.log('Server is listening')})
                 count -= 1
-                count === 0 ? app.listen(8080, () => {console.log('Server is listening')})
-                            : trackGarden(idx + 1)
-                    
+                count !== 0 ? trackGarden(idx + 1)
+                    : callback()
             })
         }
         
@@ -45,18 +38,15 @@ const startServer = async () => {
         console.log(error)
     }
 }
-app.use('/actuator', router.actuatorRoute)
 
-app.get('/on', function (req, res) {
-    console.log('Turn on')
-    client.publishFeed('tl-garden.lamp-0', '1', function (err) {console.log(err)})
-    res.send('Turn on')
+// initMqttConnection(() => {
+//     console.log('Mqqt clients has been connected successfully')
+//     startPolicy()
+//     startScheduling()
+// })
+
+route(app)
+
+app.listen(PORT, () => {
+    console.log('Server is listening on port ' + PORT)
 })
-app.get('/off', function (req, res) {
-    console.log('Turn off')
-    client.publishFeed('tl-garden.lamp-0', '0', function (err) {console.log(err)})
-    res.send('Turn off')
-})
-
-startServer()
-
