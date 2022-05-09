@@ -1,4 +1,4 @@
-import { ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, Button } from "react-native";
+import { ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, Button, TouchableOpacity } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import {Camera} from 'expo-camera';
 import { useState, useEffect } from "react";
@@ -10,17 +10,14 @@ export default function AddGarden({navigation}) {
     // const [hasPermission, setHasPermission] = useState(null);
     // const [type, setType] = useState(Camera.Constants.Type)
     const [input, setInput] = useState({
-        name: "",
-        description: "",
-        imgurl: "",
-        groupKey: "",
-        adaUserName: "",
-        adaUserKey: "",
+        name: "Khu vườn xoài cát",
+        description: "Vụ mùa hè",
+        imgurl: "https://cdn.tgdd.vn/Products/Images/8788/222842/bhx/xoai-cat-hoa-loc-tui-1kg-202103180811516385.jpg",
     })
-    //const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
     function onPressButton() {
-        garden.create({...input, useremail: "quanganh@gmail.com"}).then(res => {
+        garden.create({...input, useremail: "nhancu@gmail.com"}).then(res => {
             console.log(res.data)
             dispatch(addGarden(input))
         })
@@ -85,28 +82,14 @@ export default function AddGarden({navigation}) {
                                 setInput({...input, imgurl: text})
                             }}></TextInput>
                         </SafeAreaView>
-                        <SafeAreaView style={{marginTop: 10}}>
-                            <Text style={styles.textContent}>GroupKey</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.key} onChangeText={text => {
-                                setInput({...input, groupKey: text})
-                            }}></TextInput>
-                        </SafeAreaView>
-                        <SafeAreaView style={{marginTop: 10}}>
-                            <Text style={styles.textContent}>Username</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.adaUserName} onChangeText={text => {
-                                setInput({...input, adaUserName: text})
-                            }}></TextInput>
-                        </SafeAreaView>
-                        <SafeAreaView style={{marginTop: 10}}>
-                            <Text style={styles.textContent}>Userkey</Text>
-                            <TextInput style={styles.textInput} defaultValue={input.adaUserKey} onChangeText={text => {
-                                setInput({...input, adaUserKey: text})
-                            }}></TextInput>
-                        </SafeAreaView>
 
 
                         <SafeAreaView style={{marginTop: 10}}>
-                            <Button onPress={onPressButton} title="Add garden"/>
+                            <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
+                                    onPress = {onPressButton}
+                                >
+                                    <Text style={{color: "#fff"}}>Thêm</Text>
+                            </TouchableOpacity>
                         </SafeAreaView>
                     </SafeAreaView>
             </SafeAreaView>

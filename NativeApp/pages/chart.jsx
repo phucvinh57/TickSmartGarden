@@ -15,6 +15,7 @@ export default function Chart({route, navigation}) {
     console.log(raw);
     console.log('====================================');
     const {feedkey: feed_key} = raw
+    const {name: name} = raw
     const {auth: {ada: {username}}} = useContext(AuthContext)
     
     const limit = 10

@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { initGardenList } from "../redux/slices/garden";
 import { AuthContext } from "../contexts/AuthContext";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function Homepage({navigation}) {
     
@@ -15,12 +16,14 @@ export default function Homepage({navigation}) {
     const gardens = useSelector(state => state.garden);
     const dispatch = useDispatch()
 
+    const isFocused = useIsFocused()
+
     useEffect(() => {
         garden.getAll(email).then(res => {
             // console.log(res.data)
             dispatch(initGardenList(res.data))
         })
-    },[])
+    },[isFocused])
 
     const onLogoutPress = () => {
         // tryLogout().then(navigation.popToTop())

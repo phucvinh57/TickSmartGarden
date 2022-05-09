@@ -18,6 +18,12 @@ class PolicyCtrler {
         await policyRepo.addPolicy(req.body)
         res.status(200).send()
     }
+
+    async deletePolicy(req, res) {
+        const {name, hardwareID} = req.query
+        await policyRepo.deletePolicy(name, hardwareID)
+        res.status(200).send()
+    }
 }
 
 module.exports = new PolicyCtrler()

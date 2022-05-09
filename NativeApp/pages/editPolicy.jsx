@@ -76,6 +76,12 @@ export default function EditPolicy({route, navigation}) {
         }]})
     }
 
+    const handleDelete = () => {
+        policyService.delete(policy.name, hardwareId).then(() => {
+            navigation.goBack()
+        })
+    }
+
     const handleAccept = () => {
         policyService.update({...policy, actuatorID: hardwareId, oldName: oldName}).then(() => {
             navigation.goBack()
@@ -125,7 +131,7 @@ export default function EditPolicy({route, navigation}) {
                         {/* body */}
                         
                         <SafeAreaView style={{marginTop: 10, flexDirection: "row"}}>
-                            <Text style={styles.textContent}>Máy bơm</Text>
+                            <Text style={styles.textContent}>Thiết bị</Text>
                             <View style = {[{
                                 width: 100,
                                 marginLeft: 10,
@@ -162,7 +168,7 @@ export default function EditPolicy({route, navigation}) {
                                 type = "up-down"
                             />
 
-                            <Text style={styles.textContent}>khi</Text>
+                            <Text style={styles.textContent}>phút</Text>
                         </SafeAreaView>
                         
 
@@ -171,9 +177,9 @@ export default function EditPolicy({route, navigation}) {
                                 return (
                             <SafeAreaView key = {expressionIndex}>
                                 {expressionIndex > 0 && 
-                                <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5}}>
+                                <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5, marginRight: 20}}>
                                     <View style = {[{
-                                    width: 100,
+                                    width: 110,
                                     marginLeft: 10,
                                     marginRight: 10
                                     }, styles.dropdown]}>
@@ -271,6 +277,11 @@ export default function EditPolicy({route, navigation}) {
                             })}
                             
                             <SafeAreaView style={{marginTop: 10, marginRight: 10, flexDirection: "row", justifyContent: "flex-end"}}>
+                                <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#de7067", alignItems:"center", justifyContent: "center", borderRadius: 5, marginRight: 10}} 
+                                    onPress={handleDelete}
+                                >
+                                    <Text style={{color: "#fff"}}>Xoá</Text>
+                                </TouchableOpacity>
                                 <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#e3dede", alignItems:"center", justifyContent: "center", borderRadius: 5, marginRight: 10}} 
                                     onPress = {handleCancel}
                                 >
@@ -279,7 +290,7 @@ export default function EditPolicy({route, navigation}) {
                                 <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
                                     onPress = {handleAccept}
                                 >
-                                    <Text style={{color: "#fff"}}>Thêm/Lưu</Text>
+                                    <Text style={{color: "#fff"}}>Lưu</Text>
                                 </TouchableOpacity>
                             </SafeAreaView>
                         </ScrollView>

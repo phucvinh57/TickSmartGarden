@@ -154,6 +154,12 @@ class PolicyModel{
         await dbQuery(TRANSACTION);
 
     }
+
+    async deletePolicy(name, hardwareID) {
+        const DELETE_POLICY_QUERY =
+        `DELETE FROM policy WHERE name = '${name}' and actuatorID = '${hardwareID}'`
+        await dbQuery(DELETE_POLICY_QUERY);
+    }
 }
 
 module.exports = new PolicyModel()

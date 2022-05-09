@@ -45,15 +45,16 @@ const updateSched = (req, res) => {
 }
 
 const deleteSched = (req, res) => {
-    const { schedName, hardwareID } = req.body
+    const { name, hardwareID } = req.query
     handler(res, async () => {
         const QUERY_STR =
         `DELETE FROM schedule
-        WHERE name = '${schedName}' and actuator_ID = '${hardwareID}'`
+        WHERE name = '${name}' and actuator_ID = '${hardwareID}'`
         await dbQuery(QUERY_STR)
+        console.log(QUERY_STR)
         res.json({ msg: 'OKE' })
     })
-    deleteScheduler(schedName, hardwareID)
+    deleteScheduler(name, hardwareID)
 }
 
 const getSched = async (req, res) => {

@@ -13,6 +13,9 @@ class Policy {
     update(data) {
         return http.post('policys/update', data)
     }
+    delete(name, hardwareID) {
+        return http.delete(`policys/delete?name=${name}&hardwareID=${hardwareID}`)
+    }
 }
 
 export default new Policy();

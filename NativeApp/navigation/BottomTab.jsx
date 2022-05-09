@@ -10,7 +10,7 @@ import { HomepageScreenNavigator,
 
 import { AuthContext } from '../contexts/AuthContext';
 import { useContext } from "react";
-import {Login, SignUp} from '../components/Auth'
+import {Login, Signup, SignUp} from '../components/Auth'
 
 const Tab = createBottomTabNavigator()
 
@@ -37,7 +37,7 @@ const CustomTabBarButton = ({children, onPress}) => (
 const Tabs = () => {
     const { auth } = useContext(AuthContext)
     const isSignedIn = auth ? true : false
-    //if (!isSignedIn) return (<Login />)
+    if (!isSignedIn) return (<Login />)
     return (    
         <Tab.Navigator screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {
             position: 'absolute',

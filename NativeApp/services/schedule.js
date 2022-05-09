@@ -10,6 +10,9 @@ class Schedule {
     update(data) {
         return http.put('schedule/update', data)
     }
+    delete(name, hardwareID) {
+        return http.delete(`schedule/delete?name=${name}&hardwareID=${hardwareID}`)
+    }
 }
 
 export default new Schedule();
