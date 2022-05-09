@@ -56,7 +56,7 @@ const LogTable = ({ itemsPerPage, data, onPageChange }) => {
         <DataTable.Row key={`Row_${index}`}>
           <DataTable.Cell>{time}</DataTable.Cell>
           <View style={{
-            maxWidth: "75%",
+            maxWidth: "50%",
             justifyContent: "center",
           }} >
             <Text numberOfLines={3}>{activity}</Text>

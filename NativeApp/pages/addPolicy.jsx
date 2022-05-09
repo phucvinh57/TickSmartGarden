@@ -113,7 +113,7 @@ export default function AddPolicy({navigation}) {
                         {/* body */}
                         
                         <SafeAreaView style={{marginTop: 10, flexDirection: "row"}}>
-                            <Text style={styles.textContent}>Máy bơm</Text>
+                            <Text style={styles.textContent}>Thiết bị</Text>
                             <View style = {[{
                                 width: 100,
                                 marginLeft: 10,
@@ -150,7 +150,7 @@ export default function AddPolicy({navigation}) {
                                 type = "up-down"
                             />
 
-                            <Text style={styles.textContent}>khi</Text>
+                            <Text style={styles.textContent}>phút</Text>
                         </SafeAreaView>
                         
 
@@ -159,9 +159,9 @@ export default function AddPolicy({navigation}) {
                                 return (
                             <SafeAreaView key = {expressionIndex}>
                                 {expressionIndex > 0 && 
-                                <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5}}>
+                                <SafeAreaView style={{flex: 1, flexDirection: "row", justifyContent: "flex-end", marginTop: 5,marginRight: 20}}>
                                     <View style = {[{
-                                    width: 100,
+                                    width: 110,
                                     marginLeft: 10,
                                     marginRight: 10
                                     }, styles.dropdown]}>
@@ -267,7 +267,7 @@ export default function AddPolicy({navigation}) {
                                 <TouchableOpacity style={{width: 100, height: 25, backgroundColor: "#28554e", alignItems:"center", justifyContent: "center", borderRadius: 5}} 
                                     onPress = {handleAccept}
                                 >
-                                    <Text style={{color: "#fff"}}>Thêm/Lưu</Text>
+                                    <Text style={{color: "#fff"}}>Thêm</Text>
                                 </TouchableOpacity>
                             </SafeAreaView>
                         </ScrollView>

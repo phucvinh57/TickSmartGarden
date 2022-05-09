@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 
 
 export default function App() {
+  console.disableYellowBox = true;
   return (
     <Provider store={store}>
       <AuthContextProvider>

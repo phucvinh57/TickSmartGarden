@@ -21,7 +21,7 @@ export default function AddSchedule({route, navigation}) {
         cycle: 0,
         unit: cycleUnit[0],
         count: 0,
-        operatingTime: 5,
+        operatingTime: 0,
     })
 
     const [oldSchedule, setOldSchedule] = useState({
@@ -29,7 +29,8 @@ export default function AddSchedule({route, navigation}) {
         startTime: datetime,
         cycle: 0,
         unit: cycleUnit[0],
-        count: 0
+        count: 0,
+        operatingTime: 0,
     })
 
     const [dateString, setDateString] = useState(moment(datetime).format("DD/MM/YYYY"))
@@ -75,12 +76,12 @@ export default function AddSchedule({route, navigation}) {
                         style={{ width: "100%" }}
                         onPress={() => navigation.goBack()}
                     >
-                        <Text style={styles.textHeader}>{`< Thêm lịch bơm`}</Text>
+                        <Text style={styles.textHeader}>{`< Thêm lịch hoạt động`}</Text>
                     </TouchableOpacity>
                     </SafeAreaView>
                     <SafeAreaView style={{flex: 14, marginLeft: 20}}>
                         <SafeAreaView style={{marginTop: 10}}>
-                            <Text style={styles.textContent}>Tên lịch bơm</Text>
+                            <Text style={styles.textContent}>Tên lịch hoạt động</Text>
                             <TextInput style={styles.textInput} value={schedule.name}
                                 onChangeText={value => setSchedule({...schedule, name: value})}></TextInput>
                         </SafeAreaView>
@@ -173,6 +174,28 @@ export default function AddSchedule({route, navigation}) {
 
                             </SafeAreaView>
                             
+                            
+                        </SafeAreaView>
+
+                        <SafeAreaView style={{marginTop: 10}}>
+                            <Text style={[styles.textContent, {marginBottom: 10}]}>Thời gian hoạt động</Text>
+                            <SafeAreaView style={{flexDirection: 'row', justifyContent: "flex-start", alignItems: "center"}}>
+                            <NumericInput
+                                initValue={schedule.operatingTime}
+                                totalWidth = {50}
+                                totalHeight = {25}
+                                minValue = {0}
+                                borderColor = "#28554e"
+                                rounded
+                                inputStyle={{color: "#28554e", fontSize: 16, fontWeight: "bold"}}
+                                containerStyle = {{borderWidth: 2, borderColor: "#28554e", marginRight: 5}}
+                                type = "up-down"
+                                onChange={itemValue => {
+                                    setSchedule({...schedule, operatingTime: itemValue})
+                                }}
+                            />
+                            <Text style={styles.textContent}>phút</Text>
+                            </SafeAreaView>
                         </SafeAreaView>
 
                         <SafeAreaView style={{marginTop: 10, marginRight: 10, flexDirection: "row", justifyContent: "flex-end"}}>

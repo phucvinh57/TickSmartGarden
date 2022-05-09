@@ -271,7 +271,7 @@ export default function DeviceInfo({ route, navigation }) {
             <Box>
               <HStack space={2}>
                 <Heading style={styles.textHeading} size="md">
-                  Lịch bơm
+                  Lịch hoạt động
                 </Heading>
                 <Button
                   size="xs"
