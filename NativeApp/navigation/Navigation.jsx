@@ -13,19 +13,26 @@ import { AuthContext } from '../contexts/AuthContext';
 import AddPolicy from '../pages/addPolicy';
 import AddSchedule from '../pages/addSchedule';
 import Chart from '../pages/chart';
+import Profile from '../pages/profile'
 
 const Stack = createNativeStackNavigator()
 
+const AuthScreenNavigator = () => {
+    return (
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Root/Auth/Login" component={Login} />
+            <Stack.Screen name="Root/Auth/Signup" component={Signup} />
+        </Stack.Navigator>
+    )
+}
+
+export {AuthScreenNavigator}
+
 const HomepageScreenNavigator = () => {
-    const { auth } = useContext(AuthContext)
-    const isSignedIn = auth ? true : false
-    
     return(
         <Stack.Navigator 
             screenOptions={{headerShown: false}}
         >
-        { isSignedIn ? (
-            <>
             <Stack.Screen 
                 name="Root/MainApp/Homepage"
                 component={Homepage}
@@ -58,37 +65,24 @@ const HomepageScreenNavigator = () => {
                 name = "Root/MainApp/Chart"
                 component={Chart}
             />
-            </>
-        ) : (
-            <>
-            <Stack.Screen 
-                name="Root/Auth/Login" 
-                component={Login} 
-            />
-            <Stack.Screen 
-                name="Root/Auth/Signup" 
-                component={Signup} 
-            />
-            </>
-        ) }
         </Stack.Navigator>
     )
 }
 export {HomepageScreenNavigator}
 
-const ViewEngineScreenNavigator = () => {
-    return(
-        <Stack.Navigator initialRouteName='Root/MainApp/ViewEngine'>
-            <Stack.Screen 
-                name = "Root/MainApp/ViewEngine"
-                component={ViewActuator}
-                options = {{headerShown: false}}
-            />
+// const ViewEngineScreenNavigator = () => {
+//     return(
+//         <Stack.Navigator initialRouteName='Root/MainApp/ViewEngine'>
+//             <Stack.Screen 
+//                 name = "Root/MainApp/ViewEngine"
+//                 component={ViewActuator}
+//                 options = {{headerShown: false}}
+//             />
             
-        </Stack.Navigator>
-    )
-}
-export {ViewEngineScreenNavigator}
+//         </Stack.Navigator>
+//     )
+// }
+// export {ViewEngineScreenNavigator}
 
 const AddGardenScreenNavigator = () => {
     return(
@@ -103,28 +97,28 @@ const AddGardenScreenNavigator = () => {
 }
 export {AddGardenScreenNavigator}
 
-const EditPolicyScreenNavigator = () => {
-    return(
-        <Stack.Navigator initialRouteName='Root/MainApp/AddPolicy'>
-            <Stack.Screen 
-                name = "Root/MainApp/AddPolicy"
-                component={AddPolicy}
-                options = {{headerShown: false}}
-            />
-        </Stack.Navigator>
-    )
-}
-export {EditPolicyScreenNavigator}
+// const EditPolicyScreenNavigator = () => {
+//     return(
+//         <Stack.Navigator initialRouteName='Root/MainApp/AddPolicy'>
+//             <Stack.Screen 
+//                 name = "Root/MainApp/AddPolicy"
+//                 component={AddPolicy}
+//                 options = {{headerShown: false}}
+//             />
+//         </Stack.Navigator>
+//     )
+// }
+// export {EditPolicyScreenNavigator}
 
-const EditScheduleScreenNavigator = () => {
+const ProfileScreenNavigator = () => {
     return(
-        <Stack.Navigator initialRouteName='Root/MainApp/Chart'>
+        <Stack.Navigator initialRouteName='Root/MainApp/Profile'>
             <Stack.Screen 
-                name = "Root/MainApp/Chart"
-                component={Chart}
+                name = "Root/MainApp/Profile"
+                component={Profile}
                 options = {{headerShown: false}}
             />
         </Stack.Navigator>
     )
 }
-export {EditScheduleScreenNavigator}
+export {ProfileScreenNavigator}

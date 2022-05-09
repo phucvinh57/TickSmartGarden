@@ -6,6 +6,7 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import BottomTab from './navigation/BottomTab'
 import store from "./redux/store"
 import { Provider } from "react-redux";
+import AuthTest from "./navigation/Auth";
 
 
 export default function App() {
@@ -15,7 +16,7 @@ export default function App() {
       <AuthContextProvider>
     <NativeBaseProvider>
       <NavigationContainer>
-        <BottomTab />
+        <AuthTest />
       </NavigationContainer>
     </NativeBaseProvider>
     </AuthContextProvider>

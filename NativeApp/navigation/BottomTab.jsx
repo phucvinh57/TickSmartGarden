@@ -4,7 +4,8 @@ import { HomepageScreenNavigator,
         AddGardenScreenNavigator, 
         ViewEngineScreenNavigator,
         EditPolicyScreenNavigator,
-        EditScheduleScreenNavigator } 
+        EditScheduleScreenNavigator, 
+        ProfileScreenNavigator} 
 
         from "./Navigation";
 
@@ -35,9 +36,9 @@ const CustomTabBarButton = ({children, onPress}) => (
 )
 
 const Tabs = () => {
-    const { auth } = useContext(AuthContext)
-    const isSignedIn = auth ? true : false
-    if (!isSignedIn) return (<Login />)
+    // const { auth } = useContext(AuthContext)
+    // const isSignedIn = auth ? true : false
+    // if (!isSignedIn) return (<Login />)
     return (    
         <Tab.Navigator screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {
             position: 'absolute',
@@ -62,7 +63,7 @@ const Tabs = () => {
                 ),
             }} />
 
-            <Tab.Screen name="EngineScreen" component={ViewEngineScreenNavigator} options = {{
+            {/* <Tab.Screen name="EngineScreen" component={ViewEngineScreenNavigator} options = {{
                 tabBarIcon: ({focused}) => (
                     <View style={{alignItems: 'center',  justifyContent: 'center'}}>
                         <Image 
@@ -77,7 +78,7 @@ const Tabs = () => {
                         <Text style={{color: focused ? '#28554e' : '#CAF1D9', fontSize: 14}}>Engine</Text>
                     </View>
                 ),
-            }} />
+            }} /> */}
 
             <Tab.Screen name="AddGardenScreen" component={AddGardenScreenNavigator} options = {{
                 tabBarIcon: ({focused}) => (
@@ -99,7 +100,7 @@ const Tabs = () => {
             }} />
 
 
-            <Tab.Screen name="Sensor" component={EditPolicyScreenNavigator} options = {{
+            {/* <Tab.Screen name="Sensor" component={EditPolicyScreenNavigator} options = {{
                 tabBarIcon: ({focused}) => (
                     <View style={{alignItems: 'center',  justifyContent: 'center'}}>
                         <Image 
@@ -114,9 +115,9 @@ const Tabs = () => {
                         <Text style={{color: focused ? '#28554e' : '#CAF1D9', fontSize: 14}}>Sensor</Text>
                     </View>
                 ),
-            }} />
+            }} /> */}
 
-            <Tab.Screen name="Profile" component={EditScheduleScreenNavigator} options = {{
+            <Tab.Screen name="Profile" component={ProfileScreenNavigator} options = {{
                 tabBarIcon: ({focused}) => (
                     <View style={{alignItems: 'center',  justifyContent: 'center'}}>
                         <Image 

@@ -30,7 +30,7 @@ function Login({ navigation }) {
     setLoginFail(false)
     tryLogin(email).then(ok => {
       if (ok) {
-        navigation.navigate("Root/MainApp/Homepage")
+        //navigation.navigate("Root/MainApp/Homepage")
       } else {
         Toast.show('Invalid login!', Toast.SHORT, Toast.CENTER);
         setLoginFail(true)
