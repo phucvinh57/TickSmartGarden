@@ -70,11 +70,24 @@ export default function DeviceInfo({ route, navigation }) {
     policies: [],
   });
 
+  const [inputName, setInputName] = useState();
+  const [inputTime, setInputTime] = useState();
+  
+  useEffect(() => {
+    setInputName(datum.name)
+    setInputTime(datum.operatingTime)
+  }, [datum])
+
   const handleUpdateInfo = () => {
     console.log('====================================');
-    console.log(hardwareId, datum.name, datum.operatingTime);
+    console.log(hardwareId, inputName, inputTime);
     console.log('====================================');
-    hardware.update(hardwareId, datum.name, datum.operatingTime).catch(console.error)
+    hardware.update(hardwareId, inputName, inputTime).catch(console.error)
+    setDatum(lastdatum => ({
+      ...lastdatum,
+      name: inputName,
+      operatingTime: inputTime,
+    }))
   }
 
   const isFocused = useIsFocused()
@@ -219,12 +232,9 @@ export default function DeviceInfo({ route, navigation }) {
                   // type="text"
                   keyboardType="text"
                   placeholder="Máy bơm, Đèn ..."
-                  defaultValue={datum.name}
+                  defaultValue={inputName}
                   size="lg"
-                  onChangeText={(text) => setDatum({
-                    ...datum,
-                    name: text,
-                  })}
+                  onChangeText={(text) => setInputName(text)}
                 />
               </FormControl>
 
@@ -237,14 +247,9 @@ export default function DeviceInfo({ route, navigation }) {
                   <View style={{ width: "50%", alignItems: "center" }}>
                     <Input
                       keyboardType="numeric"
-                      defaultValue={String(datum.operatingTime)}
+                      defaultValue={String(inputTime)}
                       size="lg"
-                      onChangeText={(text) => {
-                        setDatum({
-                          ...datum,
-                          text
-                        })
-                      }}
+                      onChangeText={(text) => setInputTime(text)}
                     />
                   </View>
                   <Heading style={styles.textHeading} size="xs">

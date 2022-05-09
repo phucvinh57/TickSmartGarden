@@ -1,8 +1,7 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   View,
-  ActivityIndicator,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
@@ -18,18 +17,21 @@ import { ActuatorCard, SensorCard } from "./EngineCard";
 import SliderList from "../../components/SliderList";
 import AppContainer from "../../components/AppContainer";
 
-import useLastData from '../../contexts/useLastData'
 import hardware from "../../services/hardware";
 import { infers, makeChunks } from "./utils";
-import { AuthContext } from "../../contexts/AuthContext";
 
 
-export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, adaClient, gardenId }) {  
+const deviceTypeOptions = [
+  { id: "All", name: "Tất cả" },
+  { id: "ActuatorLight", name: "Đèn" },
+  { id: "ActuatorPump", name: "Máy bơm" },
+  { id: "SensorLight", name: "Ánh sáng" },
+  { id: "SensorHumid", name: "Độ ẩm" },
+  { id: "SensorTemperature", name: "Nhiệt độ" },
+];
+
+export default function ViewDevice({ hardwares, datum, handlePress }) {  
   
-  const feeds = hardwares.map(hw => hw.feedkey)
-  
-  const [datum] = useLastData(adaClient, feeds)
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState(deviceTypeOptions[0].id);
 
   // for display only
@@ -45,7 +47,6 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
       return hw.type == selectedType;
     });
     setChunks(makeChunks(arr, itemPerPage));
-    setIsLoading(false);
   }, [selectedType]);
 
   
@@ -54,15 +55,6 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
     hardware.toggle(turnOnNotOff, _hardwareId).catch(console.error)
   }
 
-  const { setAuth } = useContext(AuthContext)
-  const onPress = (hardwareId, isSensor, item) => { 
-    setAuth(lastAuth => ({
-      ...lastAuth,
-      hardwareId: hardwareId,
-      gardenId: gardenId,
-    }))
-    navigation.navigate(isSensor ? 'Root/MainApp/Chart' : 'Root/MainApp/DeviceInfo', {raw: item})
-  }
 
   const renderFlatListItem = ({ item, index }) => {
     const {id, name, type, status, feedkey} = item;
@@ -84,14 +76,14 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
           name={name}
           type={type}
           description={status}
-          onPress={() => onPress(id, true, item)}
+          onPress={() => handlePress(id, true, item)}
         /> :
         <ActuatorCard 
           lastData={datum[feedkey]}
           name={name}
           type={type}
           description={status}
-          onPress={() => onPress(id, false)}
+          onPress={() => handlePress(id, false)}
           onToggle={() => onSwitchChange(id, datum[feedkey])}
         />
       }
@@ -116,12 +108,6 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
     >
       <View>
         <View style={styles.flatListWrapper}>
-          {isLoading ?
-            <ActivityIndicator
-              size="large"
-              color="red"
-              style={styles.loadingIcon}
-            /> :
             <SliderList
               data={chunks}
               windowWidth={windowWidth}
@@ -135,7 +121,6 @@ export default function ViewDevice({ navigation, hardwares, deviceTypeOptions, a
                 />
               )}
             />
-          }
         </View>
       </View>
     </AppContainer>
